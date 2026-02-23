@@ -1,0 +1,43 @@
+index.html
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hair Buzl - 予約システム</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Hair Buzl</h1>
+        <p>あなたに最高のスタイルを。</p>
+    </header>
+
+    <main>
+        <section class="reservation-form">
+            <h2>オンライン予約</h2>
+            <form>
+                <label for="name">お名前</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="date">ご希望日</label>
+                <input type="date" id="date" name="date" required>
+
+                <label for="menu">メニュー</label>
+                <select id="menu" name="menu">
+                    <option value="cut">カット</option>
+                    <option value="color">カラー</option>
+                    <option value="perm">パーマ</option>
+                </select>
+
+                <button type="submit">予約する</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Hair Buzl</p>
+    </footer>
+</body>
+</html>
