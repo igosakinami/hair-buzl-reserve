@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>hair Buzl 【ヘアーバズール】 | 予約・管理システム</title>
+    <title>hair Buzl 【ヘアーバズール】 | 24時間予約受付</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
@@ -19,15 +19,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        .smart-pay-badge {
-            border: 1px solid #ccc;
-            border-radius: 15px;
-            padding: 2px 10px;
-            font-size: 10px;
-            color: #666;
-            white-space: nowrap;
-        }
-
         .reserve-cta-btn {
             background: linear-gradient(to bottom, #ff8c99, #ff7283);
             color: white;
@@ -36,6 +27,7 @@
             box-shadow: 0 2px 0 #d04b5a;
         }
 
+        /* カレンダーのスマホ最適化 */
         .calendar-outer-wrapper {
             position: relative;
             background: white;
@@ -93,7 +85,6 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         #confirmModal, #adminAuthModal {
@@ -107,92 +98,91 @@
             padding: 20px;
         }
 
-        /* フォーム入力のアニメーション */
         .step-content { display: none; }
         .step-content.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .salon-footer {
+            background: white;
+            border-top: 1px solid #eee;
+            margin-top: 50px;
+            padding: 40px 20px;
+            font-size: 13px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
 
-    <!-- 管理用切り替えスイッチ -->
+    <!-- 管理用パネル -->
     <div class="admin-panel p-3 flex justify-between items-center">
-        <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-            <span class="text-xs font-bold tracking-tight">OWNER ADMIN</span>
+        <div class="flex items-center gap-2 text-xs font-bold">
+            <span class="w-2 h-2 rounded-full bg-red-500"></span>
+            OWNER ADMIN
         </div>
         <label class="relative inline-flex items-center cursor-pointer">
             <input type="checkbox" id="adminToggle" class="sr-only peer">
-            <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+            <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
             <span class="ml-2 text-[10px] font-bold">MODE: <span id="modeLabel">OFF</span></span>
         </label>
     </div>
 
     <header class="max-w-4xl mx-auto p-4 flex justify-between items-center bg-white border-b border-gray-100">
         <div class="salon-info">
-            <p class="text-[9px] text-gray-400 m-0 leading-none">hair Buzl</p>
+            <p class="text-[9px] text-gray-400 m-0">hair Buzl</p>
             <h1 class="text-lg font-bold m-0 text-gray-800">ヘアーバズール</h1>
-            <div class="flex gap-1 mt-1">
-                <div class="smart-pay-badge">✓ スマート支払いOK</div>
+            <div class="flex gap-1 mt-1 text-[10px] text-gray-500">
+                <span class="border rounded-full px-2">スマート支払いOK</span>
             </div>
         </div>
-        <button class="reserve-cta-btn px-4 py-2 text-sm font-bold" onclick="location.reload()">予約トップ</button>
+        <button class="reserve-cta-btn px-4 py-2 text-sm font-bold" onclick="location.reload()">予約TOP</button>
     </header>
 
-    <!-- Progress Steps -->
-    <div class="flex border-b border-gray-200 bg-white max-w-4xl mx-auto overflow-hidden">
-        <div id="stepHeader1" class="flex-1 py-3 text-center border-r border-gray-100 bg-red-50"><span class="block text-[8px] text-[#ff7283]">STEP1</span><p class="text-[9px] font-bold text-[#ff7283]">メニュー</p></div>
-        <div id="stepHeader2" class="flex-1 py-3 text-center border-r border-gray-100"><span class="block text-[8px] text-gray-400">STEP2</span><p class="text-[9px] font-bold text-gray-400">日時指定</p></div>
-        <div id="stepHeader3" class="flex-1 py-3 text-center border-r border-gray-100"><span class="block text-[8px] text-gray-400">STEP3</span><p class="text-[9px] font-bold text-gray-400">情報入力</p></div>
-        <div id="stepHeader4" class="flex-1 py-3 text-center"><span class="block text-[8px] text-gray-400">STEP4</span><p class="text-[9px] font-bold text-gray-400">完了</p></div>
+    <!-- ステップナビ -->
+    <div class="flex border-b border-gray-200 bg-white max-w-4xl mx-auto">
+        <div id="stepHeader1" class="flex-1 py-3 text-center bg-red-50"><p class="text-[10px] font-bold text-[#ff7283]">STEP1 選択</p></div>
+        <div id="stepHeader2" class="flex-1 py-3 text-center border-l"><p class="text-[10px] font-bold text-gray-400">STEP2 日時</p></div>
+        <div id="stepHeader3" class="flex-1 py-3 text-center border-l"><p class="text-[10px] font-bold text-gray-400">STEP3 入力</p></div>
+        <div id="stepHeader4" class="flex-1 py-3 text-center border-l"><p class="text-[10px] font-bold text-gray-400">完了</p></div>
     </div>
 
-    <main class="max-w-4xl mx-auto p-3 pb-24">
+    <main class="max-w-4xl mx-auto p-4 pb-12">
         
-        <!-- STEP 1: メニュー選択 -->
+        <!-- STEP 1: メニュー -->
         <div id="step1" class="step-content active">
-            <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 text-gray-700 mb-4">メニューを選択してください</h2>
+            <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4">メニューを選択してください</h2>
             <div class="space-y-3">
-                <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex justify-between items-center" onclick="selectMenu('カット', 60, 5500)">
+                <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex justify-between items-center cursor-pointer" onclick="selectMenu('デザインカット', 60, 5500)">
                     <div>
                         <h3 class="font-bold text-gray-800">デザインカット</h3>
-                        <p class="text-xs text-gray-400">目安: 60分</p>
+                        <p class="text-[10px] text-gray-400">目安: 60分 / 炭酸スパ付</p>
                         <p class="text-sm font-bold text-[#ff7283] mt-1">¥5,500</p>
                     </div>
-                    <div class="w-6 h-6 rounded-full border-2 border-gray-200 flex items-center justify-center">
-                        <div class="w-3 h-3 rounded-full bg-transparent"></div>
-                    </div>
+                    <div class="text-xs text-gray-300 font-bold">選択 ></div>
                 </div>
-                <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex justify-between items-center" onclick="selectMenu('カット＋カラー', 120, 12800)">
+                <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex justify-between items-center cursor-pointer" onclick="selectMenu('カット＋フルカラー', 120, 12800)">
                     <div>
                         <h3 class="font-bold text-gray-800">カット＋フルカラー</h3>
-                        <p class="text-xs text-gray-400">目安: 120分</p>
+                        <p class="text-[10px] text-gray-400">目安: 120分 / ロング料金なし</p>
                         <p class="text-sm font-bold text-[#ff7283] mt-1">¥12,800</p>
                     </div>
-                    <div class="w-6 h-6 rounded-full border-2 border-gray-200 flex items-center justify-center">
-                        <div class="w-3 h-3 rounded-full bg-transparent"></div>
-                    </div>
+                    <div class="text-xs text-gray-300 font-bold">選択 ></div>
                 </div>
             </div>
         </div>
 
-        <!-- STEP 2: 日時指定 -->
+        <!-- STEP 2: カレンダー -->
         <div id="step2" class="step-content">
-            <div id="loading" class="text-center py-20">
-                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#ff7283] border-t-transparent"></div>
-            </div>
-
-            <div id="calendar-view" class="hidden animate-fade-in">
+            <div id="loading" class="text-center py-10"><div class="animate-spin inline-block w-6 h-6 border-2 border-[#ff7283] border-t-transparent rounded-full"></div></div>
+            <div id="calendar-view" class="hidden">
                 <div class="flex justify-between items-end mb-3">
-                    <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 text-gray-700">空き状況を選択</h2>
-                    <p class="text-[10px] text-gray-400" id="selectedMenuDisplay">メニュー: 未選択</p>
+                    <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 text-gray-700">日時を選択</h2>
+                    <p class="text-[10px] text-gray-400" id="selectedMenuDisplay"></p>
                 </div>
                 <div class="calendar-outer-wrapper shadow-sm">
                     <div class="overflow-x-auto">
                         <table class="hpb-table" id="calendarTable">
-                            <thead>
-                                <tr id="dateHeader" class="bg-gray-50"><th class="time-col">時間</th></tr>
-                            </thead>
+                            <thead><tr id="dateHeader" class="bg-gray-50"><th class="time-col">時間</th></tr></thead>
                             <tbody id="calendarBody"></tbody>
                         </table>
                     </div>
@@ -200,20 +190,26 @@
             </div>
         </div>
 
-        <!-- STEP 3: 情報入力 -->
+        <!-- STEP 3: お客様情報 -->
         <div id="step3" class="step-content">
-            <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 text-gray-700 mb-4">お客様情報の入力</h2>
-            <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+            <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4">お客様情報の入力</h2>
+            <div class="bg-white p-5 rounded-lg border border-gray-200">
                 <div class="mb-4">
                     <label class="block text-xs font-bold text-gray-500 mb-1">お名前（必須）</label>
-                    <input type="text" id="custName" class="w-full p-3 border border-gray-200 rounded text-sm" placeholder="山田 太郎">
+                    <input type="text" id="custName" class="w-full p-3 border border-gray-200 rounded text-sm" placeholder="例：山田 太郎">
                 </div>
                 <div class="mb-4">
                     <label class="block text-xs font-bold text-gray-500 mb-1">電話番号（必須）</label>
                     <input type="tel" id="custTel" class="w-full p-3 border border-gray-200 rounded text-sm" placeholder="09012345678">
                 </div>
-                <div class="text-[10px] text-gray-400 bg-gray-50 p-3 rounded leading-relaxed">
-                    ※ 予約確定後、サロンより確認のお電話を差し上げることがあります。
+                <div class="mt-6 border-t pt-4">
+                    <label class="flex items-start gap-2 cursor-pointer">
+                        <input type="checkbox" id="policyAgree" class="mt-1">
+                        <span class="text-[11px] text-gray-500">
+                            キャンセルポリシーに同意します。<br>
+                            <span class="text-[9px]">（当日キャンセルは施術料の50%を頂戴する場合がございます）</span>
+                        </span>
+                    </label>
                 </div>
                 <button onclick="submitBooking()" class="w-full mt-6 py-4 bg-[#1a252f] text-white font-bold rounded shadow-lg">予約を確定する</button>
             </div>
@@ -223,37 +219,59 @@
         <div id="step4" class="step-content text-center py-20">
             <div class="text-5xl mb-4">🎉</div>
             <h2 class="text-xl font-bold text-gray-800">予約が完了しました</h2>
-            <p class="text-sm text-gray-500 mt-2">ご来店をお待ちしております。</p>
-            <button onclick="location.reload()" class="mt-8 text-[#ff7283] font-bold border-b border-[#ff7283]">トップへ戻る</button>
+            <p class="text-sm text-gray-500 mt-2">ご来店を心よりお待ちしております。</p>
+            <button onclick="location.reload()" class="mt-8 text-[#ff7283] font-bold border-b border-[#ff7283]">予約トップへ戻る</button>
+        </div>
+
+        <!-- OWNER ONLY: 予約一覧 -->
+        <div id="adminBookingSection" class="mt-12 hidden">
+            <h2 class="text-sm font-bold border-l-4 border-blue-500 pl-2 text-gray-700 mb-4">【管理者】予約一覧</h2>
+            <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+                <table class="w-full text-[11px] text-left border-collapse">
+                    <thead class="bg-gray-50">
+                        <tr><th class="p-3">日時</th><th class="p-3">名前 / 電話</th><th class="p-3">メニュー</th><th class="p-3">操作</th></tr>
+                    </thead>
+                    <tbody id="adminBookingBody"></tbody>
+                </table>
+            </div>
         </div>
     </main>
+
+    <footer class="salon-footer">
+        <div class="max-w-4xl mx-auto">
+            <h3 class="font-bold text-gray-800 mb-2">hair Buzl 【ヘアーバズール】</h3>
+            <p>〒000-0000 〇〇県〇〇市〇〇町1-2-3</p>
+            <p>電話番号：012-345-6789</p>
+            <p class="mt-2">営業時間：10:00 〜 19:00</p>
+            <p>定休日：毎週月曜日 / 第1・第3火曜日</p>
+            <div class="mt-6 pt-6 border-t text-[10px] text-center">
+                &copy; 2026 hair Buzl. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
 
     <!-- Modals -->
     <div id="confirmModal">
         <div class="bg-white rounded-xl w-full max-w-sm overflow-hidden shadow-2xl">
-            <div class="bg-gray-50 p-4 border-b border-gray-100">
-                <h3 class="font-bold text-center text-gray-700" id="modalTitle">予約の確認</h3>
-            </div>
+            <div class="bg-gray-50 p-4 border-b border-gray-100 text-center font-bold" id="modalTitle">予約確認</div>
             <div class="p-6 text-center">
                 <p class="text-xl font-bold text-gray-800" id="selectedDateTimeDisplay"></p>
                 <div id="modalDescription" class="mt-4 text-xs text-gray-400"></div>
             </div>
-            <div class="flex border-t border-gray-100">
-                <button onclick="closeModal()" class="flex-1 p-4 text-sm font-bold text-gray-400 border-r border-gray-100">戻る</button>
-                <button id="modalConfirmBtn" class="flex-1 p-4 text-sm font-bold text-[#ff7283]">次へ進む</button>
+            <div class="flex border-t">
+                <button onclick="closeModal()" class="flex-1 p-4 text-sm font-bold text-gray-400 border-r">戻る</button>
+                <button id="modalConfirmBtn" class="flex-1 p-4 text-sm font-bold text-[#ff7283]">次へ</button>
             </div>
         </div>
     </div>
 
-    <!-- 管理者ログイン用モーダル -->
     <div id="adminAuthModal">
-        <div class="bg-white rounded-xl w-full max-w-xs p-6 shadow-2xl">
-            <h3 class="font-bold text-gray-800 mb-4">管理者ログイン</h3>
-            <p class="text-[10px] text-gray-400 mb-3">パスワードを入力してください（初期：0000）</p>
-            <input type="password" id="adminPass" class="w-full p-3 border border-gray-200 rounded mb-4" placeholder="****">
+        <div class="bg-white rounded-xl w-full max-w-xs p-6 shadow-2xl text-center">
+            <h3 class="font-bold text-gray-800 mb-4">管理者認証</h3>
+            <input type="password" id="adminPass" class="w-full p-3 border border-gray-200 rounded mb-4 text-center" placeholder="パスワードを入力">
             <div class="flex gap-2">
-                <button onclick="cancelAdmin()" class="flex-1 py-2 text-xs font-bold text-gray-400 border rounded">キャンセル</button>
-                <button onclick="verifyAdmin()" class="flex-1 py-2 text-xs font-bold bg-blue-500 text-white rounded">認証</button>
+                <button onclick="cancelAdmin()" class="flex-1 py-2 text-xs font-bold text-gray-400 border rounded">× 閉じる</button>
+                <button onclick="verifyAdmin()" class="flex-1 py-2 text-xs font-bold bg-blue-500 text-white rounded">認証する</button>
             </div>
         </div>
     </div>
@@ -261,7 +279,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
@@ -274,45 +292,54 @@
         let selectedMenu = null;
         let selectedSlot = null;
 
-        const timeSlots = ["9:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"];
+        const timeSlots = ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"];
         const today = new Date();
 
-        // 1. メニュー選択
         window.selectMenu = (name, duration, price) => {
             selectedMenu = { name, duration, price };
-            document.getElementById('selectedMenuDisplay').innerText = `メニュー: ${name}`;
+            document.getElementById('selectedMenuDisplay').innerText = `選択中: ${name}`;
             changeStep(2);
         };
 
         const changeStep = (step) => {
             document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
             document.getElementById(`step${step}`).classList.add('active');
-            
-            // ヘッダーの色変え
             for(let i=1; i<=4; i++) {
                 const header = document.getElementById(`stepHeader${i}`);
-                if(i === step) {
-                    header.classList.add('bg-red-50');
-                    header.querySelector('p').classList.add('text-[#ff7283]');
-                    header.querySelector('p').classList.remove('text-gray-400');
-                } else {
-                    header.classList.remove('bg-red-50');
-                    header.querySelector('p').classList.remove('text-[#ff7283]');
-                    header.querySelector('p').classList.add('text-gray-400');
+                if(header) {
+                    header.className = i === step ? "flex-1 py-3 text-center border-r bg-red-50" : "flex-1 py-3 text-center border-r";
+                    header.querySelector('p').className = i === step ? "text-[10px] font-bold text-[#ff7283]" : "text-[10px] font-bold text-gray-400";
                 }
             }
             if(step === 2) startListening();
         };
 
-        // 2. データ監視
         const startListening = () => {
-            const collectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'slots');
-            onSnapshot(collectionRef, (snapshot) => {
+            const slotsRef = collection(db, 'artifacts', appId, 'public', 'data', 'slots');
+            onSnapshot(slotsRef, (snapshot) => {
                 reservationData = {};
                 snapshot.forEach(doc => { reservationData[doc.id] = doc.data().status; });
                 renderCalendar();
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('calendar-view').classList.remove('hidden');
+            });
+
+            const bookingsRef = collection(db, 'artifacts', appId, 'public', 'data', 'bookings');
+            onSnapshot(bookingsRef, (snapshot) => {
+                const body = document.getElementById('adminBookingBody');
+                body.innerHTML = '';
+                snapshot.forEach(docSnap => {
+                    const b = docSnap.data();
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b hover:bg-gray-50";
+                    tr.innerHTML = `
+                        <td class="p-3"><strong>${b.dateTime}</strong></td>
+                        <td class="p-3">${b.customerName}<br><span class="text-gray-400">${b.customerTel}</span></td>
+                        <td class="p-3">${b.menu}</td>
+                        <td class="p-3"><button onclick="deleteBooking('${docSnap.id}')" class="text-red-500 font-bold">削除</button></td>
+                    `;
+                    body.appendChild(tr);
+                });
             });
         };
 
@@ -327,10 +354,12 @@
                 date.setDate(today.getDate() + i);
                 const dateId = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}`;
                 const display = `${date.getMonth()+1}/${date.getDate()}`;
+                const day = ['日','月','火','水','木','金','土'][date.getDay()];
                 const th = document.createElement('th');
-                th.innerHTML = `<span class='text-[10px]'>${display}</span>`;
+                th.innerHTML = `<span class='text-[10px]'>${display}</span><br><span class='text-[8px] font-normal'>(${day})</span>`;
+                if(date.getDay() === 0) th.classList.add('text-red-500');
                 dateHeader.appendChild(th);
-                dates.push({id: dateId, label: display});
+                dates.push({id: dateId, label: display + '(' + day + ')'});
             }
 
             calendarBody.innerHTML = '';
@@ -342,7 +371,6 @@
                     const status = reservationData[slotId] || 'ok';
                     const td = document.createElement('td');
                     td.innerHTML = `<div class="status-mark ${status==='ok'?'status-ok':'status-ng'}">${status==='ok'?'◎':'×'}</div>`;
-                    
                     if(isAdmin) {
                         td.className = 'admin-active';
                         td.onclick = () => showConfirm(slotId, status, date.label, time, true);
@@ -355,19 +383,17 @@
             });
         };
 
-        // 3. モーダル
         window.showConfirm = (slotId, status, dateLabel, time, admin) => {
             selectedSlot = { slotId, status, dateLabel, time };
             document.getElementById('selectedDateTimeDisplay').innerText = `${dateLabel} ${time}`;
             const btn = document.getElementById('modalConfirmBtn');
-            
             if(admin) {
                 document.getElementById('modalTitle').innerText = '空き状況変更';
-                document.getElementById('modalDescription').innerText = `管理：この枠を「${status==='ok'?'×':'◎'}」にします。`;
+                document.getElementById('modalDescription').innerText = `管理：この時間を「${status==='ok'?'×':'◎'}」に変更。`;
                 btn.onclick = () => toggleSlot(slotId, status);
             } else {
-                document.getElementById('modalTitle').innerText = '予約の確認';
-                document.getElementById('modalDescription').innerText = `メニュー: ${selectedMenu.name}\n上記でよろしければ、情報入力へ進みます。`;
+                document.getElementById('modalTitle').innerText = '予約確認';
+                document.getElementById('modalDescription').innerText = `メニュー: ${selectedMenu.name}\nで予約入力に進みます。`;
                 btn.onclick = () => changeStep(3);
             }
             document.getElementById('confirmModal').style.display = 'flex';
@@ -375,13 +401,12 @@
 
         window.closeModal = () => document.getElementById('confirmModal').style.display = 'none';
 
-        // 4. 予約確定
         window.submitBooking = async () => {
             const name = document.getElementById('custName').value;
             const tel = document.getElementById('custTel').value;
-            if(!name || !tel) return alert("お名前と電話番号を入力してください");
+            if(!name || !tel) return alert("お名前と電話番号は必須です");
+            if(!document.getElementById('policyAgree').checked) return alert("規約への同意が必要です");
 
-            // 予約情報を保存
             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), {
                 customerName: name,
                 customerTel: tel,
@@ -389,8 +414,6 @@
                 dateTime: `${selectedSlot.dateLabel} ${selectedSlot.time}`,
                 timestamp: serverTimestamp()
             });
-
-            // 在庫を「×」に
             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', selectedSlot.slotId), { status: 'ng' });
             changeStep(4);
         };
@@ -400,43 +423,33 @@
             closeModal();
         };
 
-        // 5. 管理者認証
+        window.deleteBooking = async (docId) => {
+            if(!confirm("この予約データを削除しますか？（在庫状況は自動では戻りません）")) return;
+            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', docId));
+        };
+
         document.getElementById('adminToggle').onchange = (e) => {
-            if(e.target.checked) {
-                document.getElementById('adminAuthModal').style.display = 'flex';
-            } else {
-                isAdmin = false;
-                document.getElementById('modeLabel').innerText = 'OFF';
-                renderCalendar();
-            }
+            if(e.target.checked) document.getElementById('adminAuthModal').style.display = 'flex';
+            else { isAdmin = false; document.getElementById('modeLabel').innerText = 'OFF'; document.getElementById('adminBookingSection').classList.add('hidden'); renderCalendar(); }
         };
 
         window.verifyAdmin = () => {
             if(document.getElementById('adminPass').value === '0000') {
-                isAdmin = true;
-                document.getElementById('modeLabel').innerText = 'ON';
+                isAdmin = true; document.getElementById('modeLabel').innerText = 'ON';
                 document.getElementById('adminAuthModal').style.display = 'none';
+                document.getElementById('adminBookingSection').classList.remove('hidden');
                 renderCalendar();
-            } else {
-                alert("パスワードが違います");
-            }
+            } else alert("パスワードが違います");
         };
 
-        window.cancelAdmin = () => {
-            document.getElementById('adminToggle').checked = false;
-            document.getElementById('adminAuthModal').style.display = 'none';
-        };
+        window.cancelAdmin = () => { document.getElementById('adminToggle').checked = false; document.getElementById('adminAuthModal').style.display = 'none'; };
 
-        // 初期化
-        const init = async () => {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
-            }
+        const initAuth = async () => {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
+            else await signInAnonymously(auth);
+            startListening();
         };
-        init();
-
+        initAuth();
     </script>
 </body>
 </html>
