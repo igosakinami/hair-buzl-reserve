@@ -16,7 +16,6 @@
             font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
             background-color: #f8f8f8;
             color: #333;
-            /* スマホでのタップ時のハイライトを消す */
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -111,10 +110,14 @@
             color: #666;
         }
 
-        /* スマホで押しやすくするための微調整 */
         .menu-card {
             touch-action: manipulation;
             user-select: none;
+            transition: all 0.2s;
+        }
+        .menu-card:active {
+            transform: scale(0.98);
+            background-color: #fffafb;
         }
     </style>
 </head>
@@ -154,29 +157,171 @@
 
     <main class="max-w-4xl mx-auto p-4 pb-12">
         
-        <!-- STEP 1: メニュー -->
+        <!-- STEP 1: メニュー選択 -->
         <div id="step1" class="step-content active">
             <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4">メニューを選択してください</h2>
-            <div class="space-y-3">
-                <!-- 直接 onclick を指定し、windowオブジェクトの関数を呼ぶように変更 -->
-                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex justify-between items-center cursor-pointer active:bg-gray-100" 
-                     onclick="window.onSelectMenu('デザインカット', 60, 5500)">
-                    <div>
-                        <h3 class="font-bold text-gray-800">デザインカット</h3>
-                        <p class="text-[10px] text-gray-400">目安: 60分 / 炭酸スパ付</p>
-                        <p class="text-sm font-bold text-[#ff7283] mt-1">¥5,500</p>
+            <div class="space-y-4">
+                <!-- カット -->
+                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('スタイリストカット', 60, 3850)">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-gray-800">スタイリストカット</h3>
+                        <p class="text-sm font-bold text-[#ff7283]">¥3,850</p>
                     </div>
-                    <div class="text-xs text-gray-300 font-bold">選択 ></div>
-                </div>
-                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex justify-between items-center cursor-pointer active:bg-gray-100" 
-                     onclick="window.onSelectMenu('カット＋フルカラー', 120, 12800)">
-                    <div>
-                        <h3 class="font-bold text-gray-800">カット＋フルカラー</h3>
-                        <p class="text-[10px] text-gray-400">目安: 120分 / ロング料金なし</p>
-                        <p class="text-sm font-bold text-[#ff7283] mt-1">¥12,800</p>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">12年のキャリアを持つオーナーによる似合わせカット。</p>
+                    <div class="mt-2 flex items-center justify-between">
+                        <span class="text-[10px] bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：60分</span>
+                        <span class="text-xs text-[#ff7283] font-bold">選択する ></span>
                     </div>
-                    <div class="text-xs text-gray-300 font-bold">選択 ></div>
                 </div>
+
+                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('チャイルドカット', 30, 2300)">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-gray-800">チャイルドカット（小学生まで）</h3>
+                        <p class="text-sm font-bold text-[#ff7283]">¥2,300</p>
+                    </div>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">シャンプーは＋500円で追加可能です。</p>
+                    <div class="mt-2 flex items-center justify-between text-[10px]">
+                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：30分</span>
+                        <span class="text-[#ff7283] font-bold">選択する ></span>
+                    </div>
+                </div>
+
+                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('スクールカット', 60, 2950)">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-gray-800">スクールカット（中・高生）</h3>
+                        <p class="text-sm font-bold text-[#ff7283]">¥2,950</p>
+                    </div>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">中学生・高校生のヘアカットを提供いたします。</p>
+                    <div class="mt-2 flex items-center justify-between text-[10px]">
+                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：60分</span>
+                        <span class="text-[#ff7283] font-bold">選択する ></span>
+                    </div>
+                </div>
+
+                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('U24限定カット', 60, 3500)">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-gray-800">U24限定カット（大学生まで）</h3>
+                        <p class="text-sm font-bold text-[#ff7283]">¥3,500</p>
+                    </div>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">学生証をご提示ください。</p>
+                    <div class="mt-2 flex items-center justify-between text-[10px]">
+                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：60分</span>
+                        <span class="text-[#ff7283] font-bold">選択する ></span>
+                    </div>
+                </div>
+
+                <!-- カラー -->
+                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('フルボ酸配合 艶髪フルカラー', 90, 6600)">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-gray-800">フルボ酸配合 艶髪フルカラー</h3>
+                        <p class="text-sm font-bold text-[#ff7283]">¥6,600</p>
+                    </div>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">根元から毛先まで均一に染め上げます。「フルボ酸」配合で内側から発光するような艶を引き出します。※ロング料金 ¥500〜</p>
+                    <div class="mt-2 flex items-center justify-between text-[10px]">
+                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：90分</span>
+                        <span class="text-[#ff7283] font-bold">選択する ></span>
+                    </div>
+                </div>
+
+                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('カラーリタッチ', 60, 5500)">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-gray-800">カラーリタッチ（フルボ酸配合）</h3>
+                        <p class="text-sm font-bold text-[#ff7283]">¥5,500</p>
+                    </div>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">生え際2cm以内。頭皮への刺激を和らげ、ダメージを蓄積させず優しく染め上げます。</p>
+                    <div class="mt-2 flex items-center justify-between text-[10px]">
+                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：60分</span>
+                        <span class="text-[#ff7283] font-bold">選択する ></span>
+                    </div>
+                </div>
+
+                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('ブリーチ', 90, 6600)">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-gray-800">ブリーチ</h3>
+                        <p class="text-sm font-bold text-[#ff7283]">¥6,600</p>
+                    </div>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">透明感・高彩度カラーを楽しむための必須ステップ。ダメージを最小限に抑えます。※ロング料金 ¥500〜</p>
+                    <div class="mt-2 flex items-center justify-between text-[10px]">
+                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：90分</span>
+                        <span class="text-[#ff7283] font-bold">選択する ></span>
+                    </div>
+                </div>
+
+                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('デザインカラー', 120, 7700)">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-gray-800">デザインカラー</h3>
+                        <p class="text-sm font-bold text-[#ff7283]">¥7,700</p>
+                    </div>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">ハイライトやインナーカラーなど、髪に陰影と動きを与えるデザイン。理想のニュアンスを形にします。</p>
+                    <div class="mt-2 flex items-center justify-between text-[10px]">
+                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：120分</span>
+                        <span class="text-[#ff7283] font-bold">選択する ></span>
+                    </div>
+                </div>
+
+                <!-- 矯正・パーマ -->
+                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('艶髪縮毛矯正', 180, 16500)">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-gray-800">フルボ酸配合 艶髪縮毛矯正（カット込）</h3>
+                        <p class="text-sm font-bold text-[#ff7283]">¥16,500</p>
+                    </div>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">看板メニュー。頑固なクセを芯から整え、シルクのような艶感を。スタイリングが劇的に楽になります。</p>
+                    <div class="mt-2 flex items-center justify-between text-[10px]">
+                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：180分</span>
+                        <span class="text-[#ff7283] font-bold">選択する ></span>
+                    </div>
+                </div>
+
+                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('艶髪パーマ', 120, 9900)">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-gray-800">フルボ酸配合 艶髪パーマ（カット込）</h3>
+                        <p class="text-sm font-bold text-[#ff7283]">¥9,900</p>
+                    </div>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">似合わせカット＋低負荷パーマ。フルボ酸配合で乾燥を防ぎ、弾むような柔らかいカールを実現します。</p>
+                    <div class="mt-2 flex items-center justify-between text-[10px]">
+                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：120分</span>
+                        <span class="text-[#ff7283] font-bold">選択する ></span>
+                    </div>
+                </div>
+
+                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('セラミックスカール', 150, 15000)">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-gray-800">セラミックスカール（デジタルパーマ・込）</h3>
+                        <p class="text-sm font-bold text-[#ff7283]">¥15,000</p>
+                    </div>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">熱の力を借りる進化系デジタルパーマ。コテで巻いたような立体ウェーブを長期間キープできます。</p>
+                    <div class="mt-2 flex items-center justify-between text-[10px]">
+                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：150分</span>
+                        <span class="text-[#ff7283] font-bold">選択する ></span>
+                    </div>
+                </div>
+
+                <!-- ケア・その他 -->
+                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('酸熱トリートメント', 90, 7700)">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-gray-800">酸熱トリートメント</h3>
+                        <p class="text-sm font-bold text-[#ff7283]">¥7,700</p>
+                    </div>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">最先端ケア。ヘアアイロンの熱で髪内部を補強。鏡のような深い艶と滑らかな指通りを実現します。</p>
+                    <div class="mt-2 flex items-center justify-between text-[10px]">
+                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：90分</span>
+                        <span class="text-[#ff7283] font-bold">選択する ></span>
+                    </div>
+                </div>
+
+                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('ヘッドスパ', 30, 3500)">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-gray-800">ヘッドスパ</h3>
+                        <p class="text-sm font-bold text-[#ff7283]">¥3,500</p>
+                    </div>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">皮脂汚れをオフ。血行を促し頭皮環境を整える、至福のリフレッシュタイムを提供します。</p>
+                    <div class="mt-2 flex items-center justify-between text-[10px]">
+                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：30分</span>
+                        <span class="text-[#ff7283] font-bold">選択する ></span>
+                    </div>
+                </div>
+                
+                <p class="text-center text-[10px] text-gray-400 pt-4">※上記以外のメニューは店舗にてお尋ねください</p>
             </div>
         </div>
 
@@ -209,7 +354,7 @@
                 </div>
                 <div class="mb-4">
                     <label class="block text-xs font-bold text-gray-500 mb-1">電話番号（必須）</label>
-                    <input type="tel" id="custTel" class="w-full p-3 border border-gray-200 rounded text-sm" placeholder="09012345678">
+                    <input type="tel" id="custTel" class="w-full p-3 border border-gray-200 rounded text-sm" placeholder="0166378631">
                 </div>
                 <div class="mt-6 border-t pt-4">
                     <label class="flex items-start gap-2 cursor-pointer">
@@ -220,7 +365,7 @@
                         </span>
                     </label>
                 </div>
-                <button id="bookingSubmitBtn" class="w-full mt-6 py-4 bg-[#1a252f] text-white font-bold rounded shadow-lg">予約を確定する</button>
+                <button id="bookingSubmitBtn" onclick="window.submitBooking()" class="w-full mt-6 py-4 bg-[#1a252f] text-white font-bold rounded shadow-lg">予約を確定する</button>
             </div>
         </div>
 
@@ -228,7 +373,7 @@
         <div id="step4" class="step-content text-center py-20">
             <div class="text-5xl mb-4">🎉</div>
             <h2 class="text-xl font-bold text-gray-800">予約が完了しました</h2>
-            <p class="text-sm text-gray-500 mt-2">ご来店を心よりお待ちしております。</p>
+            <p class="text-sm text-gray-500 mt-2">谷口 博哉 がご来店を心よりお待ちしております。</p>
             <button onclick="location.reload()" class="mt-8 text-[#ff7283] font-bold border-b border-[#ff7283]">予約トップへ戻る</button>
         </div>
 
@@ -249,9 +394,14 @@
     <footer class="salon-footer">
         <div class="max-w-4xl mx-auto">
             <h3 class="font-bold text-gray-800 mb-2">hair Buzl 【ヘアーバズール】</h3>
-            <p>〒000-0000 〇〇県〇〇市〇〇町1-2-3</p>
-            <p>電話番号：012-345-6789</p>
-            <div class="mt-6 pt-6 border-t text-[10px] text-center">
+            <div class="space-y-1 text-gray-500 text-xs">
+                <p>代表：谷口 博哉</p>
+                <p>住所：〒078-8345 北海道旭川市東光5条6-3-5</p>
+                <p>電話番号：0166-37-8631</p>
+                <p class="pt-2">営業時間：10:00 〜 19:00</p>
+                <p>定休日：毎週月曜日 / 第1・第3火曜日</p>
+            </div>
+            <div class="mt-6 pt-6 border-t text-[10px] text-center text-gray-400">
                 &copy; 2026 hair Buzl. All Rights Reserved.
             </div>
         </div>
@@ -260,13 +410,13 @@
     <!-- Modals -->
     <div id="confirmModal">
         <div class="bg-white rounded-xl w-full max-sm:w-[90%] max-w-sm overflow-hidden shadow-2xl">
-            <div class="bg-gray-50 p-4 border-b border-gray-100 text-center font-bold">予約確認</div>
+            <div class="bg-gray-50 p-4 border-b border-gray-100 text-center font-bold">予約内容の確認</div>
             <div class="p-6 text-center">
                 <p class="text-xl font-bold text-gray-800" id="selectedDateTimeDisplay"></p>
                 <div id="modalDescription" class="mt-4 text-xs text-gray-400 whitespace-pre-wrap"></div>
             </div>
             <div class="flex border-t">
-                <button id="modalCloseBtn" class="flex-1 p-4 text-sm font-bold text-gray-400 border-r">戻る</button>
+                <button onclick="window.closeModal()" class="flex-1 p-4 text-sm font-bold text-gray-400 border-r">戻る</button>
                 <button id="modalConfirmBtn" class="flex-1 p-4 text-sm font-bold text-[#ff7283]">次へ</button>
             </div>
         </div>
@@ -277,8 +427,8 @@
             <h3 class="font-bold text-gray-800 mb-4">管理者認証</h3>
             <input type="password" id="adminPass" class="w-full p-3 border border-gray-200 rounded mb-4 text-center" placeholder="パスワードを入力">
             <div class="flex gap-2">
-                <button id="adminCancelBtn" class="flex-1 py-2 text-xs font-bold text-gray-400 border rounded">× 閉じる</button>
-                <button id="adminLoginBtn" class="flex-1 py-2 text-xs font-bold bg-blue-500 text-white rounded">認証する</button>
+                <button onclick="window.cancelAdmin()" class="flex-1 py-2 text-xs font-bold text-gray-400 border rounded">× 閉じる</button>
+                <button onclick="window.verifyAdmin()" class="flex-1 py-2 text-xs font-bold bg-blue-500 text-white rounded">認証する</button>
             </div>
         </div>
     </div>
@@ -288,20 +438,12 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // 設定の取得
-        let firebaseConfig = {};
-        try {
-            firebaseConfig = JSON.parse(__firebase_config);
-        } catch(e) {
-            console.warn("Firebase config not found.");
-        }
-
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'hair-buzl-reserve';
 
-        // 状態
         let reservationData = {};
         let isAdmin = false;
         let selectedMenu = null;
@@ -310,40 +452,31 @@
         const timeSlots = ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"];
         const today = new Date();
 
-        // 画面切り替え（windowに紐付けてグローバル化）
         window.changeStep = (step) => {
             const contents = document.querySelectorAll('.step-content');
             contents.forEach(el => el.classList.remove('active'));
             
             const target = document.getElementById(`step${step}`);
-            if (target) {
-                target.classList.add('active');
-            }
+            if (target) target.classList.add('active');
 
-            // ヘッダーナビの更新
             for(let i=1; i<=4; i++) {
                 const header = document.getElementById(`stepHeader${i}`);
                 if(header) {
                     if (i === step) {
                         header.className = "flex-1 py-3 text-center border-r bg-red-50";
                         const p = header.querySelector('p');
-                        if(p) {
-                            p.className = "text-[10px] font-bold text-[#ff7283]";
-                        }
+                        if(p) p.className = "text-[10px] font-bold text-[#ff7283]";
                     } else {
                         header.className = "flex-1 py-3 text-center border-l text-gray-400";
                         const p = header.querySelector('p');
-                        if(p) {
-                            p.className = "text-[10px] font-bold";
-                        }
+                        if(p) p.className = "text-[10px] font-bold";
                     }
                 }
             }
             if(step === 2) startListening();
-            window.scrollTo({top: 0, behavior: 'auto'}); // スマホでは即時移動が確実
+            window.scrollTo({top: 0, behavior: 'auto'});
         };
 
-        // メニュー選択（windowに紐付けてグローバル化）
         window.onSelectMenu = (name, duration, price) => {
             selectedMenu = { name, duration, price };
             const display = document.getElementById('selectedMenuDisplay');
@@ -351,7 +484,6 @@
             window.changeStep(2);
         };
 
-        // データ監視
         const startListening = () => {
             const slotsRef = collection(db, 'artifacts', appId, 'public', 'data', 'slots');
             onSnapshot(slotsRef, (snapshot) => {
@@ -438,7 +570,7 @@
                 document.getElementById('modalDescription').innerText = `管理：この枠を「${status==='ok'?'×':'◎'}」に変更します。`;
                 btn.onclick = () => toggleSlot(slotId, status);
             } else {
-                document.getElementById('modalDescription').innerText = `メニュー: ${selectedMenu.name}\nで予約入力に進みます。`;
+                document.getElementById('modalDescription').innerText = `メニュー: ${selectedMenu.name}\n上記の内容でよろしければ、入力へ進みます。`;
                 btn.onclick = () => { window.closeModal(); window.changeStep(3); };
             }
             if(modal) modal.style.display = 'flex';
@@ -459,7 +591,7 @@
                 return;
             }
             if(!agree) {
-                alert("規約への同意が必要です。");
+                alert("キャンセルポリシーへの同意が必要です。");
                 return;
             }
 
@@ -475,7 +607,7 @@
                 window.changeStep(4);
             } catch (e) {
                 console.error(e);
-                alert("予約に失敗しました。");
+                alert("送信に失敗しました。");
             }
         };
 
