@@ -151,7 +151,7 @@
         <div id="step1" class="step-content active">
             <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4">メニューを選択してください</h2>
             <div class="space-y-3">
-                <div class="menu-card-item bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex justify-between items-center cursor-pointer active:bg-gray-50" data-name="デザインカット" data-duration="60" data-price="5500">
+                <div class="menu-card-item bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex justify-between items-center cursor-pointer active:bg-gray-50" onclick="window.onSelectMenu('デザインカット', 60, 5500)">
                     <div>
                         <h3 class="font-bold text-gray-800">デザインカット</h3>
                         <p class="text-[10px] text-gray-400">目安: 60分 / 炭酸スパ付</p>
@@ -159,7 +159,7 @@
                     </div>
                     <div class="text-xs text-gray-300 font-bold">選択 ></div>
                 </div>
-                <div class="menu-card-item bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex justify-between items-center cursor-pointer active:bg-gray-50" data-name="カット＋フルカラー" data-duration="120" data-price="12800">
+                <div class="menu-card-item bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex justify-between items-center cursor-pointer active:bg-gray-50" onclick="window.onSelectMenu('カット＋フルカラー', 120, 12800)">
                     <div>
                         <h3 class="font-bold text-gray-800">カット＋フルカラー</h3>
                         <p class="text-[10px] text-gray-400">目安: 120分 / ロング料金なし</p>
@@ -210,7 +210,7 @@
                         </span>
                     </label>
                 </div>
-                <button id="finalSubmitBtn" class="w-full mt-6 py-4 bg-[#1a252f] text-white font-bold rounded shadow-lg">予約を確定する</button>
+                <button onclick="window.submitBooking()" class="w-full mt-6 py-4 bg-[#1a252f] text-white font-bold rounded shadow-lg">予約を確定する</button>
             </div>
         </div>
 
@@ -258,7 +258,7 @@
                 <div id="modalDescription" class="mt-4 text-xs text-gray-400 whitespace-pre-wrap"></div>
             </div>
             <div class="flex border-t">
-                <button id="modalCloseBtn" class="flex-1 p-4 text-sm font-bold text-gray-400 border-r">戻る</button>
+                <button onclick="window.closeModal()" class="flex-1 p-4 text-sm font-bold text-gray-400 border-r">戻る</button>
                 <button id="modalConfirmBtn" class="flex-1 p-4 text-sm font-bold text-[#ff7283]">次へ</button>
             </div>
         </div>
@@ -269,8 +269,8 @@
             <h3 class="font-bold text-gray-800 mb-4">管理者認証</h3>
             <input type="password" id="adminPass" class="w-full p-3 border border-gray-200 rounded mb-4 text-center" placeholder="パスワードを入力">
             <div class="flex gap-2">
-                <button id="adminCancelBtn" class="flex-1 py-2 text-xs font-bold text-gray-400 border rounded">× 閉じる</button>
-                <button id="adminLoginBtn" class="flex-1 py-2 text-xs font-bold bg-blue-500 text-white rounded">認証する</button>
+                <button onclick="window.cancelAdmin()" class="flex-1 py-2 text-xs font-bold text-gray-400 border rounded">× 閉じる</button>
+                <button onclick="window.verifyAdmin()" class="flex-1 py-2 text-xs font-bold bg-blue-500 text-white rounded">認証する</button>
             </div>
         </div>
     </div>
@@ -287,7 +287,7 @@
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'hair-buzl-reserve';
 
-        // 状態
+        // 状態保持
         let reservationData = {};
         let isAdmin = false;
         let selectedMenu = null;
@@ -296,8 +296,8 @@
         const timeSlots = ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"];
         const today = new Date();
 
-        // ステップ切り替え
-        const changeStep = (step) => {
+        // 画面切り替え（グローバル関数化）
+        window.changeStep = (step) => {
             document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
             const target = document.getElementById(`step${step}`);
             if (target) target.classList.add('active');
@@ -320,23 +320,13 @@
             window.scrollTo(0, 0);
         };
 
-        // メニュー選択
-        const onSelectMenu = (name, duration, price) => {
+        // メニュー選択（グローバル関数化）
+        window.onSelectMenu = (name, duration, price) => {
             selectedMenu = { name, duration, price };
             const display = document.getElementById('selectedMenuDisplay');
             if (display) display.innerText = `選択中: ${name}`;
-            changeStep(2);
+            window.changeStep(2);
         };
-
-        // メニューカードにイベントを貼る
-        document.querySelectorAll('.menu-card-item').forEach(card => {
-            card.addEventListener('click', () => {
-                const name = card.getAttribute('data-name');
-                const duration = card.getAttribute('data-duration');
-                const price = card.getAttribute('data-price');
-                onSelectMenu(name, duration, price);
-            });
-        });
 
         // データ監視
         const startListening = () => {
@@ -362,14 +352,9 @@
                         <td class="p-3"><strong>${b.dateTime}</strong></td>
                         <td class="p-3">${b.customerName}<br><span class="text-gray-400">${b.customerTel}</span></td>
                         <td class="p-3">${b.menu}</td>
-                        <td class="p-3"><button class="btn-delete text-red-500 font-bold" data-id="${docSnap.id}">削除</button></td>
+                        <td class="p-3"><button class="text-red-500 font-bold" onclick="window.deleteBooking('${docSnap.id}')">削除</button></td>
                     `;
                     body.appendChild(tr);
-                });
-
-                // 削除ボタンにイベントを貼る
-                body.querySelectorAll('.btn-delete').forEach(btn => {
-                    btn.onclick = () => deleteBooking(btn.getAttribute('data-id'));
                 });
             });
         };
@@ -406,9 +391,9 @@
                     
                     if(isAdmin) {
                         td.className = 'admin-active';
-                        td.onclick = () => showConfirm(slotId, status, date.label, time, true);
+                        td.onclick = () => window.showConfirm(slotId, status, date.label, time, true);
                     } else if(status === 'ok') {
-                        td.onclick = () => showConfirm(slotId, status, date.label, time, false);
+                        td.onclick = () => window.showConfirm(slotId, status, date.label, time, false);
                     }
                     tr.appendChild(td);
                 });
@@ -416,7 +401,7 @@
             });
         };
 
-        const showConfirm = (slotId, status, dateLabel, time, adminMode) => {
+        window.showConfirm = (slotId, status, dateLabel, time, adminMode) => {
             selectedSlot = { slotId, status, dateLabel, time };
             document.getElementById('selectedDateTimeDisplay').innerText = `${dateLabel} ${time}`;
             const btn = document.getElementById('modalConfirmBtn');
@@ -429,15 +414,14 @@
             } else {
                 document.getElementById('modalTitle').innerText = '予約確認';
                 document.getElementById('modalDescription').innerText = `メニュー: ${selectedMenu.name}\nで予約入力に進みます。`;
-                btn.onclick = () => { closeModal(); changeStep(3); };
+                btn.onclick = () => { window.closeModal(); window.changeStep(3); };
             }
             modal.style.display = 'flex';
         };
 
-        const closeModal = () => document.getElementById('confirmModal').style.display = 'none';
-        document.getElementById('modalCloseBtn').onclick = closeModal;
+        window.closeModal = () => document.getElementById('confirmModal').style.display = 'none';
 
-        // 予約確定
+        // 予約確定（グローバル関数化）
         window.submitBooking = async () => {
             const name = document.getElementById('custName').value;
             const tel = document.getElementById('custTel').value;
@@ -453,30 +437,29 @@
                     timestamp: serverTimestamp()
                 });
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', selectedSlot.slotId), { status: 'ng' });
-                changeStep(4);
+                window.changeStep(4);
             } catch (e) {
-                alert("予約に失敗しました。時間をおいて再度お試しください。");
+                alert("予約に失敗しました。");
             }
         };
-        document.getElementById('finalSubmitBtn').onclick = window.submitBooking;
 
         const toggleSlot = async (id, status) => {
             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', id), { status: status === 'ok' ? 'ng' : 'ok' });
-            closeModal();
+            window.closeModal();
         };
 
-        const deleteBooking = async (docId) => {
-            if(!confirm("この予約データを削除しますか？")) return;
+        window.deleteBooking = async (docId) => {
+            if(!confirm("削除しますか？")) return;
             await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', docId));
         };
 
-        // 管理者認証
+        // 管理者認証（グローバル関数化）
         document.getElementById('adminToggle').onchange = (e) => {
             if(e.target.checked) document.getElementById('adminAuthModal').style.display = 'flex';
             else { isAdmin = false; document.getElementById('modeLabel').innerText = 'OFF'; document.getElementById('adminBookingSection').classList.add('hidden'); renderCalendar(); }
         };
 
-        document.getElementById('adminLoginBtn').onclick = () => {
+        window.verifyAdmin = () => {
             if(document.getElementById('adminPass').value === '0000') {
                 isAdmin = true; document.getElementById('modeLabel').innerText = 'ON';
                 document.getElementById('adminAuthModal').style.display = 'none';
@@ -485,7 +468,7 @@
             } else alert("パスワードが違います");
         };
 
-        document.getElementById('adminCancelBtn').onclick = () => {
+        window.cancelAdmin = () => {
             document.getElementById('adminToggle').checked = false;
             document.getElementById('adminAuthModal').style.display = 'none';
         };
@@ -495,7 +478,6 @@
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
                 else await signInAnonymously(auth);
-                // 初期ロード時に1回だけ監視開始
                 startListening();
             } catch (e) {
                 console.error("Auth init error:", e);
