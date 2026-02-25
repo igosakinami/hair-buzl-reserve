@@ -19,7 +19,7 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        .reserve-cta-btn {
+        .hpb-pink-btn {
             background: linear-gradient(to bottom, #ff8c99, #ff7283);
             color: white;
             border: 1px solid #e05c6c;
@@ -86,7 +86,7 @@
             z-index: 100;
         }
 
-        #confirmModal, #adminAuthModal {
+        .modal-overlay {
             display: none;
             position: fixed;
             inset: 0;
@@ -98,8 +98,17 @@
         }
 
         .step-content { display: none; }
-        .step-content.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .step-content.active { display: block; }
+
+        .menu-card {
+            cursor: pointer;
+            transition: all 0.1s ease;
+            touch-action: manipulation;
+        }
+        .menu-card:active {
+            background-color: #fff0f1;
+            transform: scale(0.98);
+        }
 
         .salon-footer {
             background: white;
@@ -109,16 +118,6 @@
             font-size: 13px;
             color: #666;
         }
-
-        .menu-card {
-            touch-action: manipulation;
-            user-select: none;
-            transition: all 0.2s;
-        }
-        .menu-card:active {
-            transform: scale(0.98);
-            background-color: #fffafb;
-        }
     </style>
 </head>
 <body>
@@ -126,7 +125,7 @@
     <!-- 管理用パネル -->
     <div class="admin-panel p-3 flex justify-between items-center">
         <div class="flex items-center gap-2 text-xs font-bold">
-            <span class="w-2 h-2 rounded-full bg-red-500"></span>
+            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
             OWNER ADMIN
         </div>
         <label class="relative inline-flex items-center cursor-pointer">
@@ -138,16 +137,15 @@
 
     <header class="max-w-4xl mx-auto p-4 flex justify-between items-center bg-white border-b border-gray-100">
         <div class="salon-info">
-            <p class="text-[9px] text-gray-400 m-0 leading-none">hair Buzl</p>
+            <p class="text-[9px] text-gray-400 m-0">hair Buzl</p>
             <h1 class="text-lg font-bold m-0 text-gray-800">ヘアーバズール</h1>
             <div class="flex gap-1 mt-1 text-[10px] text-gray-500">
                 <span class="border rounded-full px-2">スマート支払いOK</span>
             </div>
         </div>
-        <button class="reserve-cta-btn px-4 py-2 text-sm font-bold" onclick="location.reload()">予約TOP</button>
+        <button class="hpb-pink-btn px-4 py-2 text-sm font-bold" onclick="location.reload()">予約TOP</button>
     </header>
 
-    <!-- ステップナビ -->
     <div class="flex border-b border-gray-200 bg-white max-w-4xl mx-auto">
         <div id="stepHeader1" class="flex-1 py-3 text-center bg-red-50"><p class="text-[10px] font-bold text-[#ff7283]">STEP1 選択</p></div>
         <div id="stepHeader2" class="flex-1 py-3 text-center border-l text-gray-400"><p class="text-[10px] font-bold">STEP2 日時</p></div>
@@ -156,178 +154,17 @@
     </div>
 
     <main class="max-w-4xl mx-auto p-4 pb-12">
-        
-        <!-- STEP 1: メニュー選択 -->
         <div id="step1" class="step-content active">
-            <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4">メニューを選択してください</h2>
-            <div class="space-y-4">
-                <!-- カット -->
-                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('スタイリストカット', 60, 3850)">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-bold text-gray-800">スタイリストカット</h3>
-                        <p class="text-sm font-bold text-[#ff7283]">¥3,850</p>
-                    </div>
-                    <p class="text-[11px] text-gray-500 leading-relaxed">12年のキャリアを持つオーナーによる似合わせカット。</p>
-                    <div class="mt-2 flex items-center justify-between">
-                        <span class="text-[10px] bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：60分</span>
-                        <span class="text-xs text-[#ff7283] font-bold">選択する ></span>
-                    </div>
-                </div>
-
-                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('チャイルドカット', 30, 2300)">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-bold text-gray-800">チャイルドカット（小学生まで）</h3>
-                        <p class="text-sm font-bold text-[#ff7283]">¥2,300</p>
-                    </div>
-                    <p class="text-[11px] text-gray-500 leading-relaxed">シャンプーは＋500円で追加可能です。</p>
-                    <div class="mt-2 flex items-center justify-between text-[10px]">
-                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：30分</span>
-                        <span class="text-[#ff7283] font-bold">選択する ></span>
-                    </div>
-                </div>
-
-                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('スクールカット', 60, 2950)">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-bold text-gray-800">スクールカット（中・高生）</h3>
-                        <p class="text-sm font-bold text-[#ff7283]">¥2,950</p>
-                    </div>
-                    <p class="text-[11px] text-gray-500 leading-relaxed">中学生・高校生のヘアカットを提供いたします。</p>
-                    <div class="mt-2 flex items-center justify-between text-[10px]">
-                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：60分</span>
-                        <span class="text-[#ff7283] font-bold">選択する ></span>
-                    </div>
-                </div>
-
-                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('U24限定カット', 60, 3500)">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-bold text-gray-800">U24限定カット（大学生まで）</h3>
-                        <p class="text-sm font-bold text-[#ff7283]">¥3,500</p>
-                    </div>
-                    <p class="text-[11px] text-gray-500 leading-relaxed">学生証をご提示ください。</p>
-                    <div class="mt-2 flex items-center justify-between text-[10px]">
-                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：60分</span>
-                        <span class="text-[#ff7283] font-bold">選択する ></span>
-                    </div>
-                </div>
-
-                <!-- カラー -->
-                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('フルボ酸配合 艶髪フルカラー', 90, 6600)">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-bold text-gray-800">フルボ酸配合 艶髪フルカラー</h3>
-                        <p class="text-sm font-bold text-[#ff7283]">¥6,600</p>
-                    </div>
-                    <p class="text-[11px] text-gray-500 leading-relaxed">根元から毛先まで均一に染め上げます。「フルボ酸」配合で内側から発光するような艶を引き出します。※ロング料金 ¥500〜</p>
-                    <div class="mt-2 flex items-center justify-between text-[10px]">
-                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：90分</span>
-                        <span class="text-[#ff7283] font-bold">選択する ></span>
-                    </div>
-                </div>
-
-                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('カラーリタッチ', 60, 5500)">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-bold text-gray-800">カラーリタッチ（フルボ酸配合）</h3>
-                        <p class="text-sm font-bold text-[#ff7283]">¥5,500</p>
-                    </div>
-                    <p class="text-[11px] text-gray-500 leading-relaxed">生え際2cm以内。頭皮への刺激を和らげ、ダメージを蓄積させず優しく染め上げます。</p>
-                    <div class="mt-2 flex items-center justify-between text-[10px]">
-                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：60分</span>
-                        <span class="text-[#ff7283] font-bold">選択する ></span>
-                    </div>
-                </div>
-
-                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('ブリーチ', 90, 6600)">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-bold text-gray-800">ブリーチ</h3>
-                        <p class="text-sm font-bold text-[#ff7283]">¥6,600</p>
-                    </div>
-                    <p class="text-[11px] text-gray-500 leading-relaxed">透明感・高彩度カラーを楽しむための必須ステップ。ダメージを最小限に抑えます。※ロング料金 ¥500〜</p>
-                    <div class="mt-2 flex items-center justify-between text-[10px]">
-                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：90分</span>
-                        <span class="text-[#ff7283] font-bold">選択する ></span>
-                    </div>
-                </div>
-
-                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('デザインカラー', 120, 7700)">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-bold text-gray-800">デザインカラー</h3>
-                        <p class="text-sm font-bold text-[#ff7283]">¥7,700</p>
-                    </div>
-                    <p class="text-[11px] text-gray-500 leading-relaxed">ハイライトやインナーカラーなど、髪に陰影と動きを与えるデザイン。理想のニュアンスを形にします。</p>
-                    <div class="mt-2 flex items-center justify-between text-[10px]">
-                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：120分</span>
-                        <span class="text-[#ff7283] font-bold">選択する ></span>
-                    </div>
-                </div>
-
-                <!-- 矯正・パーマ -->
-                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('艶髪縮毛矯正', 180, 16500)">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-bold text-gray-800">フルボ酸配合 艶髪縮毛矯正（カット込）</h3>
-                        <p class="text-sm font-bold text-[#ff7283]">¥16,500</p>
-                    </div>
-                    <p class="text-[11px] text-gray-500 leading-relaxed">看板メニュー。頑固なクセを芯から整え、シルクのような艶感を。スタイリングが劇的に楽になります。</p>
-                    <div class="mt-2 flex items-center justify-between text-[10px]">
-                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：180分</span>
-                        <span class="text-[#ff7283] font-bold">選択する ></span>
-                    </div>
-                </div>
-
-                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('艶髪パーマ', 120, 9900)">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-bold text-gray-800">フルボ酸配合 艶髪パーマ（カット込）</h3>
-                        <p class="text-sm font-bold text-[#ff7283]">¥9,900</p>
-                    </div>
-                    <p class="text-[11px] text-gray-500 leading-relaxed">似合わせカット＋低負荷パーマ。フルボ酸配合で乾燥を防ぎ、弾むような柔らかいカールを実現します。</p>
-                    <div class="mt-2 flex items-center justify-between text-[10px]">
-                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：120分</span>
-                        <span class="text-[#ff7283] font-bold">選択する ></span>
-                    </div>
-                </div>
-
-                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('セラミックスカール', 150, 15000)">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-bold text-gray-800">セラミックスカール（デジタルパーマ・込）</h3>
-                        <p class="text-sm font-bold text-[#ff7283]">¥15,000</p>
-                    </div>
-                    <p class="text-[11px] text-gray-500 leading-relaxed">熱の力を借りる進化系デジタルパーマ。コテで巻いたような立体ウェーブを長期間キープできます。</p>
-                    <div class="mt-2 flex items-center justify-between text-[10px]">
-                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：150分</span>
-                        <span class="text-[#ff7283] font-bold">選択する ></span>
-                    </div>
-                </div>
-
-                <!-- ケア・その他 -->
-                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('酸熱トリートメント', 90, 7700)">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-bold text-gray-800">酸熱トリートメント</h3>
-                        <p class="text-sm font-bold text-[#ff7283]">¥7,700</p>
-                    </div>
-                    <p class="text-[11px] text-gray-500 leading-relaxed">最先端ケア。ヘアアイロンの熱で髪内部を補強。鏡のような深い艶と滑らかな指通りを実現します。</p>
-                    <div class="mt-2 flex items-center justify-between text-[10px]">
-                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：90分</span>
-                        <span class="text-[#ff7283] font-bold">選択する ></span>
-                    </div>
-                </div>
-
-                <div class="menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm cursor-pointer" onclick="window.onSelectMenu('ヘッドスパ', 30, 3500)">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-bold text-gray-800">ヘッドスパ</h3>
-                        <p class="text-sm font-bold text-[#ff7283]">¥3,500</p>
-                    </div>
-                    <p class="text-[11px] text-gray-500 leading-relaxed">皮脂汚れをオフ。血行を促し頭皮環境を整える、至福のリフレッシュタイムを提供します。</p>
-                    <div class="mt-2 flex items-center justify-between text-[10px]">
-                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-400 font-bold">所要時間：30分</span>
-                        <span class="text-[#ff7283] font-bold">選択する ></span>
-                    </div>
-                </div>
-                
-                <p class="text-center text-[10px] text-gray-400 pt-4">※上記以外のメニューは店舗にてお尋ねください</p>
+            <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4 text-gray-700">メニューを選択してください</h2>
+            <div id="menuList" class="space-y-4">
+                <p class="text-center py-10 text-gray-400">メニューを読み込み中...</p>
             </div>
         </div>
 
-        <!-- STEP 2: カレンダー -->
         <div id="step2" class="step-content">
-            <div id="loading" class="text-center py-10"><div class="animate-spin inline-block w-6 h-6 border-2 border-[#ff7283] border-t-transparent rounded-full"></div></div>
+            <div id="loading" class="text-center py-10">
+                <div class="animate-spin inline-block w-6 h-6 border-2 border-[#ff7283] border-t-transparent rounded-full"></div>
+            </div>
             <div id="calendar-view" class="hidden">
                 <div class="flex justify-between items-end mb-3">
                     <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 text-gray-700">日時を選択</h2>
@@ -344,49 +181,46 @@
             </div>
         </div>
 
-        <!-- STEP 3: お客様情報 -->
         <div id="step3" class="step-content">
-            <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4">お客様情報の入力</h2>
+            <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4 text-gray-700">お客様情報の入力</h2>
             <div class="bg-white p-5 rounded-lg border border-gray-200">
                 <div class="mb-4">
                     <label class="block text-xs font-bold text-gray-500 mb-1">お名前（必須）</label>
-                    <input type="text" id="custName" class="w-full p-3 border border-gray-200 rounded text-sm" placeholder="例：山田 太郎">
+                    <input type="text" id="custName" class="w-full p-3 border border-gray-200 rounded text-sm outline-none" placeholder="例：山田 太郎">
                 </div>
                 <div class="mb-4">
                     <label class="block text-xs font-bold text-gray-500 mb-1">電話番号（必須）</label>
-                    <input type="tel" id="custTel" class="w-full p-3 border border-gray-200 rounded text-sm" placeholder="0166378631">
+                    <input type="tel" id="custTel" class="w-full p-3 border border-gray-200 rounded text-sm outline-none" placeholder="0166378631">
                 </div>
                 <div class="mt-6 border-t pt-4">
                     <label class="flex items-start gap-2 cursor-pointer">
                         <input type="checkbox" id="policyAgree" class="mt-1">
-                        <span class="text-[11px] text-gray-500">
-                            キャンセルポリシーに同意します。<br>
-                            <span class="text-[9px]">（当日キャンセルは施術料の50%を頂戴する場合がございます）</span>
-                        </span>
+                        <span class="text-[11px] text-gray-500 leading-relaxed">キャンセルポリシーに同意します。</span>
                     </label>
                 </div>
-                <button id="bookingSubmitBtn" onclick="window.submitBooking()" class="w-full mt-6 py-4 bg-[#1a252f] text-white font-bold rounded shadow-lg">予約を確定する</button>
+                <button onclick="window.submitBooking()" class="w-full mt-6 py-4 bg-[#1a252f] text-white font-bold rounded shadow-lg">予約を確定する</button>
             </div>
         </div>
 
-        <!-- STEP 4: 完了 -->
         <div id="step4" class="step-content text-center py-20">
             <div class="text-5xl mb-4">🎉</div>
             <h2 class="text-xl font-bold text-gray-800">予約が完了しました</h2>
-            <p class="text-sm text-gray-500 mt-2">谷口 博哉 がご来店を心よりお待ちしております。</p>
-            <button onclick="location.reload()" class="mt-8 text-[#ff7283] font-bold border-b border-[#ff7283]">予約トップへ戻る</button>
+            <p class="text-sm text-gray-500 mt-2">ご来店をお待ちしております。</p>
+            <button onclick="location.reload()" class="mt-8 text-[#ff7283] font-bold border-b border-[#ff7283] pb-1">トップへ戻る</button>
         </div>
 
-        <!-- OWNER ONLY: 予約一覧 -->
+        <!-- 管理者用エリア -->
         <div id="adminBookingSection" class="mt-12 hidden">
-            <h2 class="text-sm font-bold border-l-4 border-blue-500 pl-2 text-gray-700 mb-4">【管理者】予約一覧</h2>
+            <h2 class="text-sm font-bold border-l-4 border-blue-500 pl-2 text-gray-700 mb-4 text-blue-600">【管理者】現在の予約リスト</h2>
             <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
-                <table class="w-full text-[11px] text-left border-collapse">
-                    <thead class="bg-gray-50">
-                        <tr><th class="p-3">日時</th><th class="p-3">名前 / 電話</th><th class="p-3">メニュー</th><th class="p-3">操作</th></tr>
-                    </thead>
-                    <tbody id="adminBookingBody"></tbody>
-                </table>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-[11px] text-left border-collapse">
+                        <thead class="bg-gray-50">
+                            <tr><th class="p-3">日時</th><th class="p-3">お名前</th><th class="p-3">メニュー</th><th class="p-3">操作</th></tr>
+                        </thead>
+                        <tbody id="adminBookingBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>
@@ -397,38 +231,34 @@
             <div class="space-y-1 text-gray-500 text-xs">
                 <p>代表：谷口 博哉</p>
                 <p>住所：〒078-8345 北海道旭川市東光5条6-3-5</p>
-                <p>電話番号：0166-37-8631</p>
-                <p class="pt-2">営業時間：10:00 〜 19:00</p>
-                <p>定休日：毎週月曜日 / 第1・第3火曜日</p>
-            </div>
-            <div class="mt-6 pt-6 border-t text-[10px] text-center text-gray-400">
-                &copy; 2026 hair Buzl. All Rights Reserved.
+                <p>電話：<a href="tel:0166378631" class="underline">0166-37-8631</a></p>
+                <p class="pt-2 text-gray-400">&copy; 2026 hair Buzl. All Rights Reserved.</p>
             </div>
         </div>
     </footer>
 
-    <!-- Modals -->
-    <div id="confirmModal">
-        <div class="bg-white rounded-xl w-full max-sm:w-[90%] max-w-sm overflow-hidden shadow-2xl">
-            <div class="bg-gray-50 p-4 border-b border-gray-100 text-center font-bold">予約内容の確認</div>
+    <!-- モーダル -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="bg-white rounded-xl w-full max-w-sm overflow-hidden shadow-2xl">
+            <div class="bg-gray-50 p-4 border-b border-gray-100 text-center font-bold text-gray-700" id="modalTitle">予約の確認</div>
             <div class="p-6 text-center">
                 <p class="text-xl font-bold text-gray-800" id="selectedDateTimeDisplay"></p>
                 <div id="modalDescription" class="mt-4 text-xs text-gray-400 whitespace-pre-wrap"></div>
             </div>
             <div class="flex border-t">
                 <button onclick="window.closeModal()" class="flex-1 p-4 text-sm font-bold text-gray-400 border-r">戻る</button>
-                <button id="modalConfirmBtn" class="flex-1 p-4 text-sm font-bold text-[#ff7283]">次へ</button>
+                <button id="modalConfirmBtn" class="flex-1 p-4 text-sm font-bold text-[#ff7283]">次へ進む</button>
             </div>
         </div>
     </div>
 
-    <div id="adminAuthModal">
+    <div id="adminAuthModal" class="modal-overlay">
         <div class="bg-white rounded-xl w-full max-w-xs p-6 shadow-2xl text-center">
             <h3 class="font-bold text-gray-800 mb-4">管理者認証</h3>
-            <input type="password" id="adminPass" class="w-full p-3 border border-gray-200 rounded mb-4 text-center" placeholder="パスワードを入力">
+            <input type="password" id="adminPass" class="w-full p-3 border border-gray-200 rounded mb-4 text-center outline-none" placeholder="パスワードを入力">
             <div class="flex gap-2">
-                <button onclick="window.cancelAdmin()" class="flex-1 py-2 text-xs font-bold text-gray-400 border rounded">× 閉じる</button>
-                <button onclick="window.verifyAdmin()" class="flex-1 py-2 text-xs font-bold bg-blue-500 text-white rounded">認証する</button>
+                <button onclick="window.cancelAdmin()" class="flex-1 py-2 text-xs font-bold text-gray-400 border rounded">閉じる</button>
+                <button onclick="window.verifyAdmin()" class="flex-1 py-2 text-xs font-bold bg-blue-500 text-white rounded">認証</button>
             </div>
         </div>
     </div>
@@ -438,8 +268,10 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const app = initializeApp(firebaseConfig);
+        // Firebase初期設定
+        let fbConfig = {};
+        try { fbConfig = JSON.parse(__firebase_config); } catch(e) { console.warn("Firebase config not found."); }
+        const app = initializeApp(fbConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'hair-buzl-reserve';
@@ -450,12 +282,24 @@
         let selectedSlot = null;
 
         const timeSlots = ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"];
-        const today = new Date();
+        const menuData = [
+            { name: "スタイリストカット", time: 60, price: 3850, desc: "オーナーによる似合わせカット。" },
+            { name: "チャイルドカット", time: 30, price: 2300, desc: "小学生まで。" },
+            { name: "スクールカット", time: 60, price: 2950, desc: "中・高生限定。" },
+            { name: "U24限定カット", time: 60, price: 3500, desc: "大学生まで。" },
+            { name: "艶髪フルカラー", time: 90, price: 6600, desc: "フルボ酸配合。全体染め。" },
+            { name: "カラーリタッチ", time: 60, price: 5500, desc: "2cm以内。" },
+            { name: "ブリーチ", time: 90, price: 6600, desc: "透明感カラーの土台作り。" },
+            { name: "デザインカラー", time: 120, price: 7700, desc: "ハイライト等。" },
+            { name: "艶髪縮毛矯正", time: 180, price: 16500, desc: "看板メニュー。カット込。" },
+            { name: "艶髪パーマ", time: 120, price: 9900, desc: "低負荷。カット込。" },
+            { name: "酸熱トリートメント", time: 90, price: 7700, desc: "髪質改善トリートメント。" },
+            { name: "ヘッドスパ", time: 30, price: 3500, desc: "至福のリフレッシュ。" }
+        ];
 
+        // 共通：画面切り替え
         window.changeStep = (step) => {
-            const contents = document.querySelectorAll('.step-content');
-            contents.forEach(el => el.classList.remove('active'));
-            
+            document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
             const target = document.getElementById(`step${step}`);
             if (target) target.classList.add('active');
 
@@ -464,53 +308,66 @@
                 if(header) {
                     if (i === step) {
                         header.className = "flex-1 py-3 text-center border-r bg-red-50";
-                        const p = header.querySelector('p');
-                        if(p) p.className = "text-[10px] font-bold text-[#ff7283]";
+                        header.querySelector('p').className = "text-[10px] font-bold text-[#ff7283]";
                     } else {
                         header.className = "flex-1 py-3 text-center border-l text-gray-400";
-                        const p = header.querySelector('p');
-                        if(p) p.className = "text-[10px] font-bold";
+                        header.querySelector('p').className = "text-[10px] font-bold";
                     }
                 }
             }
             if(step === 2) startListening();
-            window.scrollTo({top: 0, behavior: 'auto'});
+            window.scrollTo({top: 0});
         };
 
-        window.onSelectMenu = (name, duration, price) => {
-            selectedMenu = { name, duration, price };
-            const display = document.getElementById('selectedMenuDisplay');
-            if (display) display.innerText = `選択中: ${name}`;
-            window.changeStep(2);
+        // STEP 1: メニュー
+        const initMenu = () => {
+            const list = document.getElementById('menuList');
+            list.innerHTML = '';
+            menuData.forEach(m => {
+                const card = document.createElement('div');
+                card.className = "menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex flex-col";
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-1">
+                        <h3 class="font-bold text-gray-800 text-[14px]">${m.name}</h3>
+                        <p class="text-[14px] font-bold text-[#ff7283]">¥${m.price.toLocaleString()}</p>
+                    </div>
+                    <p class="text-[11px] text-gray-400 mb-2">${m.desc}</p>
+                    <div class="flex items-center justify-between mt-auto">
+                        <span class="text-[10px] bg-gray-50 px-2 py-1 rounded text-gray-400 font-bold">目安：${m.time}分</span>
+                        <span class="text-xs text-[#ff7283] font-bold">選択する ></span>
+                    </div>
+                `;
+                card.onclick = () => {
+                    selectedMenu = m;
+                    document.getElementById('selectedMenuDisplay').innerText = `選択：${m.name}`;
+                    window.changeStep(2);
+                };
+                list.appendChild(card);
+            });
         };
 
+        // 監視開始
         const startListening = () => {
-            const slotsRef = collection(db, 'artifacts', appId, 'public', 'data', 'slots');
-            onSnapshot(slotsRef, (snapshot) => {
+            if(!fbConfig.apiKey) return;
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'slots'), (snapshot) => {
                 reservationData = {};
-                snapshot.forEach(doc => { reservationData[doc.id] = doc.data().status; });
+                snapshot.forEach(docSnap => { reservationData[docSnap.id] = docSnap.data().status; });
                 renderCalendar();
-                const loader = document.getElementById('loading');
-                const calendar = document.getElementById('calendar-view');
-                if(loader) loader.classList.add('hidden');
-                if(calendar) calendar.classList.remove('hidden');
-            }, (error) => console.error(error));
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('calendar-view').classList.remove('hidden');
+            });
 
-            const bookingsRef = collection(db, 'artifacts', appId, 'public', 'data', 'bookings');
-            onSnapshot(bookingsRef, (snapshot) => {
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), (snapshot) => {
                 const body = document.getElementById('adminBookingBody');
                 if (!body) return;
                 body.innerHTML = '';
-                snapshot.forEach(docSnap => {
-                    const b = docSnap.data();
+                const sorted = [];
+                snapshot.forEach(docSnap => sorted.push({id: docSnap.id, ...docSnap.data()}));
+                sorted.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+                sorted.forEach(b => {
                     const tr = document.createElement('tr');
-                    tr.className = "border-b hover:bg-gray-50";
-                    tr.innerHTML = `
-                        <td class="p-3"><strong>${b.dateTime}</strong></td>
-                        <td class="p-3">${b.customerName}<br><span class="text-gray-400">${b.customerTel}</span></td>
-                        <td class="p-3">${b.menu}</td>
-                        <td class="p-3"><button class="text-red-500 font-bold px-2 py-1" onclick="window.deleteBooking('${docSnap.id}')">削除</button></td>
-                    `;
+                    tr.className = "border-b";
+                    tr.innerHTML = `<td class="p-3"><strong>${b.dateTime}</strong></td><td class="p-3">${b.customerName}</td><td class="p-3">${b.menu}</td><td class="p-3"><button class="text-red-500 font-bold" onclick="window.deleteBooking('${b.id}')">削除</button></td>`;
                     body.appendChild(tr);
                 });
             });
@@ -521,19 +378,18 @@
             const dateHeader = document.getElementById('dateHeader');
             if (!calendarBody || !dateHeader) return;
             dateHeader.innerHTML = '<th class="time-col">時間</th>';
-            
             const dates = [];
+            const todayDate = new Date();
             for (let i = 0; i < 7; i++) {
-                const date = new Date();
-                date.setDate(today.getDate() + i);
-                const dateId = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}`;
-                const display = `${date.getMonth()+1}/${date.getDate()}`;
-                const day = ['日','月','火','水','木','金','土'][date.getDay()];
+                const d = new Date(); d.setDate(todayDate.getDate() + i);
+                const id = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
+                const display = `${d.getMonth()+1}/${d.getDate()}`;
+                const day = ['日','月','火','水','木','金','土'][d.getDay()];
                 const th = document.createElement('th');
-                th.innerHTML = `<span class='text-[10px]'>${display}</span><br><span class='text-[8px] font-normal'>(${day})</span>`;
-                if(date.getDay() === 0) th.classList.add('text-red-500');
+                th.innerHTML = `<span class='text-[10px]'>${display}</span><br><span class='text-[8px]'>(${day})</span>`;
+                if(d.getDay() === 0) th.classList.add('text-red-500');
                 dateHeader.appendChild(th);
-                dates.push({id: dateId, label: display + '(' + day + ')'});
+                dates.push({id, label: display + '(' + day + ')'});
             }
 
             calendarBody.innerHTML = '';
@@ -545,7 +401,6 @@
                     const status = reservationData[slotId] || 'ok';
                     const td = document.createElement('td');
                     td.innerHTML = `<div class="status-mark ${status==='ok'?'status-ok':'status-ng'}">${status==='ok'?'◎':'×'}</div>`;
-                    
                     if(isAdmin) {
                         td.className = 'admin-active';
                         td.onclick = () => window.showConfirm(slotId, status, date.label, time, true);
@@ -560,121 +415,83 @@
 
         window.showConfirm = (slotId, status, dateLabel, time, adminMode) => {
             selectedSlot = { slotId, status, dateLabel, time };
-            const display = document.getElementById('selectedDateTimeDisplay');
-            if(display) display.innerText = `${dateLabel} ${time}`;
-            
+            document.getElementById('selectedDateTimeDisplay').innerText = `${dateLabel} ${time}`;
             const btn = document.getElementById('modalConfirmBtn');
-            const modal = document.getElementById('confirmModal');
+            const desc = document.getElementById('modalDescription');
             
             if(adminMode) {
-                document.getElementById('modalDescription').innerText = `管理：この枠を「${status==='ok'?'×':'◎'}」に変更します。`;
-                btn.onclick = () => toggleSlot(slotId, status);
+                document.getElementById('modalTitle').innerText = '空き状況の変更';
+                desc.innerText = `管理：この時間を「${status==='ok'?'×':'◎'}」に変更します。`;
+                btn.onclick = async () => {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotId), { status: status === 'ok' ? 'ng' : 'ok' });
+                    window.closeModal();
+                };
             } else {
-                document.getElementById('modalDescription').innerText = `メニュー: ${selectedMenu.name}\n上記の内容でよろしければ、入力へ進みます。`;
+                document.getElementById('modalTitle').innerText = '予約の確認';
+                desc.innerText = `メニュー：${selectedMenu.name}\nで入力に進みます。`;
                 btn.onclick = () => { window.closeModal(); window.changeStep(3); };
             }
-            if(modal) modal.style.display = 'flex';
+            document.getElementById('confirmModal').style.display = 'flex';
         };
 
-        window.closeModal = () => {
-            const modal = document.getElementById('confirmModal');
-            if(modal) modal.style.display = 'none';
-        };
+        window.closeModal = () => document.getElementById('confirmModal').style.display = 'none';
 
         window.submitBooking = async () => {
             const name = document.getElementById('custName').value.trim();
             const tel = document.getElementById('custTel').value.trim();
-            const agree = document.getElementById('policyAgree').checked;
-            
-            if(!name || !tel) {
-                alert("お名前と電話番号を入力してください。");
-                return;
-            }
-            if(!agree) {
-                alert("キャンセルポリシーへの同意が必要です。");
-                return;
-            }
+            if(!name || !tel) return alert("名前と電話番号を入力してください");
+            if(!document.getElementById('policyAgree').checked) return alert("同意が必要です");
 
             try {
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), {
-                    customerName: name,
-                    customerTel: tel,
-                    menu: selectedMenu.name,
-                    dateTime: `${selectedSlot.dateLabel} ${selectedSlot.time}`,
-                    timestamp: serverTimestamp()
+                    customerName: name, customerTel: tel, menu: selectedMenu.name, dateTime: `${selectedSlot.dateLabel} ${selectedSlot.time}`, timestamp: serverTimestamp()
                 });
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', selectedSlot.slotId), { status: 'ng' });
                 window.changeStep(4);
-            } catch (e) {
-                console.error(e);
-                alert("送信に失敗しました。");
-            }
+            } catch (e) { alert("予約に失敗しました。"); }
         };
 
-        const toggleSlot = async (id, status) => {
-            try {
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', id), { status: status === 'ok' ? 'ng' : 'ok' });
-                window.closeModal();
-            } catch (e) { console.error(e); }
+        window.deleteBooking = async (id) => {
+            if(confirm("削除しますか？")) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id));
         };
 
-        window.deleteBooking = async (docId) => {
-            if(!confirm("予約記録を削除しますか？")) return;
-            try {
-                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', docId));
-            } catch (e) { console.error(e); }
-        };
-
-        // 管理者モード
+        // 管理者認証（この部分を確実に動くように修正）
         const adminToggle = document.getElementById('adminToggle');
-        if(adminToggle) {
-            adminToggle.onchange = (e) => {
-                if(e.target.checked) {
-                    const modal = document.getElementById('adminAuthModal');
-                    if(modal) modal.style.display = 'flex';
-                } else {
-                    isAdmin = false;
-                    const label = document.getElementById('modeLabel');
-                    if(label) label.innerText = 'OFF';
-                    const section = document.getElementById('adminBookingSection');
-                    if(section) section.classList.add('hidden');
-                    renderCalendar();
-                }
-            };
-        }
+        adminToggle.addEventListener('change', (e) => {
+            if(e.target.checked) {
+                document.getElementById('adminAuthModal').style.display = 'flex';
+            } else {
+                isAdmin = false;
+                document.getElementById('modeLabel').innerText = 'OFF';
+                document.getElementById('adminBookingSection').classList.add('hidden');
+                renderCalendar();
+            }
+        });
 
         window.verifyAdmin = () => {
-            const passInput = document.getElementById('adminPass');
-            if(passInput && passInput.value === '0000') {
+            if(document.getElementById('adminPass').value === '0000') {
                 isAdmin = true;
-                const label = document.getElementById('modeLabel');
-                if(label) label.innerText = 'ON';
-                const modal = document.getElementById('adminAuthModal');
-                if(modal) modal.style.display = 'none';
-                const section = document.getElementById('adminBookingSection');
-                if(section) section.classList.remove('hidden');
+                document.getElementById('modeLabel').innerText = 'ON';
+                document.getElementById('adminAuthModal').style.display = 'none';
+                document.getElementById('adminBookingSection').classList.remove('hidden');
                 renderCalendar();
             } else { alert("パスワードが違います"); }
         };
 
         window.cancelAdmin = () => {
-            const toggle = document.getElementById('adminToggle');
-            if(toggle) toggle.checked = false;
-            const modal = document.getElementById('adminAuthModal');
-            if(modal) modal.style.display = 'none';
+            adminToggle.checked = false;
+            document.getElementById('adminAuthModal').style.display = 'none';
         };
 
-        const initAuth = async () => {
+        // 初期化
+        const init = async () => {
+            initMenu();
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (e) { console.error(e); }
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
+                else await signInAnonymously(auth);
+            } catch (e) {}
         };
-        initAuth();
-
+        init();
     </script>
 </body>
 </html>
