@@ -146,13 +146,13 @@
 
     <main class="max-w-4xl mx-auto p-4 pb-12">
         
-        <!-- STEP 1: メニュー -->
+        <!-- STEP 1 -->
         <div id="step1" class="step-content active">
             <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4 text-gray-700">メニューを選択してください</h2>
             <div id="menuList" class="space-y-4"></div>
         </div>
 
-        <!-- STEP 2: カレンダー -->
+        <!-- STEP 2 -->
         <div id="step2" class="step-content">
             <div class="flex justify-between items-end mb-3">
                 <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 text-gray-700">日時を選択（2か月先まで）</h2>
@@ -168,14 +168,14 @@
             </div>
             <div class="mt-4 flex justify-between items-start text-[10px] text-gray-400 leading-relaxed">
                 <div>
-                    <p>◎：予約可能 / ×：満員 / －：時間外</p>
+                    <p>◎：予約可能 / ×：満員または時間不足 / －：時間外</p>
                     <p>日・祝：18:00まで / その他：19:00まで営業</p>
                 </div>
                 <p class="text-right">定休：月曜<br>第1・3・5火曜</p>
             </div>
         </div>
 
-        <!-- STEP 3: 入力 -->
+        <!-- STEP 3 -->
         <div id="step3" class="step-content">
             <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4 text-gray-700">お客様情報の入力</h2>
             <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
@@ -197,7 +197,7 @@
             </div>
         </div>
 
-        <!-- STEP 4: 完了 -->
+        <!-- STEP 4 -->
         <div id="step4" class="step-content text-center py-20">
             <div class="text-6xl mb-6">✨</div>
             <h2 class="text-xl font-bold text-gray-800">ご予約ありがとうございました</h2>
@@ -205,7 +205,7 @@
             <button onclick="location.reload()" class="mt-12 text-[#ff7283] font-bold border-b-2 border-[#ff7283] pb-1">トップへ戻る</button>
         </div>
 
-        <!-- 管理者リスト -->
+        <!-- 管理用リスト -->
         <div id="adminBookingSection" class="mt-12 hidden">
             <h2 class="text-sm font-bold border-l-4 border-blue-500 pl-2 text-gray-700 mb-4 text-blue-600">【オーナー専用】予約台帳</h2>
             <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md">
@@ -219,26 +219,19 @@
         </div>
     </main>
 
-    <footer class="salon-footer text-gray-500 leading-relaxed">
+    <footer class="salon-footer text-gray-500 text-center">
         <div class="max-w-4xl mx-auto border-t pt-8">
             <h3 class="font-bold text-gray-800 mb-3 text-base">hair Buzl 【ヘアーバズール】</h3>
             <div class="space-y-1 text-xs">
-                <p>代表：谷口 博哉</p>
-                <p>住所：〒078-8345 北海道旭川市東光5条6-3-5</p>
-                <p>電話：<a href="tel:0166378631" class="font-bold text-[#ff7283] underline">0166-37-8631</a></p>
-                <p class="mt-4 font-bold text-gray-700">営業時間</p>
-                <p>平日・土曜：09:30 〜 19:00</p>
-                <p>日曜・祝日：09:30 〜 18:00</p>
-                <p class="mt-2 font-bold text-gray-700">定休日</p>
-                <p>毎週月曜日 / 第1・3・5火曜日</p>
-            </div>
-            <div class="mt-10 pt-6 border-t text-[10px] text-center text-gray-300">
-                &copy; 2026 hair Buzl.
+                <p>代表：谷口 博哉 | 旭川市東光5条6-3-5 | 0166-37-8631</p>
+                <p class="mt-2 font-bold text-gray-700">営業時間</p>
+                <p>平日・土曜 09:30〜19:00 / 日祝 09:30〜18:00</p>
+                <p>定休：毎週月曜 / 第1・3・5火曜</p>
             </div>
         </div>
     </footer>
 
-    <!-- モーダル：確認 -->
+    <!-- 確認モーダル -->
     <div id="confirmModal" class="modal-overlay">
         <div class="bg-white rounded-xl w-full max-w-sm overflow-hidden shadow-2xl mx-4">
             <div class="bg-gray-50 p-4 border-b text-center font-bold text-gray-700" id="modalTitle">予約日時の最終確認</div>
@@ -253,12 +246,11 @@
         </div>
     </div>
 
-    <!-- モーダル：認証 -->
+    <!-- オーナー認証 -->
     <div id="adminAuthModal" class="modal-overlay">
         <div class="bg-white rounded-xl w-full max-w-xs p-6 shadow-2xl text-center mx-4 border-t-4 border-blue-500">
             <h3 class="font-bold text-gray-800 mb-2 text-lg">Owner Login</h3>
-            <p class="text-[10px] text-gray-400 mb-4">店舗管理パスワードを入力（初期：0000）</p>
-            <input type="password" id="adminPass" class="w-full p-4 border rounded-lg mb-4 text-center text-3xl tracking-widest outline-none focus:border-blue-400" placeholder="****" inputmode="numeric">
+            <input type="password" id="adminPass" class="w-full p-4 border rounded-lg mb-4 text-center text-3xl outline-none" placeholder="****" inputmode="numeric">
             <div class="flex gap-2">
                 <button onclick="window.cancelAdmin()" class="flex-1 py-3 text-xs font-bold text-gray-400 border rounded-lg">戻る</button>
                 <button onclick="window.verifyAdmin()" class="flex-1 py-3 text-xs font-bold bg-blue-500 text-white rounded-lg shadow-md">認証</button>
@@ -285,32 +277,31 @@
         const db = getFirestore(app);
         const appId = "hair-buzl-reserve";
 
-        let fbUser = null, reservationData = {}, localBookings = [], isAdmin = false, selectedMenu = null, selectedSlot = null;
+        let fbUser = null, reservationData = {}, isAdmin = false, selectedMenu = null, selectedSlot = null;
 
         const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"];
         
-        // ユーザーが持っていた全メニューを復元
         const menuData = [
             { name: "スタイリストカット", time: 60, price: 3850, desc: "オーナー谷口による似合わせカット。" },
             { name: "チャイルドカット", time: 30, price: 2300, desc: "小学生まで。シャンプー別。" },
             { name: "スクールカット", time: 60, price: 2950, desc: "中・高生限定カット。" },
             { name: "U24限定カット", time: 60, price: 3500, desc: "大学生まで。学生証提示必須。" },
-            { name: "艶髪フルカラー", time: 90, price: 6600, desc: "フルボ酸配合。全体染め。※ロング料金別" },
-            { name: "カラーリタッチ", time: 60, price: 5500, desc: "生え際2cm以内。メンテナンスに。" },
-            { name: "ブリーチ", time: 90, price: 6600, desc: "ダメージを最小限に。透明感カラーの土台。" },
-            { name: "ダブルブリーチ", time: 120, price: 9900, desc: "極限の明るさ。時間をかけて丁寧に。" },
-            { name: "デザインカラー", time: 120, price: 7700, desc: "ハイライト、インナー等。陰影を。" },
-            { name: "艶髪縮毛矯正", time: 180, price: 16500, desc: "看板メニュー。芯から整え艶やかに。カット込。" },
-            { name: "艶髪パーマ", time: 120, price: 9900, desc: "低負荷。弾む柔らかいカール。カット込。" },
-            { name: "セラミックスカール", time: 150, price: 15000, desc: "進化系デジパ。立体ウェーブキープ。カット込。" },
-            { name: "特殊パーマ", time: 150, price: 11000, desc: "スパイラル、ツイスト等の特殊技術。" },
-            { name: "酸熱トリートメント", time: 90, price: 7700, desc: "髪質改善集中ケア。鏡のような艶へ。" },
-            { name: "艶髪トリートメント", time: 30, price: 2950, desc: "フルボ酸。パサつきを抑え柔らかく。" },
-            { name: "前髪カット", time: 30, price: 1100, desc: "1mmで印象を変えるメンテナンス。" },
-            { name: "眉カット", time: 30, price: 1100, desc: "プロの手で清潔感のある眉へ。" },
-            { name: "ヘッドスパ", time: 30, price: 3500, desc: "至福のマッサージ。血行促進と癒やし。" },
-            { name: "部分矯正", time: 90, price: 5500, desc: "前髪・顔周り等の気になる部分のみ。" },
-            { name: "シャンプー・ブロー", time: 30, price: 2200, desc: "プロの洗髪。美しく整った仕上げ。" }
+            { name: "艶髪フルカラー", time: 90, price: 6600, desc: "フルボ酸配合。全体染め。" },
+            { name: "カラーリタッチ", time: 60, price: 5500, desc: "生え際2cm以内。" },
+            { name: "ブリーチ", time: 90, price: 6600, desc: "透明感カラーの土台。" },
+            { name: "ダブルブリーチ", time: 120, price: 9900, desc: "極限の明るさ。" },
+            { name: "デザインカラー", time: 120, price: 7700, desc: "ハイライト、インナー等。" },
+            { name: "艶髪縮毛矯正", time: 180, price: 16500, desc: "看板メニュー。カット込。" },
+            { name: "艶髪パーマ", time: 120, price: 9900, desc: "柔らかいカール。カット込。" },
+            { name: "セラミックスカール", time: 150, price: 15000, desc: "進化系デジパ。カット込。" },
+            { name: "特殊パーマ", time: 150, price: 11000, desc: "スパイラル、ツイスト等。" },
+            { name: "酸熱トリートメント", time: 90, price: 7700, desc: "髪質改善集中ケア。" },
+            { name: "艶髪トリートメント", time: 30, price: 2950, desc: "柔らかい質感へ。" },
+            { name: "前髪カット", time: 30, price: 1100, desc: "印象を変えるメンテナンス。" },
+            { name: "眉カット", time: 30, price: 1100, desc: "プロの手で清潔感を。" },
+            { name: "ヘッドスパ", time: 30, price: 3500, desc: "至福のマッサージ。" },
+            { name: "部分矯正", time: 90, price: 5500, desc: "気になる部分のみ。" },
+            { name: "シャンプー・ブロー", time: 30, price: 2200, desc: "美しい整った仕上げ。" }
         ];
 
         window.onload = async () => {
@@ -325,17 +316,7 @@
                 const card = document.createElement('div');
                 card.className = "menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm";
                 card.onclick = () => { selectedMenu = m; document.getElementById('selectedMenuDisplay').innerText = `メニュー：${m.name} (${m.time}分)`; window.changeStep(2); };
-                card.innerHTML = `
-                    <div class="flex justify-between items-start mb-1">
-                        <h3 class="font-bold text-gray-800 text-[14px] leading-tight">${m.name}</h3>
-                        <p class="text-[14px] font-bold text-[#ff7283] ml-2">¥${m.price.toLocaleString()}</p>
-                    </div>
-                    <p class="text-[11px] text-gray-400 mb-2 leading-relaxed">${m.desc || ''}</p>
-                    <div class="flex items-center justify-between mt-auto">
-                        <span class="text-[10px] bg-gray-50 px-2 py-1 rounded text-gray-400 font-bold border border-gray-100">目安：${m.time}分</span>
-                        <span class="text-xs text-[#ff7283] font-bold">予約する ></span>
-                    </div>
-                `;
+                card.innerHTML = `<h3 class="font-bold text-sm text-gray-800">${m.name}</h3><p class="text-xs text-[#ff7283] font-bold">¥${m.price.toLocaleString()} (${m.time}分)</p><p class="text-[10px] text-gray-400 mt-1">${m.desc}</p>`;
                 list.appendChild(card);
             });
         };
@@ -349,18 +330,30 @@
                 const body = document.getElementById('adminBookingBody'); body.innerHTML = '';
                 snap.docs.sort((a,b) => (b.data().timestamp?.seconds||0)-(a.data().timestamp?.seconds||0)).forEach(docSnap => {
                     const b = docSnap.data();
-                    const tr = document.createElement('tr'); tr.className = "border-b hover:bg-gray-50";
-                    tr.innerHTML = `<td class="p-3"><strong>${b.dateTime}</strong></td><td class="p-3 text-[10px] font-bold">${b.customerName}<br><span class='text-gray-400'>${b.customerTel}</span></td><td class="p-3 text-[10px]">${b.menu}</td><td class="p-3"><button class="text-red-500 font-bold bg-red-50 px-2 py-1 rounded" onclick="window.deleteBooking('${docSnap.id}')">削除</button></td>`;
+                    const tr = document.createElement('tr'); tr.className = "border-b";
+                    tr.innerHTML = `<td class="p-3"><strong>${b.dateTime}</strong></td><td class="p-3 text-[10px]">${b.customerName}<br>${b.customerTel}</td><td class="p-3 text-[10px]">${b.menu}</td><td class="p-3"><button class="text-red-500 font-bold" onclick="window.deleteBooking('${docSnap.id}')">削除</button></td>`;
                     body.appendChild(tr);
                 });
             });
+        };
+
+        // 指定した時間から所要時間分、空きがあるか判定する関数
+        const isDurationAvailable = (dateId, tIdx, slotsNeeded) => {
+            for(let i=0; i < slotsNeeded; i++) {
+                const checkIdx = tIdx + i;
+                if(checkIdx >= timeSlots.length) return false; // 営業終了時間を超える場合
+                const slotId = `${dateId}_${timeSlots[checkIdx].replace(':','')}`;
+                if(reservationData[slotId] === 'ng') return false; // 途中で埋まっている場合
+            }
+            return true;
         };
 
         const renderCalendar = () => {
             const body = document.getElementById('calendarBody'), head = document.getElementById('dateHeader');
             head.innerHTML = '<th class="time-col">時間</th>'; body.innerHTML = '';
             const dates = []; const now = new Date();
-            // 2か月分 (60日)
+            const slotsNeeded = selectedMenu ? Math.ceil(selectedMenu.time / 30) : 1;
+
             for (let i = 0; i < 60; i++) {
                 const d = new Date(); d.setDate(now.getDate() + i);
                 const id = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
@@ -370,17 +363,24 @@
                 const isHoliday = (d.getDay()===1) || (d.getDay()===2 && [1,3,5].includes(weekNum));
                 dates.push({id, label, isHoliday, day: d.getDay()});
             }
+
             timeSlots.forEach((t, tIdx) => {
                 const tr = document.createElement('tr'); tr.innerHTML = `<td class="time-col">${t}</td>`;
                 dates.forEach(d => {
                     const slotId = `${d.id}_${t.replace(':','')}`;
                     const status = reservationData[slotId] || 'ok';
                     const td = document.createElement('td');
+                    
                     if(d.isHoliday) { td.className = 'status-closed'; td.innerText = '休業'; }
                     else if(d.day===0 && parseInt(t)>=18) { td.innerText = '－'; td.className = 'text-gray-300'; }
                     else {
-                        td.innerHTML = `<div class="status-mark ${status==='ok'?'status-ok':'status-ng'}">${status==='ok'?'◎':'×'}</div>`;
-                        td.onclick = () => window.showConfirm(slotId, status, d.label, t, tIdx, d.id);
+                        // お客様モードの場合、所要時間分空いているかもチェック
+                        const canBook = isAdmin ? true : (status === 'ok' && isDurationAvailable(d.id, tIdx, slotsNeeded));
+                        const mark = canBook ? '◎' : '×';
+                        const color = canBook ? 'status-ok' : 'status-ng';
+                        
+                        td.innerHTML = `<div class="status-mark ${color}">${mark}</div>`;
+                        td.onclick = () => window.showConfirm(slotId, status, d.label, t, tIdx, d.id, canBook);
                         if(isAdmin) td.className = 'admin-active';
                     }
                     tr.appendChild(td);
@@ -389,18 +389,29 @@
             });
         };
 
-        window.showConfirm = (slotId, status, dateLabel, time, tIdx, dateId) => {
-            if(!isAdmin && status!=='ok') return;
+        window.showConfirm = (slotId, status, dateLabel, time, tIdx, dateId, canBook) => {
+            if(!isAdmin && !canBook) {
+                const modal = document.getElementById('confirmModal');
+                document.getElementById('modalTitle').innerText = 'お知らせ';
+                document.getElementById('selectedDateTimeDisplay').innerText = '予約できません';
+                document.getElementById('modalDescription').innerText = `申し訳ありません。\nこの時間はメニューに必要な時間（${selectedMenu.time}分）が確保できないため、ご予約いただけません。`;
+                document.getElementById('modalConfirmBtn').style.display = 'none';
+                modal.style.display = 'flex';
+                return;
+            }
+            
             selectedSlot = { slotId, dateLabel, time, tIdx, dateId };
             document.getElementById('selectedDateTimeDisplay').innerText = `${dateLabel} ${time}`;
+            document.getElementById('modalConfirmBtn').style.display = 'block';
             const title = document.getElementById('modalTitle'), desc = document.getElementById('modalDescription'), btn = document.getElementById('modalConfirmBtn');
+            
             if(isAdmin) {
-                title.innerText = '管理：表示変更';
+                title.innerText = '管理者：枠の管理';
                 if(status==='ok') { desc.innerText = "この時間を【×（予約不可）】にしますか？"; btn.innerText = "× にする"; }
                 else { desc.innerText = "この時間を【◎（予約可）】に戻しますか？"; btn.innerText = "◎ に戻す"; }
                 btn.onclick = async () => { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotId), { status: status==='ok'?'ng':'ok' }); window.closeModal(); };
             } else {
-                title.innerText = '予約のご確認';
+                title.innerText = '予約内容の最終確認';
                 desc.innerText = `メニュー：${selectedMenu.name}\n所要時間：約${selectedMenu.time}分\n\n間違いなければ次に進んでください。`;
                 btn.onclick = () => { window.closeModal(); window.changeStep(3); };
             }
@@ -409,8 +420,14 @@
 
         window.submitBooking = async () => {
             const name = document.getElementById('custName').value.trim(), tel = document.getElementById('custTel').value.trim();
-            if(!name || !tel) return alert("お名前と電話番号を入力してください。");
+            if(!name || !tel) return alert("情報を入力してください。");
             const slotsCount = Math.ceil(selectedMenu.time / 30);
+            
+            // 確定直前にもう一度空きチェック
+            if(!isDurationAvailable(selectedSlot.dateId, selectedSlot.tIdx, slotsCount)) {
+                return alert("申し訳ありません。操作中に他の予約が入ったため、この時間は予約できなくなりました。TOPに戻り、別の時間をお選びください。");
+            }
+
             try {
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), { customerName: name, customerTel: tel, menu: selectedMenu.name, dateTime: `${selectedSlot.dateLabel} ${selectedSlot.time}`, timestamp: serverTimestamp() });
                 for(let i=0; i < slotsCount; i++) {
@@ -421,7 +438,7 @@
                     }
                 }
                 window.changeStep(4);
-            } catch(e) { alert("予約に失敗しました。画面を更新してお試しください。"); }
+            } catch(e) { alert("失敗しました。画面を更新してください。"); }
         };
 
         window.deleteBooking = async (id) => { if(confirm("予約を削除しますか？（カレンダー枠は手動で◎に戻してください）")) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id)); };
@@ -434,10 +451,11 @@
                 if(i===s) { h.className="flex-1 py-3 text-center bg-red-50 text-[#ff7283] font-bold"; }
                 else { h.className="flex-1 py-3 text-center border-l text-gray-400 font-bold"; }
             }
-            window.scrollTo(0,0); 
+            window.scrollTo(0,0);
+            if(s === 2) renderCalendar(); // メニューが変わる可能性があるので再描画
         };
         window.toggleAdminMode = (chk) => { if(chk) document.getElementById('adminAuthModal').style.display = 'flex'; else { isAdmin = false; document.getElementById('modeLabel').innerText='Off'; renderCalendar(); document.getElementById('adminBookingSection').classList.add('hidden'); } };
-        window.verifyAdmin = () => { if(document.getElementById('adminPass').value==='0000'){ isAdmin=true; document.getElementById('modeLabel').innerText='On'; document.getElementById('adminAuthModal').style.display='none'; document.getElementById('adminBookingSection').classList.remove('hidden'); renderCalendar(); } else alert("パスワードが違います"); };
+        window.verifyAdmin = () => { if(document.getElementById('adminPass').value==='0000'){ isAdmin=true; document.getElementById('modeLabel').innerText='On'; document.getElementById('adminAuthModal').style.display='none'; document.getElementById('adminBookingSection').classList.remove('hidden'); renderCalendar(); } else alert("間違い"); };
         window.cancelAdmin = () => { document.getElementById('adminToggle').checked = false; document.getElementById('adminAuthModal').style.display = 'none'; };
     </script>
 </body>
