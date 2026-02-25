@@ -105,7 +105,7 @@
             background: white;
             border-top: 1px solid #eee;
             margin-top: 50px;
-            padding: 40px 20px;
+            padding: 40px 16px;
         }
     </style>
 </head>
@@ -126,7 +126,7 @@
 
     <header class="max-w-4xl mx-auto p-4 flex justify-between items-center bg-white border-b border-gray-100">
         <div class="salon-info">
-            <p class="text-[10px] text-gray-400 m-0 leading-none">hair Buzl</p>
+            <p class="text-[10px] text-gray-400 m-0 leading-none uppercase tracking-tighter">hair Buzl</p>
             <h1 class="text-xl font-bold m-0 text-gray-800">ヘアーバズール</h1>
             <div class="flex gap-1 mt-1 text-[10px] text-gray-400 border border-gray-100 rounded-full px-2 w-max">
                 ✓ スマート支払い対応
@@ -170,7 +170,7 @@
                     <p>◎：予約可能 / ×：満員または時間不足 / －：時間外</p>
                     <p>日・祝：18:00まで / その他：19:00まで営業</p>
                 </div>
-                <p class="text-right">定休：毎週月曜日</p>
+                <p class="text-right font-bold">定休：毎週月曜日</p>
             </div>
         </div>
 
@@ -218,41 +218,48 @@
         </div>
     </main>
 
-    <footer class="salon-footer text-gray-500">
-        <div class="max-w-4xl mx-auto border-t pt-8 pb-10 px-4">
-            <h3 class="font-bold text-gray-800 mb-6 text-center text-lg">hair Buzl 【ヘアーバズール】</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
-                <!-- 店舗基本情報 -->
-                <div class="space-y-4">
+    <footer class="salon-footer">
+        <div class="max-w-4xl mx-auto border-t pt-10">
+            <h3 class="font-bold text-gray-800 mb-8 text-center text-lg tracking-widest">hair Buzl 【ヘアーバズール】</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <!-- 左側：店舗基本情報 -->
+                <div class="space-y-6">
                     <div class="flex flex-col items-center md:items-start">
-                        <span class="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-bold text-gray-400 mb-1">REPRESENTATIVE</span>
-                        <span class="text-gray-800 font-bold text-base">谷口 博哉</span>
+                        <span class="text-[9px] font-bold text-gray-300 tracking-widest mb-1 uppercase">Representative</span>
+                        <span class="text-gray-800 font-bold text-base border-b border-gray-100 pb-1">谷口 博哉</span>
                     </div>
                     <div class="flex flex-col items-center md:items-start">
-                        <span class="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-bold text-gray-400 mb-1">ADDRESS</span>
-                        <span class="text-gray-600 leading-relaxed text-center md:text-left">〒078-8345<br>北海道旭川市東光5条6-3-5</span>
+                        <span class="text-[9px] font-bold text-gray-300 tracking-widest mb-1 uppercase">Address</span>
+                        <span class="text-gray-600 text-sm text-center md:text-left leading-relaxed">
+                            〒078-8345<br>北海道旭川市東光5条6-3-5
+                        </span>
                     </div>
                     <div class="flex flex-col items-center md:items-start">
-                        <span class="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-bold text-gray-400 mb-1">PHONE</span>
-                        <a href="tel:0166378631" class="font-bold text-lg text-[#ff7283] underline decoration-2">0166-37-8631</a>
+                        <span class="text-[9px] font-bold text-gray-300 tracking-widest mb-1 uppercase">Phone</span>
+                        <a href="tel:0166378631" class="text-xl font-bold text-[#ff7283] hover:opacity-70 transition-opacity">0166-37-8631</a>
                     </div>
                 </div>
-                <!-- 営業時間・定休日 -->
-                <div class="bg-gray-50 p-6 rounded-xl space-y-4">
+
+                <!-- 右側：営業時間・定休日 -->
+                <div class="bg-gray-50 p-6 rounded-2xl space-y-6">
                     <div class="text-center md:text-left">
-                        <p class="font-bold text-gray-700 border-b border-[#ff7283] inline-block mb-2">営業時間</p>
-                        <p class="text-gray-600">平日・土曜：09:30 〜 19:00</p>
-                        <p class="text-gray-600">日曜・祝日：09:30 〜 18:00</p>
+                        <p class="text-[10px] font-bold text-gray-400 mb-2 border-l-2 border-[#ff7283] pl-2 uppercase">Business Hours</p>
+                        <div class="text-sm text-gray-600 space-y-1">
+                            <p class="flex justify-between"><span>平日・土曜</span><span class="font-bold text-gray-700">09:30 〜 19:00</span></p>
+                            <p class="flex justify-between"><span>日曜・祝日</span><span class="font-bold text-gray-700">09:30 〜 18:00</span></p>
+                        </div>
                     </div>
                     <div class="text-center md:text-left">
-                        <p class="font-bold text-gray-700 border-b border-[#ff7283] inline-block mb-2">定休日</p>
-                        <p class="text-gray-600 font-bold">毎週月曜日</p>
-                        <p class="text-[11px] text-gray-400 mt-1">※その他不定休はカレンダーをご確認ください</p>
+                        <p class="text-[10px] font-bold text-gray-400 mb-2 border-l-2 border-[#ff7283] pl-2 uppercase">Regular Holiday</p>
+                        <p class="text-gray-700 font-bold text-sm">毎週月曜日</p>
+                        <p class="text-[10px] text-gray-400 mt-2 leading-tight">※その他オーナー公休による不定休はカレンダーの「×」をご確認ください。</p>
                     </div>
                 </div>
             </div>
-            <p class="mt-12 pt-6 border-t text-[10px] text-center text-gray-300">
-                &copy; 2026 hair Buzl. All Rights Reserved.
+
+            <p class="mt-16 pt-8 border-t border-gray-50 text-[10px] text-center text-gray-300 tracking-widest uppercase">
+                &copy; 2026 hair Buzl.
             </p>
         </div>
     </footer>
@@ -342,7 +349,17 @@
                 const card = document.createElement('div');
                 card.className = "menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm";
                 card.onclick = () => { selectedMenu = m; document.getElementById('selectedMenuDisplay').innerText = `メニュー：${m.name} (${m.time}分)`; window.changeStep(2); };
-                card.innerHTML = `<h3 class="font-bold text-sm text-gray-800">${m.name}</h3><p class="text-xs text-[#ff7283] font-bold">¥${m.price.toLocaleString()} (${m.time}分)</p><p class="text-[10px] text-gray-400 mt-1">${m.desc}</p>`;
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-1">
+                        <h3 class="font-bold text-gray-800 text-[14px] leading-tight">${m.name}</h3>
+                        <p class="text-[14px] font-bold text-[#ff7283] ml-2">¥${m.price.toLocaleString()}</p>
+                    </div>
+                    <p class="text-[11px] text-gray-400 mb-2 leading-relaxed">${m.desc}</p>
+                    <div class="flex items-center justify-between mt-auto">
+                        <span class="text-[10px] bg-gray-50 px-2 py-1 rounded text-gray-400 font-bold border border-gray-100">目安：${m.time}分</span>
+                        <span class="text-xs text-[#ff7283] font-bold">予約する ></span>
+                    </div>
+                `;
                 list.appendChild(card);
             });
         };
@@ -363,23 +380,20 @@
             });
         };
 
-        // 指定した時間から所要時間分、空きがあるか厳密に判定
+        // HPB式判定：指定時間からメニュー時間分、ずっと空いているか
         const isDurationAvailable = (d, tIdx, slotsNeeded) => {
             if (d.isHoliday) return false;
 
             for(let i=0; i < slotsNeeded; i++) {
                 const checkIdx = tIdx + i;
-                if(checkIdx >= timeSlots.length) return false; 
+                if(checkIdx >= timeSlots.length) return false; // 営業終了
                 
                 const timeStr = timeSlots[checkIdx];
                 const [h, m] = timeStr.split(':').map(Number);
-                
-                // 日祝の18:00閉店を跨ぐ場合
-                if(d.day === 0 && h >= 18) return false; 
+                if(d.day === 0 && h >= 18) return false; // 日祝18:00閉店
 
-                // 既に埋まっている場合
                 const slotId = `${d.id}_${timeStr.replace(':','')}`;
-                if(reservationData[slotId] === 'ng') return false; 
+                if(reservationData[slotId] === 'ng') return false; // 誰かが予約済み
             }
             return true;
         };
@@ -396,7 +410,7 @@
                 const label = `${d.getMonth()+1}/${d.getDate()}(${['日','月','火','水','木','金','土'][d.getDay()]})`;
                 const th = document.createElement('th'); th.innerHTML = `<span class='text-[10px] font-bold'>${d.getMonth()+1}/${d.getDate()}</span><br><span class='text-[9px]'>(${['日','月','火','水','木','金','土'][d.getDay()]})</span>`; head.appendChild(th);
                 
-                // 定休日計算（修正：毎週月曜日のみ）
+                // 定休日計算（月曜日のみ）
                 const isHoliday = (d.getDay() === 1); 
                 dates.push({id, label, isHoliday, day: d.getDay()});
             }
@@ -415,6 +429,7 @@
                     } else if(d.day === 0 && h >= 18) { 
                         td.innerText = '－'; td.className = 'text-gray-200'; 
                     } else {
+                        // お客様モードならメニュー時間を計算して判定
                         const canBook = isAdmin ? true : (status === 'ok' && isDurationAvailable(d, tIdx, slotsNeeded));
                         const mark = canBook ? '◎' : '×';
                         const color = canBook ? 'status-ok' : 'status-ng';
@@ -433,8 +448,8 @@
             if(!isAdmin && !canBook) {
                 const modal = document.getElementById('confirmModal');
                 document.getElementById('modalTitle').innerText = '予約不可';
-                document.getElementById('selectedDateTimeDisplay').innerText = 'お選びいただけません';
-                document.getElementById('modalDescription').innerText = `申し訳ありません。\nこの時間はメニューに必要な連続した空き時間（${selectedMenu.time}分）が確保できないため、ご予約いただけません。\n別の時間をお選びください。`;
+                document.getElementById('selectedDateTimeDisplay').innerText = '確保できません';
+                document.getElementById('modalDescription').innerText = `この時間は、メニューの所要時間（${selectedMenu.time}分）が確保できないため、ご予約いただけません。\n別の時間をお選びください。`;
                 document.getElementById('modalConfirmBtn').style.display = 'none';
                 modal.style.display = 'flex';
                 return;
@@ -464,7 +479,7 @@
             const slotsCount = Math.ceil(selectedMenu.time / 30);
             
             if(!isDurationAvailable(selectedSlot.dateObj, selectedSlot.tIdx, slotsCount)) {
-                return alert("申し訳ありません。操作中に他の予約が入った、あるいは営業終了時間を超えるため予約できなくなりました。TOPに戻り、別の時間をお選びください。");
+                return alert("操作中に他の予約が入ったため、この時間は予約できなくなりました。別の時間をお選びください。");
             }
 
             const btn = document.getElementById('finalSubmitBtn');
