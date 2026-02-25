@@ -72,6 +72,7 @@
 
         .status-ok { color: var(--hpb-pink); }
         .status-ng { color: #ccc; background-color: #fdfdfd; }
+        .status-closed { background-color: #f5f5f5; color: #bbb; font-size: 10px; }
 
         .admin-active {
             background-color: #fffde7 !important;
@@ -154,6 +155,7 @@
     </div>
 
     <main class="max-w-4xl mx-auto p-4 pb-12">
+        <!-- STEP 1: メニュー -->
         <div id="step1" class="step-content active">
             <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4 text-gray-700">メニューを選択してください</h2>
             <div id="menuList" class="space-y-4">
@@ -161,6 +163,7 @@
             </div>
         </div>
 
+        <!-- STEP 2: カレンダー -->
         <div id="step2" class="step-content">
             <div id="loading" class="text-center py-10">
                 <div class="animate-spin inline-block w-6 h-6 border-2 border-[#ff7283] border-t-transparent rounded-full"></div>
@@ -178,9 +181,14 @@
                         </table>
                     </div>
                 </div>
+                <div class="flex justify-between items-center mt-2 text-[10px] text-gray-400">
+                    <p>日曜・祝日は18:00まで営業</p>
+                    <p>◎：予約可 / ×：満員 / －：時間外</p>
+                </div>
             </div>
         </div>
 
+        <!-- STEP 3: お客様情報 -->
         <div id="step3" class="step-content">
             <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4 text-gray-700">お客様情報の入力</h2>
             <div class="bg-white p-5 rounded-lg border border-gray-200">
@@ -195,32 +203,34 @@
                 <div class="mt-6 border-t pt-4">
                     <label class="flex items-start gap-2 cursor-pointer">
                         <input type="checkbox" id="policyAgree" class="mt-1">
-                        <span class="text-[11px] text-gray-500 leading-relaxed">キャンセルポリシーに同意します。</span>
+                        <span class="text-[11px] text-gray-500 leading-relaxed">
+                            キャンセルポリシーに同意します。<br>
+                            <span class="text-[9px] text-gray-400">（当日キャンセルは施術料の50%を頂戴する場合がございます。やむを得ない場合はお電話ください）</span>
+                        </span>
                     </label>
                 </div>
                 <button onclick="window.submitBooking()" class="w-full mt-6 py-4 bg-[#1a252f] text-white font-bold rounded shadow-lg">予約を確定する</button>
             </div>
         </div>
 
+        <!-- STEP 4: 完了 -->
         <div id="step4" class="step-content text-center py-20">
             <div class="text-5xl mb-4">🎉</div>
             <h2 class="text-xl font-bold text-gray-800">予約が完了しました</h2>
-            <p class="text-sm text-gray-500 mt-2">ご来店をお待ちしております。</p>
-            <button onclick="location.reload()" class="mt-8 text-[#ff7283] font-bold border-b border-[#ff7283] pb-1">トップへ戻る</button>
+            <p class="text-sm text-gray-500 mt-2">代表：谷口 博哉 がご来店をお待ちしております。</p>
+            <button onclick="location.reload()" class="mt-8 text-[#ff7283] font-bold border-b border-[#ff7283] pb-1">予約トップへ戻る</button>
         </div>
 
-        <!-- 管理者用エリア -->
+        <!-- 管理者リスト -->
         <div id="adminBookingSection" class="mt-12 hidden">
-            <h2 class="text-sm font-bold border-l-4 border-blue-500 pl-2 text-gray-700 mb-4 text-blue-600">【管理者】現在の予約リスト</h2>
+            <h2 class="text-sm font-bold border-l-4 border-blue-500 pl-2 text-gray-700 mb-4 text-blue-600">【管理者】予約一覧</h2>
             <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-[11px] text-left border-collapse">
-                        <thead class="bg-gray-50">
-                            <tr><th class="p-3">日時</th><th class="p-3">お名前</th><th class="p-3">メニュー</th><th class="p-3">操作</th></tr>
-                        </thead>
-                        <tbody id="adminBookingBody"></tbody>
-                    </table>
-                </div>
+                <table class="w-full text-[11px] text-left border-collapse">
+                    <thead class="bg-gray-50">
+                        <tr><th class="p-3">日時</th><th class="p-3">お名前 / 電話</th><th class="p-3">メニュー</th><th class="p-3">操作</th></tr>
+                    </thead>
+                    <tbody id="adminBookingBody"></tbody>
+                </table>
             </div>
         </div>
     </main>
@@ -232,6 +242,8 @@
                 <p>代表：谷口 博哉</p>
                 <p>住所：〒078-8345 北海道旭川市東光5条6-3-5</p>
                 <p>電話：<a href="tel:0166378631" class="underline">0166-37-8631</a></p>
+                <p class="pt-2">営業時間：09:30 〜 19:00（日・祝 18:00まで）</p>
+                <p>定休日：毎週月曜日 / 第1・3・5火曜日</p>
                 <p class="pt-2 text-gray-400">&copy; 2026 hair Buzl. All Rights Reserved.</p>
             </div>
         </div>
@@ -257,8 +269,8 @@
             <h3 class="font-bold text-gray-800 mb-4">管理者認証</h3>
             <input type="password" id="adminPass" class="w-full p-3 border border-gray-200 rounded mb-4 text-center outline-none" placeholder="パスワードを入力">
             <div class="flex gap-2">
-                <button onclick="window.cancelAdmin()" class="flex-1 py-2 text-xs font-bold text-gray-400 border rounded">閉じる</button>
-                <button onclick="window.verifyAdmin()" class="flex-1 py-2 text-xs font-bold bg-blue-500 text-white rounded">認証</button>
+                <button id="adminAuthCancelBtn" class="flex-1 py-2 text-xs font-bold text-gray-400 border rounded">閉じる</button>
+                <button id="adminAuthLoginBtn" class="flex-1 py-2 text-xs font-bold bg-blue-500 text-white rounded">認証</button>
             </div>
         </div>
     </div>
@@ -268,9 +280,9 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase初期設定
+        // 設定
         let fbConfig = {};
-        try { fbConfig = JSON.parse(__firebase_config); } catch(e) { console.warn("Firebase config not found."); }
+        try { fbConfig = JSON.parse(__firebase_config); } catch(e) {}
         const app = initializeApp(fbConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
@@ -281,23 +293,32 @@
         let selectedMenu = null;
         let selectedSlot = null;
 
-        const timeSlots = ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"];
+        // 全20メニュー
         const menuData = [
             { name: "スタイリストカット", time: 60, price: 3850, desc: "オーナーによる似合わせカット。" },
-            { name: "チャイルドカット", time: 30, price: 2300, desc: "小学生まで。" },
+            { name: "チャイルドカット", time: 30, price: 2300, desc: "小学生まで。シャンプー別。" },
             { name: "スクールカット", time: 60, price: 2950, desc: "中・高生限定。" },
             { name: "U24限定カット", time: 60, price: 3500, desc: "大学生まで。" },
-            { name: "艶髪フルカラー", time: 90, price: 6600, desc: "フルボ酸配合。全体染め。" },
-            { name: "カラーリタッチ", time: 60, price: 5500, desc: "2cm以内。" },
-            { name: "ブリーチ", time: 90, price: 6600, desc: "透明感カラーの土台作り。" },
-            { name: "デザインカラー", time: 120, price: 7700, desc: "ハイライト等。" },
+            { name: "フルボ酸配合 艶髪フルカラー", time: 90, price: 6600, desc: "全体染め。艶を引き出します。" },
+            { name: "カラーリタッチ", time: 60, price: 5500, desc: "生え際2cm以内。" },
+            { name: "ブリーチ", time: 90, price: 6600, desc: "透明感カラーの必須工程。" },
+            { name: "ダブルブリーチ", time: 120, price: 9900, desc: "ハイトーン向け。" },
+            { name: "デザインカラー", time: 120, price: 7700, desc: "ハイライト、インナーカラー等。" },
             { name: "艶髪縮毛矯正", time: 180, price: 16500, desc: "看板メニュー。カット込。" },
             { name: "艶髪パーマ", time: 120, price: 9900, desc: "低負荷。カット込。" },
-            { name: "酸熱トリートメント", time: 90, price: 7700, desc: "髪質改善トリートメント。" },
-            { name: "ヘッドスパ", time: 30, price: 3500, desc: "至福のリフレッシュ。" }
+            { name: "セラミックスカール", time: 150, price: 15000, desc: "デジタルパーマ。カット込。" },
+            { name: "特殊パーマ", time: 150, price: 11000, desc: "スパイラル、ツイスト等。" },
+            { name: "酸熱トリートメント", time: 90, price: 7700, desc: "髪質改善集中ケア。" },
+            { name: "艶髪トリートメント", time: 30, price: 2950, desc: "フルボ酸で潤い補給。" },
+            { name: "前髪カット", time: 30, price: 1100, desc: "1mmで印象を変えるメンテ。" },
+            { name: "眉カット", time: 30, price: 1100, desc: "プロの手で清潔感を。" },
+            { name: "シャンプー・ブロー", time: 30, price: 2200, desc: "至福の洗髪と美ブロー。" },
+            { name: "ヘッドスパ", time: 30, price: 3500, desc: "毛穴クレンジングと按摩。" },
+            { name: "部分矯正", time: 90, price: 5500, desc: "前髪などのピンポイント矯正。" }
         ];
 
-        // 共通：画面切り替え
+        const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"];
+
         window.changeStep = (step) => {
             document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
             const target = document.getElementById(`step${step}`);
@@ -319,7 +340,6 @@
             window.scrollTo({top: 0});
         };
 
-        // STEP 1: メニュー
         const initMenu = () => {
             const list = document.getElementById('menuList');
             list.innerHTML = '';
@@ -337,16 +357,15 @@
                         <span class="text-xs text-[#ff7283] font-bold">選択する ></span>
                     </div>
                 `;
-                card.onclick = () => {
+                card.addEventListener('click', () => {
                     selectedMenu = m;
                     document.getElementById('selectedMenuDisplay').innerText = `選択：${m.name}`;
                     window.changeStep(2);
-                };
+                });
                 list.appendChild(card);
             });
         };
 
-        // 監視開始
         const startListening = () => {
             if(!fbConfig.apiKey) return;
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'slots'), (snapshot) => {
@@ -356,18 +375,15 @@
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('calendar-view').classList.remove('hidden');
             });
-
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), (snapshot) => {
                 const body = document.getElementById('adminBookingBody');
                 if (!body) return;
                 body.innerHTML = '';
-                const sorted = [];
-                snapshot.forEach(docSnap => sorted.push({id: docSnap.id, ...docSnap.data()}));
+                const sorted = []; snapshot.forEach(d => sorted.push({id: d.id, ...d.data()}));
                 sorted.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
                 sorted.forEach(b => {
-                    const tr = document.createElement('tr');
-                    tr.className = "border-b";
-                    tr.innerHTML = `<td class="p-3"><strong>${b.dateTime}</strong></td><td class="p-3">${b.customerName}</td><td class="p-3">${b.menu}</td><td class="p-3"><button class="text-red-500 font-bold" onclick="window.deleteBooking('${b.id}')">削除</button></td>`;
+                    const tr = document.createElement('tr'); tr.className = "border-b";
+                    tr.innerHTML = `<td class="p-3"><strong>${b.dateTime}</strong></td><td class="p-3 text-[10px]">${b.customerName}<br>${b.customerTel}</td><td class="p-3 text-[10px]">${b.menu}</td><td class="p-3"><button class="text-red-500 font-bold" onclick="window.deleteBooking('${b.id}')">削除</button></td>`;
                     body.appendChild(tr);
                 });
             });
@@ -378,18 +394,23 @@
             const dateHeader = document.getElementById('dateHeader');
             if (!calendarBody || !dateHeader) return;
             dateHeader.innerHTML = '<th class="time-col">時間</th>';
-            const dates = [];
-            const todayDate = new Date();
+            const dates = []; const todayDate = new Date();
             for (let i = 0; i < 7; i++) {
                 const d = new Date(); d.setDate(todayDate.getDate() + i);
-                const id = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
-                const display = `${d.getMonth()+1}/${d.getDate()}`;
-                const day = ['日','月','火','水','木','金','土'][d.getDay()];
+                const day = d.getDay(); const dateNum = d.getDate();
+                const weekNum = Math.ceil(dateNum / 7);
+                const id = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${dateNum.toString().padStart(2,'0')}`;
+                const display = `${d.getMonth()+1}/${dateNum}`;
+                const dayStr = ['日','月','火','水','木','金','土'][day];
+                
+                // 定休日判定：月曜、または奇数週の火曜
+                let isHoliday = (day === 1) || (day === 2 && (weekNum === 1 || weekNum === 3 || weekNum === 5));
+                
                 const th = document.createElement('th');
-                th.innerHTML = `<span class='text-[10px]'>${display}</span><br><span class='text-[8px]'>(${day})</span>`;
-                if(d.getDay() === 0) th.classList.add('text-red-500');
+                th.innerHTML = `<span class='text-[10px]'>${display}</span><br><span class='text-[8px]'>(${dayStr})</span>`;
+                if(day === 0) th.classList.add('text-red-500');
                 dateHeader.appendChild(th);
-                dates.push({id, label: display + '(' + day + ')'});
+                dates.push({id, label: display + '(' + dayStr + ')', day, isHoliday});
             }
 
             calendarBody.innerHTML = '';
@@ -397,15 +418,22 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td class="time-col">${time}</td>`;
                 dates.forEach(date => {
+                    const [h, m] = time.split(':').map(Number);
                     const slotId = `${date.id}_${time.replace(':','')}`;
                     const status = reservationData[slotId] || 'ok';
                     const td = document.createElement('td');
-                    td.innerHTML = `<div class="status-mark ${status==='ok'?'status-ok':'status-ng'}">${status==='ok'?'◎':'×'}</div>`;
-                    if(isAdmin) {
-                        td.className = 'admin-active';
-                        td.onclick = () => window.showConfirm(slotId, status, date.label, time, true);
-                    } else if(status === 'ok') {
-                        td.onclick = () => window.showConfirm(slotId, status, date.label, time, false);
+                    
+                    if(date.isHoliday) {
+                        td.className = 'status-closed'; td.innerText = '休業';
+                    } else if((date.day === 0 && h >= 18)) { // 日曜18時閉店
+                        td.innerText = '－'; td.className = 'text-gray-300';
+                    } else {
+                        td.innerHTML = `<div class="status-mark ${status==='ok'?'status-ok':'status-ng'}">${status==='ok'?'◎':'×'}</div>`;
+                        if(isAdmin) {
+                            td.className = 'admin-active'; td.onclick = () => window.showConfirm(slotId, status, date.label, time, true);
+                        } else if(status === 'ok') {
+                            td.className = 'active:bg-red-50'; td.onclick = () => window.showConfirm(slotId, status, date.label, time, false);
+                        }
                     }
                     tr.appendChild(td);
                 });
@@ -417,73 +445,53 @@
             selectedSlot = { slotId, status, dateLabel, time };
             document.getElementById('selectedDateTimeDisplay').innerText = `${dateLabel} ${time}`;
             const btn = document.getElementById('modalConfirmBtn');
-            const desc = document.getElementById('modalDescription');
-            
+            const modal = document.getElementById('confirmModal');
             if(adminMode) {
                 document.getElementById('modalTitle').innerText = '空き状況の変更';
-                desc.innerText = `管理：この時間を「${status==='ok'?'×':'◎'}」に変更します。`;
+                document.getElementById('modalDescription').innerText = `管理：この枠を「${status==='ok'?'×':'◎'}」にします。`;
                 btn.onclick = async () => {
                     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotId), { status: status === 'ok' ? 'ng' : 'ok' });
                     window.closeModal();
                 };
             } else {
                 document.getElementById('modalTitle').innerText = '予約の確認';
-                desc.innerText = `メニュー：${selectedMenu.name}\nで入力に進みます。`;
+                document.getElementById('modalDescription').innerText = `メニュー：${selectedMenu.name}\nで入力へ進みます。`;
                 btn.onclick = () => { window.closeModal(); window.changeStep(3); };
             }
-            document.getElementById('confirmModal').style.display = 'flex';
+            modal.style.display = 'flex';
         };
 
         window.closeModal = () => document.getElementById('confirmModal').style.display = 'none';
-
         window.submitBooking = async () => {
             const name = document.getElementById('custName').value.trim();
             const tel = document.getElementById('custTel').value.trim();
-            if(!name || !tel) return alert("名前と電話番号を入力してください");
+            if(!name || !tel) return alert("お名前と電話番号を入力してください");
             if(!document.getElementById('policyAgree').checked) return alert("同意が必要です");
-
             try {
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), {
                     customerName: name, customerTel: tel, menu: selectedMenu.name, dateTime: `${selectedSlot.dateLabel} ${selectedSlot.time}`, timestamp: serverTimestamp()
                 });
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', selectedSlot.slotId), { status: 'ng' });
                 window.changeStep(4);
-            } catch (e) { alert("予約に失敗しました。"); }
+            } catch (e) { alert("失敗しました"); }
         };
-
-        window.deleteBooking = async (id) => {
-            if(confirm("削除しますか？")) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id));
-        };
-
-        // 管理者認証（この部分を確実に動くように修正）
+        window.deleteBooking = async (id) => { if(confirm("削除しますか？")) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id)); };
+        
+        // 管理者認証の修正
         const adminToggle = document.getElementById('adminToggle');
         adminToggle.addEventListener('change', (e) => {
-            if(e.target.checked) {
-                document.getElementById('adminAuthModal').style.display = 'flex';
-            } else {
-                isAdmin = false;
-                document.getElementById('modeLabel').innerText = 'OFF';
-                document.getElementById('adminBookingSection').classList.add('hidden');
-                renderCalendar();
-            }
+            if(e.target.checked) document.getElementById('adminAuthModal').style.display = 'flex';
+            else { isAdmin = false; document.getElementById('modeLabel').innerText = 'OFF'; document.getElementById('adminBookingSection').classList.add('hidden'); renderCalendar(); }
         });
-
-        window.verifyAdmin = () => {
+        document.getElementById('adminAuthLoginBtn').onclick = () => {
             if(document.getElementById('adminPass').value === '0000') {
-                isAdmin = true;
-                document.getElementById('modeLabel').innerText = 'ON';
+                isAdmin = true; document.getElementById('modeLabel').innerText = 'ON';
                 document.getElementById('adminAuthModal').style.display = 'none';
-                document.getElementById('adminBookingSection').classList.remove('hidden');
-                renderCalendar();
-            } else { alert("パスワードが違います"); }
+                document.getElementById('adminBookingSection').classList.remove('hidden'); renderCalendar();
+            } else alert("間違い");
         };
+        document.getElementById('adminAuthCancelBtn').onclick = () => { adminToggle.checked = false; document.getElementById('adminAuthModal').style.display = 'none'; };
 
-        window.cancelAdmin = () => {
-            adminToggle.checked = false;
-            document.getElementById('adminAuthModal').style.display = 'none';
-        };
-
-        // 初期化
         const init = async () => {
             initMenu();
             try {
