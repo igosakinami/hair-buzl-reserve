@@ -168,7 +168,7 @@
                         <p>◎：予約可能 / ×：満員 / －：時間外</p>
                         <p>日・祝：18:00まで / その他：19:00まで営業</p>
                     </div>
-                    <p class="text-right">定休日：月曜<br>第1・3・5火曜</p>
+                    <p class="text-right">定休：月曜<br>第1・3・5火曜</p>
                 </div>
             </div>
         </div>
@@ -270,16 +270,30 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // 設定
-        const fbConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const app = initializeApp(fbConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        // 安全なFirebase初期化（エラーによるJS停止を防止）
+        let app, auth, db;
+        let hasDb = false;
+
+        try {
+            if (typeof __firebase_config !== 'undefined') {
+                const fbConfig = JSON.parse(__firebase_config);
+                if (fbConfig && fbConfig.apiKey) {
+                    app = initializeApp(fbConfig);
+                    auth = getAuth(app);
+                    db = getFirestore(app);
+                    hasDb = true;
+                }
+            }
+        } catch(e) {
+            console.warn("DB connection standby.");
+        }
+
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'hair-buzl-reserve';
 
         // 状態
         let fbUser = null;
-        let reservationData = {};
+        let reservationData = {}; // Firestoreデータ
+        let localBookings = []; // DB接続がない場合の仮保存用
         let isAdmin = false;
         let selectedMenu = null;
         let selectedSlot = null;
@@ -309,7 +323,7 @@
             { name: "シャンプー・ブロー", time: 30, price: 2200, desc: "プロの洗髪。美しく整った仕上げ。" }
         ];
 
-        // 画面切り替え（グローバル）
+        // 画面切り替え
         window.changeStep = (step) => {
             const contents = document.querySelectorAll('.step-content');
             contents.forEach(el => el.classList.remove('active'));
@@ -332,7 +346,7 @@
             window.scrollTo({top: 0, behavior: 'smooth'});
         };
 
-        // メニュー
+        // メニュー描画
         const initMenu = () => {
             const list = document.getElementById('menuList');
             list.innerHTML = '';
@@ -346,31 +360,31 @@
                     </div>
                     <p class="text-[11px] text-gray-400 mb-2 leading-relaxed">${m.desc}</p>
                     <div class="flex items-center justify-between mt-auto">
-                        <span class="text-[10px] bg-gray-50 px-2 py-1 rounded text-gray-400 font-bold">目安：${m.time}分</span>
+                        <span class="text-[10px] bg-gray-50 px-2 py-1 rounded text-gray-400 font-bold border border-gray-100">目安：${m.time}分</span>
                         <span class="text-xs text-[#ff7283] font-bold">予約する ></span>
                     </div>
                 `;
-                card.addEventListener('click', () => {
+                // 直接クリックイベントを登録（最も確実な方法）
+                card.onclick = () => {
                     selectedMenu = m;
                     document.getElementById('selectedMenuDisplay').innerText = `メニュー：${m.name}`;
                     window.changeStep(2);
-                });
+                    
+                    // DBがない場合は即座にカレンダー表示
+                    if(!hasDb) {
+                        renderCalendar();
+                        document.getElementById('loading').classList.add('hidden');
+                        document.getElementById('calendar-view').classList.remove('hidden');
+                    }
+                };
                 list.appendChild(card);
             });
         };
 
-        // 在庫・予約監視
+        // データ監視（DB接続がある場合のみ）
         const startListening = () => {
-            if(!fbUser) return;
+            if (!hasDb || !fbUser) return;
             
-            // 10秒経っても表示されなければローディングを消すタイムアウト
-            setTimeout(() => {
-                if(document.getElementById('calendar-view').classList.contains('hidden')) {
-                    document.getElementById('loading').innerHTML = "<p class='text-xs text-red-400'>接続に失敗しました。再読み込みしてください。</p>";
-                }
-            }, 10000);
-
-            // 在庫
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'slots'), (snapshot) => {
                 reservationData = {};
                 snapshot.forEach(docSnap => { reservationData[docSnap.id] = docSnap.data().status; });
@@ -379,7 +393,6 @@
                 document.getElementById('calendar-view').classList.remove('hidden');
             });
 
-            // 予約リスト（管理者）
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), (snapshot) => {
                 const body = document.getElementById('adminBookingBody');
                 if (!body) return;
@@ -395,6 +408,7 @@
             });
         };
 
+        // カレンダーの描画（定休日の正確な計算含む）
         const renderCalendar = () => {
             const calendarBody = document.getElementById('calendarBody');
             const dateHeader = document.getElementById('dateHeader');
@@ -409,10 +423,9 @@
                 const id = `${d.getFullYear()}-${month.toString().padStart(2,'0')}-${dateNum.toString().padStart(2,'0')}`;
                 const dayStr = ['日','月','火','水','木','金','土'][day];
                 
-                // 定休日判定：月曜、または奇数週(1,3,5)の火曜日
-                const firstDay = new Date(d.getFullYear(), d.getMonth(), 1).getDay();
-                const weekNum = Math.ceil((dateNum + firstDay) / 7);
-                const isHoliday = (day === 1) || (day === 2 && (weekNum === 1 || weekNum === 3 || weekNum === 5));
+                // 定休日判定：月曜日、および 第1・第3・第5火曜日
+                const weekNumOfDOW = Math.ceil(dateNum / 7); // その月の第何週目の曜日か
+                const isHoliday = (day === 1) || (day === 2 && (weekNumOfDOW === 1 || weekNumOfDOW === 3 || weekNumOfDOW === 5));
                 
                 const th = document.createElement('th');
                 th.innerHTML = `<span class='text-[11px] font-bold'>${month}/${dateNum}</span><br><span class='text-[9px]'>(${dayStr})</span>`;
@@ -434,7 +447,7 @@
                     
                     if(date.isHoliday) {
                         td.className = 'status-closed'; td.innerText = '休業';
-                    } else if(date.day === 0 && h >= 18) { // 日曜・祝日は18時まで
+                    } else if(date.day === 0 && h >= 18) { // 日・祝は18時まで
                         td.innerText = '－'; td.className = 'text-gray-200';
                     } else {
                         const mark = status === 'ok' ? '◎' : '×';
@@ -444,7 +457,7 @@
                             td.className = 'admin-active'; 
                             td.onclick = () => window.showConfirm(slotId, status, date.label, time, true);
                         } else if(status === 'ok') {
-                            td.className = 'active:bg-red-50 transition-colors'; 
+                            td.className = 'active:bg-red-50 transition-colors cursor-pointer'; 
                             td.onclick = () => window.showConfirm(slotId, status, date.label, time, false);
                         }
                     }
@@ -452,6 +465,17 @@
                 });
                 calendarBody.appendChild(tr);
             });
+            
+            // オフライン（デモ）モードの管理者用リスト描画
+            if(!hasDb && isAdmin) {
+                const body = document.getElementById('adminBookingBody');
+                body.innerHTML = '';
+                localBookings.forEach((b, index) => {
+                    const tr = document.createElement('tr'); tr.className = "border-b hover:bg-gray-50";
+                    tr.innerHTML = `<td class="p-3"><strong>${b.dateTime}</strong></td><td class="p-3 text-[10px] font-bold">${b.customerName}<br><span class='text-gray-400'>${b.customerTel}</span></td><td class="p-3 text-[10px]">${b.menu}</td><td class="p-3"><button class="text-red-500 font-bold bg-red-50 px-2 py-1 rounded" onclick="window.deleteBooking(${index})">削除</button></td>`;
+                    body.appendChild(tr);
+                });
+            }
         };
 
         window.showConfirm = (slotId, status, dateLabel, time, adminMode) => {
@@ -466,7 +490,12 @@
                 document.getElementById('modalTitle').innerText = '管理：表示変更';
                 desc.innerText = `現在：${status==='ok'?'◎：予約可':'×：満員'}\n表示を切り替えますか？`;
                 btn.onclick = async () => {
-                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotId), { status: status === 'ok' ? 'ng' : 'ok' });
+                    if(hasDb && fbUser) {
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotId), { status: status === 'ok' ? 'ng' : 'ok' });
+                    } else {
+                        reservationData[slotId] = status === 'ok' ? 'ng' : 'ok';
+                        renderCalendar();
+                    }
                     window.closeModal();
                 };
             } else {
@@ -480,33 +509,48 @@
         window.closeModal = () => document.getElementById('confirmModal').style.display = 'none';
         document.getElementById('modalCancelBtn').onclick = window.closeModal;
 
-        // 予約確定処理
-        window.submitBooking = async () => {
+        // 予約確定
+        document.getElementById('finalSubmitBtn').onclick = async () => {
             const name = document.getElementById('custName').value.trim();
             const tel = document.getElementById('custTel').value.trim();
-            const agree = document.getElementById('policyAgree').checked;
-            
             if(!name || !tel) return alert("お名前と電話番号を入力してください。");
-            if(!agree) return alert("規約への同意が必要です。");
+            if(!document.getElementById('policyAgree').checked) return alert("規約への同意が必要です。");
 
             const btn = document.getElementById('finalSubmitBtn');
             btn.disabled = true; btn.innerText = "通信中...";
 
-            try {
-                // RULE 1準拠のパス
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), {
-                    customerName: name, customerTel: tel, menu: selectedMenu.name, dateTime: `${selectedSlot.dateLabel} ${selectedSlot.time}`, timestamp: serverTimestamp()
-                });
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', selectedSlot.slotId), { status: 'ng' });
-                window.changeStep(4);
-            } catch (e) { 
-                console.error(e);
-                alert("送信に失敗しました。電波の良いところで再度お試しください。"); 
-                btn.disabled = false; btn.innerText = "予約を確定する";
+            if (hasDb && fbUser) {
+                try {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), {
+                        customerName: name, customerTel: tel, menu: selectedMenu.name, dateTime: `${selectedSlot.dateLabel} ${selectedSlot.time}`, timestamp: serverTimestamp()
+                    });
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', selectedSlot.slotId), { status: 'ng' });
+                    window.changeStep(4);
+                } catch (e) { 
+                    alert("送信に失敗しました。電波の良いところで再度お試しください。"); 
+                    btn.disabled = false; btn.innerText = "予約を確定する";
+                }
+            } else {
+                // デモモード（DBなし）の動き
+                setTimeout(() => {
+                    reservationData[selectedSlot.slotId] = 'ng';
+                    localBookings.push({
+                        customerName: name, customerTel: tel, menu: selectedMenu.name, dateTime: `${selectedSlot.dateLabel} ${selectedSlot.time}`
+                    });
+                    window.changeStep(4);
+                }, 800);
             }
         };
 
-        window.deleteBooking = async (id) => { if(confirm("予約記録を削除しますか？")) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id)); };
+        window.deleteBooking = async (id) => { 
+            if(!confirm("予約記録を削除しますか？")) return;
+            if(hasDb && fbUser) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id)); 
+            } else {
+                localBookings.splice(id, 1);
+                renderCalendar();
+            }
+        };
 
         // 管理者認証
         const adminToggle = document.getElementById('adminToggle');
@@ -524,12 +568,19 @@
         };
         document.getElementById('adminAuthCancelBtn').onclick = () => { adminToggle.checked = false; document.getElementById('adminAuthModal').style.display = 'none'; };
 
-        // 起動（RULE 3準拠）
+        // 起動処理
         const init = async () => {
             initMenu();
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
-            else await signInAnonymously(auth);
-            onAuthStateChanged(auth, (u) => { fbUser = u; if(u) startListening(); });
+            if (hasDb) {
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
+                    else await signInAnonymously(auth);
+                    onAuthStateChanged(auth, (u) => { fbUser = u; if(u) startListening(); });
+                } catch (e) {
+                    console.error(e);
+                    hasDb = false; // エラー時はデモモードへ
+                }
+            }
         };
         init();
     </script>
