@@ -106,7 +106,6 @@
             border-top: 1px solid #eee;
             margin-top: 50px;
             padding: 40px 20px;
-            font-size: 13px;
         }
     </style>
 </head>
@@ -127,7 +126,7 @@
 
     <header class="max-w-4xl mx-auto p-4 flex justify-between items-center bg-white border-b border-gray-100">
         <div class="salon-info">
-            <p class="text-[10px] text-gray-400 m-0">hair Buzl</p>
+            <p class="text-[10px] text-gray-400 m-0 leading-none">hair Buzl</p>
             <h1 class="text-xl font-bold m-0 text-gray-800">ヘアーバズール</h1>
             <div class="flex gap-1 mt-1 text-[10px] text-gray-400 border border-gray-100 rounded-full px-2 w-max">
                 ✓ スマート支払い対応
@@ -171,7 +170,7 @@
                     <p>◎：予約可能 / ×：満員または時間不足 / －：時間外</p>
                     <p>日・祝：18:00まで / その他：19:00まで営業</p>
                 </div>
-                <p class="text-right">定休：月曜<br>第1・3・5火曜</p>
+                <p class="text-right">定休：毎週月曜日</p>
             </div>
         </div>
 
@@ -219,15 +218,42 @@
         </div>
     </main>
 
-    <footer class="salon-footer text-gray-500 text-center">
-        <div class="max-w-4xl mx-auto border-t pt-8">
-            <h3 class="font-bold text-gray-800 mb-3 text-base">hair Buzl 【ヘアーバズール】</h3>
-            <div class="space-y-1 text-xs">
-                <p>代表：谷口 博哉 | 旭川市東光5条6-3-5 | 0166-37-8631</p>
-                <p class="mt-2 font-bold text-gray-700">営業時間</p>
-                <p>平日・土曜 09:30〜19:00 / 日祝 09:30〜18:00</p>
-                <p>定休：毎週月曜 / 第1・3・5火曜</p>
+    <footer class="salon-footer text-gray-500">
+        <div class="max-w-4xl mx-auto border-t pt-8 pb-10 px-4">
+            <h3 class="font-bold text-gray-800 mb-6 text-center text-lg">hair Buzl 【ヘアーバズール】</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
+                <!-- 店舗基本情報 -->
+                <div class="space-y-4">
+                    <div class="flex flex-col items-center md:items-start">
+                        <span class="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-bold text-gray-400 mb-1">REPRESENTATIVE</span>
+                        <span class="text-gray-800 font-bold text-base">谷口 博哉</span>
+                    </div>
+                    <div class="flex flex-col items-center md:items-start">
+                        <span class="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-bold text-gray-400 mb-1">ADDRESS</span>
+                        <span class="text-gray-600 leading-relaxed text-center md:text-left">〒078-8345<br>北海道旭川市東光5条6-3-5</span>
+                    </div>
+                    <div class="flex flex-col items-center md:items-start">
+                        <span class="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-bold text-gray-400 mb-1">PHONE</span>
+                        <a href="tel:0166378631" class="font-bold text-lg text-[#ff7283] underline decoration-2">0166-37-8631</a>
+                    </div>
+                </div>
+                <!-- 営業時間・定休日 -->
+                <div class="bg-gray-50 p-6 rounded-xl space-y-4">
+                    <div class="text-center md:text-left">
+                        <p class="font-bold text-gray-700 border-b border-[#ff7283] inline-block mb-2">営業時間</p>
+                        <p class="text-gray-600">平日・土曜：09:30 〜 19:00</p>
+                        <p class="text-gray-600">日曜・祝日：09:30 〜 18:00</p>
+                    </div>
+                    <div class="text-center md:text-left">
+                        <p class="font-bold text-gray-700 border-b border-[#ff7283] inline-block mb-2">定休日</p>
+                        <p class="text-gray-600 font-bold">毎週月曜日</p>
+                        <p class="text-[11px] text-gray-400 mt-1">※その他不定休はカレンダーをご確認ください</p>
+                    </div>
+                </div>
             </div>
+            <p class="mt-12 pt-6 border-t text-[10px] text-center text-gray-300">
+                &copy; 2026 hair Buzl. All Rights Reserved.
+            </p>
         </div>
     </footer>
 
@@ -331,19 +357,29 @@
                 snap.docs.sort((a,b) => (b.data().timestamp?.seconds||0)-(a.data().timestamp?.seconds||0)).forEach(docSnap => {
                     const b = docSnap.data();
                     const tr = document.createElement('tr'); tr.className = "border-b";
-                    tr.innerHTML = `<td class="p-3"><strong>${b.dateTime}</strong></td><td class="p-3 text-[10px]">${b.customerName}<br>${b.customerTel}</td><td class="p-3 text-[10px]">${b.menu}</td><td class="p-3"><button class="text-red-500 font-bold" onclick="window.deleteBooking('${docSnap.id}')">削除</button></td>`;
+                    tr.innerHTML = `<td class="p-3"><strong>${b.dateTime}</strong></td><td class="p-3 text-[10px] font-bold">${b.customerName}<br><span class='text-gray-400'>${b.customerTel}</span></td><td class="p-3 text-[10px]">${b.menu}</td><td class="p-3"><button class="text-red-500 font-bold" onclick="window.deleteBooking('${docSnap.id}')">削除</button></td>`;
                     body.appendChild(tr);
                 });
             });
         };
 
-        // 指定した時間から所要時間分、空きがあるか判定する関数
-        const isDurationAvailable = (dateId, tIdx, slotsNeeded) => {
+        // 指定した時間から所要時間分、空きがあるか厳密に判定
+        const isDurationAvailable = (d, tIdx, slotsNeeded) => {
+            if (d.isHoliday) return false;
+
             for(let i=0; i < slotsNeeded; i++) {
                 const checkIdx = tIdx + i;
-                if(checkIdx >= timeSlots.length) return false; // 営業終了時間を超える場合
-                const slotId = `${dateId}_${timeSlots[checkIdx].replace(':','')}`;
-                if(reservationData[slotId] === 'ng') return false; // 途中で埋まっている場合
+                if(checkIdx >= timeSlots.length) return false; 
+                
+                const timeStr = timeSlots[checkIdx];
+                const [h, m] = timeStr.split(':').map(Number);
+                
+                // 日祝の18:00閉店を跨ぐ場合
+                if(d.day === 0 && h >= 18) return false; 
+
+                // 既に埋まっている場合
+                const slotId = `${d.id}_${timeStr.replace(':','')}`;
+                if(reservationData[slotId] === 'ng') return false; 
             }
             return true;
         };
@@ -359,28 +395,32 @@
                 const id = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
                 const label = `${d.getMonth()+1}/${d.getDate()}(${['日','月','火','水','木','金','土'][d.getDay()]})`;
                 const th = document.createElement('th'); th.innerHTML = `<span class='text-[10px] font-bold'>${d.getMonth()+1}/${d.getDate()}</span><br><span class='text-[9px]'>(${['日','月','火','水','木','金','土'][d.getDay()]})</span>`; head.appendChild(th);
-                const weekNum = Math.ceil(d.getDate() / 7);
-                const isHoliday = (d.getDay()===1) || (d.getDay()===2 && [1,3,5].includes(weekNum));
+                
+                // 定休日計算（修正：毎週月曜日のみ）
+                const isHoliday = (d.getDay() === 1); 
                 dates.push({id, label, isHoliday, day: d.getDay()});
             }
 
             timeSlots.forEach((t, tIdx) => {
                 const tr = document.createElement('tr'); tr.innerHTML = `<td class="time-col">${t}</td>`;
+                const [h, m] = t.split(':').map(Number);
+
                 dates.forEach(d => {
                     const slotId = `${d.id}_${t.replace(':','')}`;
                     const status = reservationData[slotId] || 'ok';
                     const td = document.createElement('td');
                     
-                    if(d.isHoliday) { td.className = 'status-closed'; td.innerText = '休業'; }
-                    else if(d.day===0 && parseInt(t)>=18) { td.innerText = '－'; td.className = 'text-gray-300'; }
-                    else {
-                        // お客様モードの場合、所要時間分空いているかもチェック
-                        const canBook = isAdmin ? true : (status === 'ok' && isDurationAvailable(d.id, tIdx, slotsNeeded));
+                    if(d.isHoliday) { 
+                        td.className = 'status-closed'; td.innerText = '休業'; 
+                    } else if(d.day === 0 && h >= 18) { 
+                        td.innerText = '－'; td.className = 'text-gray-200'; 
+                    } else {
+                        const canBook = isAdmin ? true : (status === 'ok' && isDurationAvailable(d, tIdx, slotsNeeded));
                         const mark = canBook ? '◎' : '×';
                         const color = canBook ? 'status-ok' : 'status-ng';
                         
                         td.innerHTML = `<div class="status-mark ${color}">${mark}</div>`;
-                        td.onclick = () => window.showConfirm(slotId, status, d.label, t, tIdx, d.id, canBook);
+                        td.onclick = () => window.showConfirm(slotId, status, d.label, t, tIdx, d, canBook);
                         if(isAdmin) td.className = 'admin-active';
                     }
                     tr.appendChild(td);
@@ -389,18 +429,18 @@
             });
         };
 
-        window.showConfirm = (slotId, status, dateLabel, time, tIdx, dateId, canBook) => {
+        window.showConfirm = (slotId, status, dateLabel, time, tIdx, d, canBook) => {
             if(!isAdmin && !canBook) {
                 const modal = document.getElementById('confirmModal');
-                document.getElementById('modalTitle').innerText = 'お知らせ';
-                document.getElementById('selectedDateTimeDisplay').innerText = '予約できません';
-                document.getElementById('modalDescription').innerText = `申し訳ありません。\nこの時間はメニューに必要な時間（${selectedMenu.time}分）が確保できないため、ご予約いただけません。`;
+                document.getElementById('modalTitle').innerText = '予約不可';
+                document.getElementById('selectedDateTimeDisplay').innerText = 'お選びいただけません';
+                document.getElementById('modalDescription').innerText = `申し訳ありません。\nこの時間はメニューに必要な連続した空き時間（${selectedMenu.time}分）が確保できないため、ご予約いただけません。\n別の時間をお選びください。`;
                 document.getElementById('modalConfirmBtn').style.display = 'none';
                 modal.style.display = 'flex';
                 return;
             }
             
-            selectedSlot = { slotId, dateLabel, time, tIdx, dateId };
+            selectedSlot = { slotId, dateLabel, time, tIdx, dateId: d.id, dateObj: d };
             document.getElementById('selectedDateTimeDisplay').innerText = `${dateLabel} ${time}`;
             document.getElementById('modalConfirmBtn').style.display = 'block';
             const title = document.getElementById('modalTitle'), desc = document.getElementById('modalDescription'), btn = document.getElementById('modalConfirmBtn');
@@ -423,10 +463,12 @@
             if(!name || !tel) return alert("情報を入力してください。");
             const slotsCount = Math.ceil(selectedMenu.time / 30);
             
-            // 確定直前にもう一度空きチェック
-            if(!isDurationAvailable(selectedSlot.dateId, selectedSlot.tIdx, slotsCount)) {
-                return alert("申し訳ありません。操作中に他の予約が入ったため、この時間は予約できなくなりました。TOPに戻り、別の時間をお選びください。");
+            if(!isDurationAvailable(selectedSlot.dateObj, selectedSlot.tIdx, slotsCount)) {
+                return alert("申し訳ありません。操作中に他の予約が入った、あるいは営業終了時間を超えるため予約できなくなりました。TOPに戻り、別の時間をお選びください。");
             }
+
+            const btn = document.getElementById('finalSubmitBtn');
+            btn.disabled = true; btn.innerText = "確定中...";
 
             try {
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), { customerName: name, customerTel: tel, menu: selectedMenu.name, dateTime: `${selectedSlot.dateLabel} ${selectedSlot.time}`, timestamp: serverTimestamp() });
@@ -438,10 +480,13 @@
                     }
                 }
                 window.changeStep(4);
-            } catch(e) { alert("失敗しました。画面を更新してください。"); }
+            } catch(e) { 
+                alert("エラーが発生しました。画面を更新してください。"); 
+                btn.disabled = false; btn.innerText = "予約を確定する";
+            }
         };
 
-        window.deleteBooking = async (id) => { if(confirm("予約を削除しますか？（カレンダー枠は手動で◎に戻してください）")) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id)); };
+        window.deleteBooking = async (id) => { if(confirm("予約を削除しますか？\n（※カレンダー枠は手動で◎に戻してください）")) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id)); };
         window.closeModal = () => document.getElementById('confirmModal').style.display = 'none';
         window.changeStep = (s) => { 
             document.querySelectorAll('.step-content').forEach(c=>c.classList.remove('active')); 
@@ -452,7 +497,7 @@
                 else { h.className="flex-1 py-3 text-center border-l text-gray-400 font-bold"; }
             }
             window.scrollTo(0,0);
-            if(s === 2) renderCalendar(); // メニューが変わる可能性があるので再描画
+            if(s === 2) renderCalendar();
         };
         window.toggleAdminMode = (chk) => { if(chk) document.getElementById('adminAuthModal').style.display = 'flex'; else { isAdmin = false; document.getElementById('modeLabel').innerText='Off'; renderCalendar(); document.getElementById('adminBookingSection').classList.add('hidden'); } };
         window.verifyAdmin = () => { if(document.getElementById('adminPass').value==='0000'){ isAdmin=true; document.getElementById('modeLabel').innerText='On'; document.getElementById('adminAuthModal').style.display='none'; document.getElementById('adminBookingSection').classList.remove('hidden'); renderCalendar(); } else alert("間違い"); };
