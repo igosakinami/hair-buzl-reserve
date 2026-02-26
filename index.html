@@ -16,12 +16,32 @@
         .hpb-pink-btn { background: linear-gradient(to bottom, #ff8c99, #ff7283); color: white !important; border-radius: 6px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(255, 114, 131, 0.3); }
         .hpb-pink-btn:active { transform: translateY(1px); box-shadow: none; filter: brightness(0.95); }
 
-        /* カレンダー・テーブル改良 */
+        /* カレンダー・テーブル改良（強制横スクロール＆文字潰れ防止） */
         .calendar-outer-wrapper { overflow-x: auto; background: white; border: 1px solid #ddd; border-radius: 12px; position: relative; -webkit-overflow-scrolling: touch; }
         .hpb-table { width: max-content; min-width: 100%; border-collapse: separate; border-spacing: 0; }
         .hpb-table th, .hpb-table td { border: 0.5px solid #f0f0f0; text-align: center; height: 60px; padding: 0; position: relative; min-width: 80px; }
         
-        .time-col { background-color: #f9f9f9; width: 65px !important; min-width: 65px !important; font-weight: bold; font-size: 11px; position: sticky; left: 0; z-index: 30; border-right: 2px solid #eee !important; color: #666; }
+        /* ★修正: 時間軸の固定設定を強化 */
+        .time-col { 
+            background-color: #f9f9f9 !important; 
+            width: 65px !important; 
+            min-width: 65px !important; 
+            font-weight: bold; 
+            font-size: 11px; 
+            position: sticky; 
+            left: 0; 
+            z-index: 40; /* 日付見出し(20)より高く設定 */
+            border-right: 2px solid #eee !important; 
+            color: #666;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.02);
+        }
+        
+        /* 左上の「時間」ヘッダーは縦横両方の固定が必要なため最前面にする */
+        #dateHeader th.time-col {
+            z-index: 50;
+            top: 0;
+        }
+
         #dateHeader th:not(.time-col) { background: #fff; position: sticky; top: 0; z-index: 20; border-bottom: 2px solid #eee; }
         
         .day-label { font-size: 10px; font-weight: bold; margin-bottom: 2px; }
@@ -310,7 +330,7 @@
             { name: "酸熱トリートメント", time: 90, price: 7700, desc: "髪質改善集中ケア。" },
             { name: "艶髪トリートメント", time: 30, price: 2950, desc: "潤いと質感をプラス。" },
             { name: "前髪カット", time: 30, price: 1100, desc: "印象を変えるメンテナンス。" },
-            { name: "眉カット", time: 30, price: 1100, desc: "清潔感のある目元へ。" },
+            { name: "眉カット", time: 30, price: 1100, desc: "プロの手で清潔感を。" },
             { name: "ヘッドスパ", time: 30, price: 3500, desc: "至福の癒やし。" },
             { name: "部分矯正", time: 90, price: 5500, desc: "気になる部分のみ。" },
             { name: "シャンプー・ブロー", time: 30, price: 2200, desc: "プロの仕上げ。" }
