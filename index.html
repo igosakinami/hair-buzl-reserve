@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>hair Buzl 【ヘアーバズール】 | 公式24時間予約システム</title>
-    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-    <script type="text/javascript" src="[https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js](https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js)"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
         :root { --hpb-pink: #ff7283; --hpb-border: #dcd6d6; }
         body { font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; background-color: #f8f8f8; color: #333; -webkit-tap-highlight-color: transparent; }
@@ -160,9 +160,9 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "[https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js](https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js)";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "[https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js](https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js)";
-        import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, deleteDoc, serverTimestamp } from "[https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js](https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js)";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const NOTIFICATION_CONFIG = {
             emailjs_public_key: "zUdr_cmgl8wlxtNLw",
@@ -283,13 +283,11 @@
 
             try {
                 const slotsCount = Math.ceil(selectedMenu.time / 30);
-                // 1. 保存
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), { customerName: name, customerTel: tel, menu: selectedMenu.name, dateTime: `${selectedSlot.dateLabel} ${selectedSlot.time}`, timestamp: serverTimestamp() });
                 for(let i=0; i < slotsCount; i++) {
                     const targetId = `${selectedSlot.dateId}_${timeSlots[selectedSlot.tIdx + i].replace(':','')}`;
                     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', targetId), { status: 'ng' });
                 }
-                // 2. メール送信
                 if(NOTIFICATION_CONFIG.emailjs_service_id) {
                     await emailjs.send(NOTIFICATION_CONFIG.emailjs_service_id, NOTIFICATION_CONFIG.emailjs_template_id, {
                         customer_name: name, date_time: `${selectedSlot.dateLabel} ${selectedSlot.time}`, menu_name: selectedMenu.name
@@ -298,7 +296,7 @@
                 window.changeStep(4);
             } catch(e) { 
                 console.error(e);
-                alert(`予約に失敗しました。以下の点を確認してください：\n1. Firebaseの「ルール」設定が完了しているか\n2. ネット接続が安定しているか\n\nエラー内容: ${e.message}`);
+                alert(`予約に失敗しました。エラー内容: ${e.message}`);
                 btn.disabled = false; btn.innerText = "予約を確定する";
             }
         };
@@ -333,4 +331,3 @@
     </script>
 </body>
 </html>
-
