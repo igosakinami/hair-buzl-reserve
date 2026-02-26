@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>hair Buzl 【ヘアーバズール】 | 24H予約システム</title>
     
-    <!-- 外部ライブラリ -->
+    <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
@@ -16,32 +16,25 @@
         .hpb-pink-btn { background: linear-gradient(to bottom, #ff8c99, #ff7283); color: white !important; border-radius: 6px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(255, 114, 131, 0.3); }
         .hpb-pink-btn:active { transform: translateY(1px); box-shadow: none; filter: brightness(0.95); }
 
-        /* カレンダー・テーブル改良（強制横スクロール＆文字潰れ防止） */
+        /* Calendar Table Enhancements */
         .calendar-outer-wrapper { overflow-x: auto; background: white; border: 1px solid #ddd; border-radius: 12px; position: relative; -webkit-overflow-scrolling: touch; }
         .hpb-table { width: max-content; min-width: 100%; border-collapse: separate; border-spacing: 0; }
         .hpb-table th, .hpb-table td { border: 0.5px solid #f0f0f0; text-align: center; height: 60px; padding: 0; position: relative; min-width: 80px; }
         
-        /* ★修正: 時間軸の固定設定を強化 */
+        /* Sticky Time Column Settings */
         .time-col { 
             background-color: #f9f9f9 !important; 
-            width: 65px !important; 
-            min-width: 65px !important; 
+            width: 60px !important; 
+            min-width: 60px !important; 
             font-weight: bold; 
             font-size: 11px; 
-            position: sticky; 
-            left: 0; 
-            z-index: 40; /* 日付見出し(20)より高く設定 */
-            border-right: 2px solid #eee !important; 
             color: #666;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.02);
         }
+        .sticky-left { position: sticky; left: 0; z-index: 40; border-right: 2px solid #eee !important; box-shadow: 2px 0 5px rgba(0,0,0,0.02); }
+        .sticky-right { position: sticky; right: 0; z-index: 40; border-left: 2px solid #eee !important; box-shadow: -2px 0 5px rgba(0,0,0,0.02); }
         
-        /* 左上の「時間」ヘッダーは縦横両方の固定が必要なため最前面にする */
-        #dateHeader th.time-col {
-            z-index: 50;
-            top: 0;
-        }
-
+        /* Sticky Header for Dates */
+        #dateHeader th.time-col { z-index: 50; top: 0; }
         #dateHeader th:not(.time-col) { background: #fff; position: sticky; top: 0; z-index: 20; border-bottom: 2px solid #eee; }
         
         .day-label { font-size: 10px; font-weight: bold; margin-bottom: 2px; }
@@ -73,7 +66,7 @@
 </head>
 <body>
 
-    <div class="admin-panel p-3 flex justify-between items-center">
+    <div class="admin-panel p-3 flex justify-between items-center text-center md:text-left">
         <div class="flex items-center gap-2 text-[11px] font-black uppercase tracking-tighter">
             <span class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></span>
             hair Buzl Admin Professional
@@ -85,9 +78,9 @@
         </label>
     </div>
 
-    <header class="max-w-4xl mx-auto p-5 pb-2 bg-white">
+    <header class="max-w-4xl mx-auto p-5 pb-2 bg-white text-center md:text-left">
         <div class="flex justify-between items-end">
-            <div>
+            <div class="text-left">
                 <p class="text-[9px] text-gray-400 font-bold tracking-widest uppercase">official reservation</p>
                 <h1 class="text-2xl font-black text-gray-800 m-0">hair Buzl</h1>
                 <p class="text-[10px] text-gray-500 font-bold mt-1">ヘアーバズール | 旭川東光 美容室</p>
@@ -106,16 +99,16 @@
         <div id="stepHeader4" class="flex-1 py-3 text-center text-gray-300 font-bold text-[10px]">完了</div>
     </div>
 
-    <main class="max-w-4xl mx-auto p-4 pb-24">
+    <main class="max-w-4xl mx-auto p-4 pb-24 text-center md:text-left">
         <!-- STEP1 -->
         <div id="step1" class="step-content active">
-            <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 text-gray-700 mb-1">メニューを選択</h2>
-            <p class="text-[10px] text-[#ff7283] font-bold mb-4 bg-pink-50 p-2 rounded-lg border border-pink-100">💡 複数のメニューを組み合わせてご予約いただけます（タップで選択・解除）</p>
+            <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 text-gray-700 mb-1 text-left">メニューを選択</h2>
+            <p class="text-[10px] text-[#ff7283] font-bold mb-4 bg-pink-50 p-2 rounded-lg border border-pink-100 text-left">💡 複数のメニューを組み合わせてご予約いただけます（タップで選択・解除）</p>
             <div id="menuList" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6"></div>
             
             <div id="step1Footer" class="bg-white p-4 rounded-2xl border-2 border-[#ff7283] shadow-lg sticky bottom-4 hidden z-50 transform transition-all">
                 <div class="flex justify-between items-end">
-                    <div>
+                    <div class="text-left">
                         <p class="text-[10px] text-gray-500 font-bold mb-1">選択中のメニュー（目安: <span id="totalTimeDisplay">0</span>分）</p>
                         <p class="text-xl font-black text-[#ff7283]">合計 ¥<span id="totalPriceDisplay">0</span></p>
                     </div>
@@ -126,24 +119,24 @@
 
         <!-- STEP2 -->
         <div id="step2" class="step-content">
-            <div class="mb-4 bg-pink-50 p-3 rounded-lg border border-pink-100">
+            <div class="mb-4 bg-pink-50 p-3 rounded-lg border border-pink-100 text-left">
                 <p class="text-[10px] text-pink-400 font-bold uppercase leading-none mb-1">Selected Menu</p>
                 <div id="selectedMenuDisplay" class="text-sm font-bold text-gray-800"></div>
             </div>
             
-            <p class="text-[10px] text-pink-500 font-bold mb-1 flex items-center gap-1">
+            <p class="text-[10px] text-pink-500 font-bold mb-1 flex items-center gap-1 justify-center md:justify-start">
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
-                表は横にスクロールできます
+                表は横にスワイプできます（日・月の間に時間を表示しています）
             </p>
             
             <div class="calendar-outer-wrapper shadow-lg">
                 <table class="hpb-table" id="calendarTable">
-                    <thead><tr id="dateHeader" class="bg-gray-50 text-gray-600"><th class="time-col">時間</th></tr></thead>
+                    <thead><tr id="dateHeader" class="bg-gray-50 text-gray-600"></tr></thead>
                     <tbody id="calendarBody"></tbody>
                 </table>
             </div>
             
-            <div class="mt-4 flex flex-col gap-2 bg-white p-4 rounded-xl border border-gray-100 text-[10px] text-gray-500 shadow-sm">
+            <div class="mt-4 flex flex-col gap-2 bg-white p-4 rounded-xl border border-gray-100 text-[10px] text-gray-500 shadow-sm text-left">
                 <div class="flex gap-4">
                     <span class="flex items-center gap-1"><span class="text-[#ff7283] text-lg">◎</span> 予約可能</span>
                     <span class="flex items-center gap-1"><span class="text-gray-300 text-lg">×</span> 予約不可</span>
@@ -154,13 +147,13 @@
 
         <!-- STEP3 -->
         <div id="step3" class="step-content">
-            <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4 text-gray-700">お客様情報の入力</h2>
+            <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4 text-gray-700 text-left">お客様情報の入力</h2>
             <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-xl">
-                <div class="mb-5">
+                <div class="mb-5 text-left">
                     <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">Customer Name</label>
                     <input type="text" id="custName" class="w-full p-4 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="お名前（フルネーム）">
                 </div>
-                <div class="mb-8">
+                <div class="mb-8 text-left">
                     <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">Phone Number</label>
                     <input type="tel" id="custTel" class="w-full p-4 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="090-0000-0000">
                 </div>
@@ -174,7 +167,7 @@
         <div id="step4" class="step-content text-center py-16 bg-white rounded-3xl border border-gray-50 shadow-inner">
             <div class="text-7xl mb-6">🎉</div>
             <h2 class="text-2xl font-black text-gray-800">ご予約ありがとうございます！</h2>
-            <p class="text-sm text-gray-400 mt-3 px-10 leading-relaxed">
+            <p class="text-sm text-gray-400 mt-3 px-10 leading-relaxed text-center">
                 お店側で予約内容を確認いたしました。<br>
                 当日のお越しを心よりお待ちしております。
             </p>
@@ -182,10 +175,10 @@
         </div>
 
         <!-- 管理台帳 -->
-        <div id="adminBookingSection" class="mt-16 hidden animate-pulse-slow">
+        <div id="adminBookingSection" class="mt-16 hidden text-left text-xs">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-sm font-bold border-l-4 border-blue-500 pl-2 text-blue-600 uppercase">Bookings Management</h2>
-                <span class="text-[9px] bg-blue-50 text-blue-500 px-2 py-1 rounded font-bold">リアルタイム同期中</span>
+                <span class="text-[9px] bg-blue-50 text-blue-500 px-2 py-1 rounded font-bold uppercase tracking-widest">Live Sync</span>
             </div>
             <div class="bg-white rounded-2xl border border-blue-100 shadow-xl overflow-hidden">
                 <div class="overflow-x-auto">
@@ -197,7 +190,7 @@
                                 <th class="p-4 text-center whitespace-nowrap">操作</th>
                             </tr>
                         </thead>
-                        <tbody id="adminBookingBody" class="text-xs"></tbody>
+                        <tbody id="adminBookingBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -207,8 +200,8 @@
     <footer class="salon-footer text-center">
         <div class="max-w-4xl mx-auto border-t border-gray-50 pt-12 pb-12">
             <h3 class="font-black text-gray-800 text-lg mb-8 uppercase tracking-[0.2em]">hair Buzl</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm px-6">
-                <div class="space-y-6 text-center md:text-left">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm px-6 text-center md:text-left">
+                <div class="space-y-6">
                     <div>
                         <p class="text-[9px] font-bold text-gray-300 uppercase tracking-widest mb-1">Address</p>
                         <p class="text-gray-600 font-bold leading-relaxed">〒078-8345<br>北海道旭川市東光5条6-3-5</p>
@@ -240,7 +233,7 @@
         </div>
     </footer>
 
-    <!-- 各種モーダル -->
+    <!-- Modals -->
     <div id="messageModal" class="modal-overlay">
         <div class="bg-white rounded-3xl w-full max-w-xs overflow-hidden shadow-2xl mx-4 transform transition-all">
             <div class="p-8 text-center"><p id="messageModalText" class="text-sm font-bold text-gray-800 whitespace-pre-wrap mt-2"></p></div>
@@ -264,7 +257,7 @@
             <div class="p-8 text-center">
                 <p class="text-sm font-bold text-[#ff7283] mb-1" id="modalMenuName"></p>
                 <p class="text-3xl font-black text-gray-800" id="selectedDateTimeDisplay"></p>
-                <div id="modalDescription" class="mt-4 text-[11px] text-gray-400 leading-relaxed whitespace-pre-wrap"></div>
+                <div id="modalDescription" class="mt-4 text-[11px] text-gray-400 leading-relaxed whitespace-pre-wrap text-center"></div>
             </div>
             <div class="flex border-t border-gray-100">
                 <button onclick="window.closeModal()" class="flex-1 p-5 text-sm font-bold text-gray-400 border-r hover:bg-gray-50 transition-colors">戻る</button>
@@ -320,7 +313,7 @@
             { name: "U24限定カット", time: 60, price: 3500, desc: "大学生まで。" },
             { name: "艶髪フルカラー", time: 90, price: 6600, desc: "フルボ酸配合、全体染め。" },
             { name: "カラーリタッチ", time: 60, price: 5500, desc: "根元2cm以内。" },
-            { name: "ブリーチ", time: 90, price: 6600, desc: "透明感カラーの土台作り。" },
+            { name: "ブリーチ", time: 90, price: 6600, desc: "透明感カラーの土台。" },
             { name: "ダブルブリーチ", time: 120, price: 9900, desc: "極限の明るさを追求。" },
             { name: "デザインカラー", time: 120, price: 7700, desc: "ハイライト、インナー等。" },
             { name: "艶髪縮毛矯正", time: 180, price: 16500, desc: "看板メニュー。カット込。" },
@@ -372,7 +365,7 @@
             
             menuData.forEach(m => {
                 const card = document.createElement('div');
-                card.className = "menu-card p-5 flex flex-col justify-between shadow-sm active:shadow-none border border-gray-100 bg-white rounded-xl transition-all";
+                card.className = "menu-card p-5 flex flex-col justify-between shadow-sm border border-gray-100 bg-white rounded-xl transition-all";
                 card.onclick = () => { 
                     const idx = selectedMenus.findIndex(sm => sm.name === m.name);
                     if (idx > -1) {
@@ -393,11 +386,11 @@
                     window.updateStep1Footer();
                 };
                 card.innerHTML = `
-                    <div class="flex justify-between items-start mb-2">
+                    <div class="flex justify-between items-start mb-2 text-left">
                         <h3 class="font-black text-gray-800 text-[14px] leading-tight">${m.name}</h3>
                         <p class="text-[14px] font-black text-[#ff7283]">¥${m.price.toLocaleString()}</p>
                     </div>
-                    <p class="text-[10px] text-gray-400 mb-4 line-clamp-2">${m.desc}</p>
+                    <p class="text-[10px] text-gray-400 mb-4 line-clamp-2 text-left">${m.desc}</p>
                     <div class="flex items-center justify-between mt-auto">
                         <span class="text-[9px] bg-gray-50 px-2 py-1 rounded text-gray-400 font-bold border border-gray-100">${m.time}分</span>
                         <span class="select-btn-text text-[11px] text-[#ff7283] font-black uppercase tracking-widest transition-colors">Select ></span>
@@ -455,8 +448,8 @@
                 const body = document.getElementById('adminBookingBody');
                 if(!body) return; body.innerHTML = '';
                 [...bookingsList].sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0)).forEach(b => {
-                    const tr = document.createElement('tr'); tr.className = "border-b border-gray-50 hover:bg-blue-50/30 transition-colors";
-                    tr.innerHTML = `<td class="p-4"><div class="font-black text-gray-800 text-[11px] mb-1">${b.dateTime}</div><div class="text-[10px] text-gray-400 font-bold">${b.menu}</div></td><td class="p-4"><div class="font-black text-gray-800">${b.customerName} 様</div><div class="text-blue-500 font-mono text-[10px] mt-1">${b.customerTel}</div></td><td class="p-4 text-center"><button class="bg-white text-red-400 px-3 py-2 rounded-lg text-[10px] font-black border border-red-100 hover:bg-red-50 transition-all shadow-sm" onclick="window.deleteBooking('${b.id}')">削除</button></td>`;
+                    const tr = document.createElement('tr'); tr.className = "border-b border-gray-50 hover:bg-blue-50/30 transition-colors text-left";
+                    tr.innerHTML = `<td class="p-4"><div class="font-black text-gray-800 text-[11px] mb-1">${b.dateTime}</div><div class="text-[10px] text-gray-400 font-bold">${b.menu}</div></td><td class="p-4"><div class="font-black text-gray-800">${b.customerName} 様</div><div class="text-blue-500 font-mono text-[10px] mt-1">${b.customerTel}</div></td><td class="p-4 text-center"><button class="bg-white text-red-400 px-3 py-2 rounded-lg text-[10px] font-black border border-red-100 hover:bg-red-50 active:scale-90 transition-all shadow-sm" onclick="window.deleteBooking('${b.id}')">削除</button></td>`;
                     body.appendChild(tr);
                 });
                 renderCalendar(); 
@@ -482,20 +475,48 @@
         const renderCalendar = () => {
             const body = document.getElementById('calendarBody'), head = document.getElementById('dateHeader');
             if(!body || !head) return;
-            head.innerHTML = '<th class="time-col uppercase tracking-tighter">TIME</th>';
+            
             body.innerHTML = '';
+            head.innerHTML = '<th class="time-col sticky-left uppercase tracking-tighter">TIME</th>';
+            
             const dates = [], now = new Date(), slotsNeeded = isAdmin ? 1 : (selectedMenu ? Math.ceil(selectedMenu.time / 30) : 1);
-            for (let i = 0; i < 60; i++) {
-                const d = new Date(); d.setDate(now.getDate() + i);
+            
+            // ★本日(2/26)から5/27までを表示（合計91日間）
+            // 明日になれば「今日」が2/27になるので、自動で常に約3ヶ月分をスライド生成します。
+            const daysToShow = 91;
+
+            for (let i = 0; i < daysToShow; i++) {
+                const d = new Date(); 
+                d.setDate(now.getDate() + i);
                 const month = d.getMonth() + 1, date = d.getDate(), id = `${d.getFullYear()}-${month.toString().padStart(2,'0')}-${date.toString().padStart(2,'0')}`, label = `${month}/${date}`, dayNames = ['日','月','火','水','木','金','土'], dayOfWeek = d.getDay();
                 dates.push({id, label, dayName: dayNames[dayOfWeek], dayOfWeek});
+                
                 const th = document.createElement('th'); th.className = `weekday-${dayNames[dayOfWeek]} py-3`;
                 th.innerHTML = `<div class="day-label uppercase tracking-widest">${dayNames[dayOfWeek]}</div><div class="date-label text-sm tracking-tighter">${month}/${date}</div>`;
                 head.appendChild(th);
+
+                // ★日曜日(0)の後に「TIME」ヘッダーを挿入（週の区切り）
+                if (dayOfWeek === 0 && i < daysToShow - 1) {
+                    const thMid = document.createElement('th');
+                    thMid.className = "time-col uppercase tracking-tighter bg-gray-50";
+                    thMid.innerText = "TIME";
+                    head.appendChild(thMid);
+                }
             }
+            
+            const thRight = document.createElement('th');
+            thRight.className = "time-col sticky-right uppercase tracking-tighter";
+            thRight.innerText = "TIME";
+            head.appendChild(thRight);
+
             timeSlots.forEach((t, tIdx) => {
-                const tr = document.createElement('tr'); tr.innerHTML = `<td class="time-col font-mono text-[10px]">${t}</td>`;
-                dates.forEach(d => {
+                const tr = document.createElement('tr');
+                const tdLeft = document.createElement('td');
+                tdLeft.className = "time-col sticky-left font-mono text-[10px]";
+                tdLeft.innerText = t;
+                tr.appendChild(tdLeft);
+                
+                dates.forEach((d, dIdx) => {
                     const availability = isSlotAvailable(d.id, d.label, d.dayOfWeek, t, tIdx, slotsNeeded);
                     const td = document.createElement('td');
                     if(availability === "closed") { td.className = 'status-closed'; td.innerText = '定休'; } 
@@ -507,7 +528,21 @@
                         if(isAdmin) td.className = 'admin-active';
                     }
                     tr.appendChild(td);
+
+                    // ★日曜日(0)の後に「TIME」セルを挿入（週の区切り）
+                    if (d.dayOfWeek === 0 && dIdx < dates.length - 1) {
+                        const tdMid = document.createElement('td');
+                        tdMid.className = "time-col font-mono text-[10px] bg-gray-50";
+                        tdMid.innerText = t;
+                        tr.appendChild(tdMid);
+                    }
                 });
+                
+                const tdRight = document.createElement('td');
+                tdRight.className = "time-col sticky-right font-mono text-[10px]";
+                tdRight.innerText = t;
+                tr.appendChild(tdRight);
+                
                 body.appendChild(tr);
             });
         };
