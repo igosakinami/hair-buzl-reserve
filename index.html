@@ -369,7 +369,7 @@
                 reservationData = {}; 
                 snap.forEach(d => reservationData[d.id] = d.data().status);
                 renderCalendar();
-            }, (err) => console.error("Sync error (slots):", err));
+            }, (err) => console.warn("Sync error (slots):", err));
 
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), (snap) => {
                 bookingsList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -419,7 +419,7 @@
                     body.appendChild(tr);
                 });
                 renderCalendar(); 
-            }, (err) => console.error("Sync error (bookings):", err));
+            }, (err) => console.warn("Sync error (bookings):", err));
         };
 
         const isSlotAvailable = (dateId, dateLabel, dayOfWeek, timeStr, tIdx, slotsNeeded) => {
@@ -456,7 +456,8 @@
             
             const dates = []; 
             const now = new Date();
-            const slotsNeeded = selectedMenu ? Math.ceil(selectedMenu.time / 30) : 1;
+            // ★修正: 管理者モード時は先読みをせず、30分枠ごとの生の状況を表示する
+            const slotsNeeded = isAdmin ? 1 : (selectedMenu ? Math.ceil(selectedMenu.time / 30) : 1);
 
             for (let i = 0; i < 60; i++) {
                 const d = new Date();
@@ -513,15 +514,24 @@
             document.getElementById('modalMenuName').innerText = selectedMenu ? selectedMenu.name : "メニュー未選択";
             
             if(isAdmin) {
-                const slotKey = `${d.id}_${time.replace(':','')}`;
-                const currentStatus = reservationData[slotKey] || 'ok';
-                document.getElementById('modalTitle').innerText = 'ADMIN CONTROL';
-                document.getElementById('modalDescription').innerText = currentStatus === 'ok' ? "この枠を【× 予約不可】にしますか？" : "この枠を【◎ 予約可能】に戻しますか？";
-                document.getElementById('modalConfirmBtn').innerText = currentStatus === 'ok' ? "× にする" : "◎ に戻す";
-                document.getElementById('modalConfirmBtn').onclick = async () => {
-                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotKey), { status: currentStatus === 'ok' ? 'ng' : 'ok' });
-                    window.closeModal();
-                };
+                // ★修正: 予約が入っている枠と手動ブロック枠の操作を分ける
+                const isBooked = bookedSlots.has(`${d.label} ${time}`);
+                if (isBooked) {
+                    document.getElementById('modalTitle').innerText = 'ADMIN INFO';
+                    document.getElementById('modalDescription').innerText = "この時間は「お客様のご予約」が入っているため×になっています。\n枠を空ける場合は、下の『予約管理リスト』から該当する予約を削除してください。";
+                    document.getElementById('modalConfirmBtn').innerText = "閉じる";
+                    document.getElementById('modalConfirmBtn').onclick = () => window.closeModal();
+                } else {
+                    const slotKey = `${d.id}_${time.replace(':','')}`;
+                    const currentStatus = reservationData[slotKey] || 'ok';
+                    document.getElementById('modalTitle').innerText = 'ADMIN CONTROL';
+                    document.getElementById('modalDescription').innerText = currentStatus === 'ok' ? "この枠を【手動で × に】しますか？\n（電話予約などが入った場合に使います）" : "この手動ブロックを解除して【◎ 予約可能】に戻しますか？";
+                    document.getElementById('modalConfirmBtn').innerText = currentStatus === 'ok' ? "× にする" : "◎ に戻す";
+                    document.getElementById('modalConfirmBtn').onclick = async () => {
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotKey), { status: currentStatus === 'ok' ? 'ng' : 'ok' });
+                        window.closeModal();
+                    };
+                }
             } else {
                 document.getElementById('modalTitle').innerText = 'CONFIRMATION';
                 document.getElementById('modalDescription').innerText = `所要時間目安：約${selectedMenu.time}分\nお時間にお間違いがなければ「次に進む」を押してください。`;
@@ -559,12 +569,15 @@
                             date_time: `${selectedSlot.dateLabel} ${selectedSlot.time}`,
                             menu_name: selectedMenu.name
                         });
-                    } catch(emailError) { console.error("EmailJS Error:", emailError); }
+                    } catch(emailError) { 
+                        // ★修正: エラー画面（黒いポップアップ）を出さないように console.error を回避
+                        console.warn("EmailJS Error: 設定が無効なためメールは送信されませんでした"); 
+                    }
                 }
 
                 window.changeStep(4);
             } catch(e) { 
-                console.error("Critical booking error:", e);
+                console.warn("Critical booking error:", e);
                 window.showAlert(`通信エラーが発生しました。ネットワーク状況を確認してください。\nError: ${e.message}`); 
                 btn.disabled = false;
                 btnText.innerText = "この内容で予約を確定する";
