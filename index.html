@@ -16,7 +16,7 @@
         .hpb-pink-btn { background: linear-gradient(to bottom, #ff8c99, #ff7283); color: white !important; border-radius: 6px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(255, 114, 131, 0.3); }
         .hpb-pink-btn:active { transform: translateY(1px); box-shadow: none; filter: brightness(0.95); }
 
-        /* カレンダー・テーブル改良（強制横スクロール＆文字潰れ防止） */
+        /* カレンダー・テーブル改良 */
         .calendar-outer-wrapper { overflow-x: auto; background: white; border: 1px solid #ddd; border-radius: 12px; position: relative; -webkit-overflow-scrolling: touch; }
         .hpb-table { width: max-content; min-width: 100%; border-collapse: separate; border-spacing: 0; }
         .hpb-table th, .hpb-table td { border: 0.5px solid #f0f0f0; text-align: center; height: 60px; padding: 0; position: relative; min-width: 80px; }
@@ -89,8 +89,19 @@
     <main class="max-w-4xl mx-auto p-4 pb-24">
         <!-- STEP1 -->
         <div id="step1" class="step-content active">
-            <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 text-gray-700 mb-4">メニューを選択</h2>
-            <div id="menuList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+            <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 text-gray-700 mb-1">メニューを選択</h2>
+            <p class="text-[10px] text-[#ff7283] font-bold mb-4 bg-pink-50 p-2 rounded-lg border border-pink-100">💡 複数のメニューを組み合わせてご予約いただけます（タップで選択・解除）</p>
+            <div id="menuList" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6"></div>
+            
+            <div id="step1Footer" class="bg-white p-4 rounded-2xl border-2 border-[#ff7283] shadow-lg sticky bottom-4 hidden z-50 transform transition-all">
+                <div class="flex justify-between items-end">
+                    <div>
+                        <p class="text-[10px] text-gray-500 font-bold mb-1">選択中のメニュー（目安: <span id="totalTimeDisplay">0</span>分）</p>
+                        <p class="text-xl font-black text-[#ff7283]">合計 ¥<span id="totalPriceDisplay">0</span></p>
+                    </div>
+                    <button onclick="window.goToStep2()" class="hpb-pink-btn px-6 py-3 text-sm font-bold shadow-md">日時を選択する</button>
+                </div>
+            </div>
         </div>
 
         <!-- STEP2 -->
@@ -196,9 +207,12 @@
                         <span class="text-[10px] font-bold text-gray-400">日曜・祝日</span>
                         <span class="font-black text-gray-700">09:30 - 18:00</span>
                     </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-[10px] font-bold text-gray-400">定休日</span>
-                        <span class="font-black text-red-400">毎週月曜日</span>
+                    <div class="flex justify-between items-start">
+                        <span class="text-[10px] font-bold text-gray-400 mt-1">定休日</span>
+                        <div class="text-right">
+                            <span class="font-black text-red-400">毎週月曜日</span>
+                            <span class="block text-[9px] text-gray-500 font-bold mt-1">※その他不定休あり</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -206,24 +220,17 @@
         </div>
     </footer>
 
-    <!-- カスタムメッセージモーダル (alertの代替) -->
+    <!-- 各種モーダル -->
     <div id="messageModal" class="modal-overlay">
         <div class="bg-white rounded-3xl w-full max-w-xs overflow-hidden shadow-2xl mx-4 transform transition-all">
-            <div class="p-8 text-center">
-                <p id="messageModalText" class="text-sm font-bold text-gray-800 whitespace-pre-wrap mt-2"></p>
-            </div>
-            <div class="border-t border-gray-100">
-                <button onclick="document.getElementById('messageModal').style.display='none'" class="w-full p-4 text-sm font-black text-[#ff7283] hover:bg-pink-50 transition-colors">OK</button>
-            </div>
+            <div class="p-8 text-center"><p id="messageModalText" class="text-sm font-bold text-gray-800 whitespace-pre-wrap mt-2"></p></div>
+            <div class="border-t border-gray-100"><button onclick="document.getElementById('messageModal').style.display='none'" class="w-full p-4 text-sm font-black text-[#ff7283] hover:bg-pink-50 transition-colors">OK</button></div>
         </div>
     </div>
 
-    <!-- アクション確認モーダル (confirmの代替) -->
     <div id="actionConfirmModal" class="modal-overlay">
         <div class="bg-white rounded-3xl w-full max-w-xs overflow-hidden shadow-2xl mx-4 transform transition-all">
-            <div class="p-8 text-center">
-                <p id="actionConfirmText" class="text-sm font-bold text-gray-800 whitespace-pre-wrap mt-2"></p>
-            </div>
+            <div class="p-8 text-center"><p id="actionConfirmText" class="text-sm font-bold text-gray-800 whitespace-pre-wrap mt-2"></p></div>
             <div class="flex border-t border-gray-100">
                 <button onclick="document.getElementById('actionConfirmModal').style.display='none'" class="flex-1 p-4 text-sm font-bold text-gray-400 border-r hover:bg-gray-50 transition-colors">キャンセル</button>
                 <button id="actionConfirmBtn" class="flex-1 p-4 text-sm font-black text-red-500 hover:bg-red-50 transition-colors">実行する</button>
@@ -231,14 +238,13 @@
         </div>
     </div>
 
-    <!-- 予約内容確認モーダル -->
     <div id="confirmModal" class="modal-overlay">
         <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl mx-4 transform transition-all">
             <div class="bg-gray-50 p-4 border-b text-center text-xs font-black text-gray-400 uppercase tracking-widest" id="modalTitle">RESERVATION</div>
             <div class="p-8 text-center">
                 <p class="text-sm font-bold text-[#ff7283] mb-1" id="modalMenuName"></p>
                 <p class="text-3xl font-black text-gray-800" id="selectedDateTimeDisplay"></p>
-                <div id="modalDescription" class="mt-4 text-[11px] text-gray-400 leading-relaxed"></div>
+                <div id="modalDescription" class="mt-4 text-[11px] text-gray-400 leading-relaxed whitespace-pre-wrap"></div>
             </div>
             <div class="flex border-t border-gray-100">
                 <button onclick="window.closeModal()" class="flex-1 p-5 text-sm font-bold text-gray-400 border-r hover:bg-gray-50 transition-colors">戻る</button>
@@ -247,7 +253,6 @@
         </div>
     </div>
 
-    <!-- 管理者ログイン -->
     <div id="adminAuthModal" class="modal-overlay">
         <div class="bg-white rounded-3xl w-full max-w-xs p-8 shadow-2xl text-center mx-4 border-t-8 border-blue-500">
             <h3 class="font-black text-gray-800 mb-2">Owner Only</h3>
@@ -285,7 +290,7 @@
         const db = getFirestore(app);
         const appId = "hair-buzl-reserve";
 
-        let fbUser = null, reservationData = {}, bookingsList = [], bookedSlots = new Set(), isAdmin = false, selectedMenu = null, selectedSlot = null;
+        let fbUser = null, reservationData = {}, bookingsList = [], bookedSlots = new Set(), isAdmin = false, selectedMenu = null, selectedSlot = null, selectedMenus = [];
         const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"];
         
         const menuData = [
@@ -342,13 +347,30 @@
             const list = document.getElementById('menuList');
             if(!list) return;
             list.innerHTML = "";
+            selectedMenus = []; 
+            window.updateStep1Footer(); 
+            
             menuData.forEach(m => {
                 const card = document.createElement('div');
-                card.className = "menu-card p-5 flex flex-col justify-between shadow-sm active:shadow-none";
+                card.className = "menu-card p-5 flex flex-col justify-between shadow-sm active:shadow-none border border-gray-100 bg-white rounded-xl transition-all";
                 card.onclick = () => { 
-                    selectedMenu = m; 
-                    document.getElementById('selectedMenuDisplay').innerHTML = `<span>${m.name}</span> <span class="ml-2 text-pink-300 font-normal">所要目安: ${m.time}分</span>`;
-                    window.changeStep(2); 
+                    const idx = selectedMenus.findIndex(sm => sm.name === m.name);
+                    if (idx > -1) {
+                        selectedMenus.splice(idx, 1);
+                        card.classList.remove('border-[#ff7283]', 'bg-pink-50');
+                        card.classList.add('border-gray-100', 'bg-white');
+                        card.querySelector('.select-btn-text').innerText = 'Select >';
+                        card.querySelector('.select-btn-text').classList.remove('text-white', 'bg-[#ff7283]', 'px-2', 'py-1', 'rounded');
+                        card.querySelector('.select-btn-text').classList.add('text-[#ff7283]');
+                    } else {
+                        selectedMenus.push(m);
+                        card.classList.remove('border-gray-100', 'bg-white');
+                        card.classList.add('border-[#ff7283]', 'bg-pink-50');
+                        card.querySelector('.select-btn-text').innerText = '✓ 選択中';
+                        card.querySelector('.select-btn-text').classList.remove('text-[#ff7283]');
+                        card.querySelector('.select-btn-text').classList.add('text-white', 'bg-[#ff7283]', 'px-2', 'py-1', 'rounded');
+                    }
+                    window.updateStep1Footer();
                 };
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-2">
@@ -358,64 +380,63 @@
                     <p class="text-[10px] text-gray-400 mb-4 line-clamp-2">${m.desc}</p>
                     <div class="flex items-center justify-between mt-auto">
                         <span class="text-[9px] bg-gray-50 px-2 py-1 rounded text-gray-400 font-bold border border-gray-100">${m.time}分</span>
-                        <span class="text-[11px] text-[#ff7283] font-black uppercase tracking-widest">Select ></span>
+                        <span class="select-btn-text text-[11px] text-[#ff7283] font-black uppercase tracking-widest transition-colors">Select ></span>
                     </div>`;
                 list.appendChild(card);
             });
         };
 
+        window.updateStep1Footer = () => {
+            const footer = document.getElementById('step1Footer');
+            if (selectedMenus.length > 0) {
+                footer.classList.remove('hidden');
+                const totalPrice = selectedMenus.reduce((sum, m) => sum + m.price, 0);
+                const totalTime = selectedMenus.reduce((sum, m) => sum + m.time, 0);
+                document.getElementById('totalPriceDisplay').innerText = totalPrice.toLocaleString();
+                document.getElementById('totalTimeDisplay').innerText = totalTime;
+            } else {
+                footer.classList.add('hidden');
+            }
+        };
+
+        window.goToStep2 = () => {
+            if (selectedMenus.length === 0) return;
+            const menuNames = selectedMenus.map(m => m.name).join(' ＋ ');
+            const totalTime = selectedMenus.reduce((sum, m) => sum + m.time, 0);
+            const totalPrice = selectedMenus.reduce((sum, m) => sum + m.price, 0);
+            selectedMenu = { name: menuNames, time: totalTime, price: totalPrice };
+            document.getElementById('selectedMenuDisplay').innerHTML = `<span>${menuNames}</span> <span class="ml-2 text-pink-300 font-normal">所要目安: ${totalTime}分 / 合計: ¥${totalPrice.toLocaleString()}</span>`;
+            window.changeStep(2);
+        };
+
         const startSync = () => {
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'slots'), (snap) => {
-                reservationData = {}; 
-                snap.forEach(d => reservationData[d.id] = d.data().status);
+                reservationData = {}; snap.forEach(d => reservationData[d.id] = d.data().status);
                 renderCalendar();
             }, (err) => console.warn("Sync error (slots):", err));
 
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), (snap) => {
                 bookingsList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                
                 bookedSlots.clear(); 
                 bookingsList.forEach(b => {
-                    const menu = menuData.find(m => m.name === b.menu);
-                    const time = menu ? menu.time : 30; 
+                    let time = 30;
+                    const names = b.menu.split(' ＋ ');
+                    const foundMenus = names.map(n => menuData.find(md => md.name === n)).filter(m => m);
+                    if(foundMenus.length > 0) time = foundMenus.reduce((sum, m) => sum + m.time, 0);
                     const slotsCount = Math.ceil(time / 30);
-                    
                     const parts = b.dateTime.split(' ');
                     if(parts.length === 2) {
-                        const dateLabel = parts[0];
-                        const startTime = parts[1];
-                        const startIdx = timeSlots.indexOf(startTime);
+                        const dateLabel = parts[0], startTime = parts[1], startIdx = timeSlots.indexOf(startTime);
                         if(startIdx !== -1) {
-                            for(let i=0; i<slotsCount; i++) {
-                                if(startIdx + i < timeSlots.length) {
-                                    bookedSlots.add(`${dateLabel} ${timeSlots[startIdx + i]}`);
-                                }
-                            }
+                            for(let i=0; i<slotsCount; i++) if(startIdx + i < timeSlots.length) bookedSlots.add(`${dateLabel} ${timeSlots[startIdx + i]}`);
                         }
                     }
                 });
-
                 const body = document.getElementById('adminBookingBody');
-                if(!body) return;
-                body.innerHTML = '';
-                
-                const sorted = [...bookingsList].sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
-                
-                sorted.forEach(b => {
-                    const tr = document.createElement('tr');
-                    tr.className = "border-b border-gray-50 hover:bg-blue-50/30 transition-colors";
-                    tr.innerHTML = `
-                        <td class="p-4">
-                            <div class="font-black text-gray-800 text-[11px] mb-1">${b.dateTime}</div>
-                            <div class="text-[10px] text-gray-400 font-bold">${b.menu}</div>
-                        </td>
-                        <td class="p-4">
-                            <div class="font-black text-gray-800">${b.customerName} 様</div>
-                            <div class="text-blue-500 font-mono text-[10px] mt-1">${b.customerTel}</div>
-                        </td>
-                        <td class="p-4 text-center">
-                            <button class="bg-white text-red-400 px-3 py-2 rounded-lg text-[10px] font-black border border-red-100 hover:bg-red-50 active:scale-90 transition-all shadow-sm" onclick="window.deleteBooking('${b.id}')">削除</button>
-                        </td>`;
+                if(!body) return; body.innerHTML = '';
+                [...bookingsList].sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0)).forEach(b => {
+                    const tr = document.createElement('tr'); tr.className = "border-b border-gray-50 hover:bg-blue-50/30 transition-colors";
+                    tr.innerHTML = `<td class="p-4"><div class="font-black text-gray-800 text-[11px] mb-1">${b.dateTime}</div><div class="text-[10px] text-gray-400 font-bold">${b.menu}</div></td><td class="p-4"><div class="font-black text-gray-800">${b.customerName} 様</div><div class="text-blue-500 font-mono text-[10px] mt-1">${b.customerTel}</div></td><td class="p-4 text-center"><button class="bg-white text-red-400 px-3 py-2 rounded-lg text-[10px] font-black border border-red-100 hover:bg-red-50 transition-all shadow-sm" onclick="window.deleteBooking('${b.id}')">削除</button></td>`;
                     body.appendChild(tr);
                 });
                 renderCalendar(); 
@@ -424,24 +445,15 @@
 
         const isSlotAvailable = (dateId, dateLabel, dayOfWeek, timeStr, tIdx, slotsNeeded) => {
             if (dayOfWeek === 1) return "closed";
-            
             const hour = parseInt(timeStr.split(':')[0]);
             if (dayOfWeek === 0 && hour >= 18) return "out"; 
-            
             for(let i=0; i < slotsNeeded; i++) {
                 const targetIdx = tIdx + i;
                 if(targetIdx >= timeSlots.length) return "ng"; 
-                
-                const checkTimeStr = timeSlots[targetIdx];
-                const checkHour = parseInt(checkTimeStr.split(':')[0]);
+                const checkTimeStr = timeSlots[targetIdx], checkHour = parseInt(checkTimeStr.split(':')[0]);
                 if(dayOfWeek === 0 && checkHour >= 18) return "ng"; 
-                
                 const slotKey = `${dateId}_${checkTimeStr.replace(':','')}`;
-                
-                // オーナー手動の×ブロック
                 if(reservationData[slotKey] === 'ng') return "ng";
-                
-                // 予約名簿からの自動×判定
                 if(bookedSlots.has(`${dateLabel} ${checkTimeStr}`)) return "ng";
             }
             return "ok";
@@ -450,50 +462,25 @@
         const renderCalendar = () => {
             const body = document.getElementById('calendarBody'), head = document.getElementById('dateHeader');
             if(!body || !head) return;
-            
             head.innerHTML = '<th class="time-col uppercase tracking-tighter">TIME</th>';
             body.innerHTML = '';
-            
-            const dates = []; 
-            const now = new Date();
-            // ★修正: 管理者モード時は先読みをせず、30分枠ごとの生の状況を表示する
-            const slotsNeeded = isAdmin ? 1 : (selectedMenu ? Math.ceil(selectedMenu.time / 30) : 1);
-
+            const dates = [], now = new Date(), slotsNeeded = isAdmin ? 1 : (selectedMenu ? Math.ceil(selectedMenu.time / 30) : 1);
             for (let i = 0; i < 60; i++) {
-                const d = new Date();
-                d.setDate(now.getDate() + i);
-                const year = d.getFullYear();
-                const month = d.getMonth() + 1; 
-                const date = d.getDate(); 
-                const id = `${year}-${month.toString().padStart(2,'0')}-${date.toString().padStart(2,'0')}`;
-                const label = `${month}/${date}`; 
-                const dayNames = ['日','月','火','水','木','金','土'];
-                const dayOfWeek = d.getDay();
-                
+                const d = new Date(); d.setDate(now.getDate() + i);
+                const month = d.getMonth() + 1, date = d.getDate(), id = `${d.getFullYear()}-${month.toString().padStart(2,'0')}-${date.toString().padStart(2,'0')}`, label = `${month}/${date}`, dayNames = ['日','月','火','水','木','金','土'], dayOfWeek = d.getDay();
                 dates.push({id, label, dayName: dayNames[dayOfWeek], dayOfWeek});
-                
-                const th = document.createElement('th');
-                th.className = `weekday-${dayNames[dayOfWeek]} py-3`;
-                th.innerHTML = `
-                    <div class="day-label uppercase tracking-widest">${dayNames[dayOfWeek]}</div>
-                    <div class="date-label text-sm tracking-tighter">${month}/${date}</div>
-                `;
+                const th = document.createElement('th'); th.className = `weekday-${dayNames[dayOfWeek]} py-3`;
+                th.innerHTML = `<div class="day-label uppercase tracking-widest">${dayNames[dayOfWeek]}</div><div class="date-label text-sm tracking-tighter">${month}/${date}</div>`;
                 head.appendChild(th);
             }
-
             timeSlots.forEach((t, tIdx) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td class="time-col font-mono text-[10px]">${t}</td>`;
-                
+                const tr = document.createElement('tr'); tr.innerHTML = `<td class="time-col font-mono text-[10px]">${t}</td>`;
                 dates.forEach(d => {
                     const availability = isSlotAvailable(d.id, d.label, d.dayOfWeek, t, tIdx, slotsNeeded);
                     const td = document.createElement('td');
-                    
-                    if(availability === "closed") {
-                        td.className = 'status-closed'; td.innerText = '定休';
-                    } else if(availability === "out") {
-                        td.className = 'text-gray-200 text-[18px]'; td.innerText = '－';
-                    } else {
+                    if(availability === "closed") { td.className = 'status-closed'; td.innerText = '定休'; } 
+                    else if(availability === "out") { td.className = 'text-gray-200 text-[18px]'; td.innerText = '－'; } 
+                    else {
                         const canBook = (availability === "ok");
                         td.innerHTML = `<div class="status-mark ${canBook ? 'status-ok' : 'status-ng'}">${canBook ? '◎' : '×'}</div>`;
                         td.onclick = () => window.handleSlotClick(d, t, tIdx, availability, canBook);
@@ -507,34 +494,27 @@
 
         window.handleSlotClick = (d, time, tIdx, availability, canBook) => {
             if(!isAdmin && !canBook) return;
-            
             selectedSlot = { dateId: d.id, dateLabel: d.label, time, tIdx };
             const modal = document.getElementById('confirmModal');
             document.getElementById('selectedDateTimeDisplay').innerText = `${d.label} ${time}〜`;
             document.getElementById('modalMenuName').innerText = selectedMenu ? selectedMenu.name : "メニュー未選択";
-            
             if(isAdmin) {
-                // ★修正: 予約が入っている枠と手動ブロック枠の操作を分ける
                 const isBooked = bookedSlots.has(`${d.label} ${time}`);
                 if (isBooked) {
                     document.getElementById('modalTitle').innerText = 'ADMIN INFO';
-                    document.getElementById('modalDescription').innerText = "この時間は「お客様のご予約」が入っているため×になっています。\n枠を空ける場合は、下の『予約管理リスト』から該当する予約を削除してください。";
+                    document.getElementById('modalDescription').innerText = "予約枠のため削除は下のリストから行ってください。";
                     document.getElementById('modalConfirmBtn').innerText = "閉じる";
                     document.getElementById('modalConfirmBtn').onclick = () => window.closeModal();
                 } else {
-                    const slotKey = `${d.id}_${time.replace(':','')}`;
-                    const currentStatus = reservationData[slotKey] || 'ok';
+                    const slotKey = `${d.id}_${time.replace(':','')}`, currentStatus = reservationData[slotKey] || 'ok';
                     document.getElementById('modalTitle').innerText = 'ADMIN CONTROL';
-                    document.getElementById('modalDescription').innerText = currentStatus === 'ok' ? "この枠を【手動で × に】しますか？\n（電話予約などが入った場合に使います）" : "この手動ブロックを解除して【◎ 予約可能】に戻しますか？";
+                    document.getElementById('modalDescription').innerText = currentStatus === 'ok' ? "この枠を×にしますか？" : "この枠を◎に戻しますか？";
                     document.getElementById('modalConfirmBtn').innerText = currentStatus === 'ok' ? "× にする" : "◎ に戻す";
-                    document.getElementById('modalConfirmBtn').onclick = async () => {
-                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotKey), { status: currentStatus === 'ok' ? 'ng' : 'ok' });
-                        window.closeModal();
-                    };
+                    document.getElementById('modalConfirmBtn').onclick = async () => { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotKey), { status: currentStatus === 'ok' ? 'ng' : 'ok' }); window.closeModal(); };
                 }
             } else {
                 document.getElementById('modalTitle').innerText = 'CONFIRMATION';
-                document.getElementById('modalDescription').innerText = `所要時間目安：約${selectedMenu.time}分\nお時間にお間違いがなければ「次に進む」を押してください。`;
+                document.getElementById('modalDescription').innerText = `【お会計予定】 ¥${selectedMenu.price.toLocaleString()}\n【所要目安】 約${selectedMenu.time}分\n\nお間違いがなければ次に進んでください。`;
                 document.getElementById('modalConfirmBtn').innerText = "次に進む";
                 document.getElementById('modalConfirmBtn').onclick = () => { window.closeModal(); window.changeStep(3); };
             }
@@ -543,82 +523,40 @@
 
         window.submitBooking = async () => {
             const name = document.getElementById('custName').value.trim(), tel = document.getElementById('custTel').value.trim();
-            if(!name || !tel) return window.showAlert("お名前と電話番号を正しく入力してください。");
-            
-            const btn = document.getElementById('finalSubmitBtn');
-            const btnText = document.getElementById('btnText');
-            btn.disabled = true;
-            btnText.innerHTML = `<span class="loading-spinner"></span>送信中...`;
-
+            if(!name || !tel) return window.showAlert("お名前と電話番号を入力してください。");
+            const btn = document.getElementById('finalSubmitBtn'), btnText = document.getElementById('btnText');
+            btn.disabled = true; btnText.innerHTML = `<span class="loading-spinner"></span>送信中...`;
             try {
-                // 【完全修正版】名簿(bookings)へのデータ保存のみを実行。
-                // slotsへの二重書き込みを完全削除したため、消去時に×が残るバグが解消されます。
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), { 
-                    customerName: name, 
-                    customerTel: tel, 
-                    menu: selectedMenu.name, 
-                    dateTime: `${selectedSlot.dateLabel} ${selectedSlot.time}`,
-                    timestamp: serverTimestamp()
-                });
-
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), { customerName: name, customerTel: tel, menu: selectedMenu.name, dateTime: `${selectedSlot.dateLabel} ${selectedSlot.time}`, timestamp: serverTimestamp() });
                 if(NOTIFICATION_CONFIG.emailjs_service_id) {
-                    try {
-                        await emailjs.send(NOTIFICATION_CONFIG.emailjs_service_id, NOTIFICATION_CONFIG.emailjs_template_id, {
-                            customer_name: name,
-                            customer_tel: tel,
-                            date_time: `${selectedSlot.dateLabel} ${selectedSlot.time}`,
-                            menu_name: selectedMenu.name
-                        });
-                    } catch(emailError) { 
-                        // ★修正: エラー画面（黒いポップアップ）を出さないように console.error を回避
-                        console.warn("EmailJS Error: 設定が無効なためメールは送信されませんでした"); 
-                    }
+                    try { await emailjs.send(NOTIFICATION_CONFIG.emailjs_service_id, NOTIFICATION_CONFIG.emailjs_template_id, { customer_name: name, customer_tel: tel, date_time: `${selectedSlot.dateLabel} ${selectedSlot.time}`, menu_name: selectedMenu.name }); } 
+                    catch(emailError) { console.warn("EmailJS Error: メールは送信されませんでした"); }
                 }
-
                 window.changeStep(4);
-            } catch(e) { 
-                console.warn("Critical booking error:", e);
-                window.showAlert(`通信エラーが発生しました。ネットワーク状況を確認してください。\nError: ${e.message}`); 
-                btn.disabled = false;
-                btnText.innerText = "この内容で予約を確定する";
-            }
+            } catch(e) { window.showAlert(`エラー: ${e.message}`); btn.disabled = false; btnText.innerText = "この内容で予約を確定する"; }
         };
 
         window.deleteBooking = (id) => {
-            window.showConfirmAction("この予約データを削除しますか？\n（※過去のバグでカレンダーに×が残っている場合は、管理者モードで直接タップして◎に戻してください）", async () => {
-                try {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id));
-                } catch(e) { window.showAlert("削除に失敗しました。通信環境を確認してください。"); }
+            window.showConfirmAction("予約を削除しますか？", async () => {
+                try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id)); } catch(e) { window.showAlert("削除失敗"); }
             });
         };
 
         window.closeModal = () => document.getElementById('confirmModal').style.display = 'none';
-        
         window.changeStep = (s) => { 
             document.querySelectorAll('.step-content').forEach(c=>c.classList.remove('active'));
             document.getElementById(`step${s}`).classList.add('active'); 
-            
-            const progress = (s / 4) * 100;
-            document.getElementById('progressBar').style.width = `${progress}%`;
-            
+            document.getElementById('progressBar').style.width = `${(s/4)*100}%`;
             for(let i=1;i<=4;i++){
                 const h = document.getElementById(`stepHeader${i}`);
-                if(h) {
-                    if(i === s) {
-                        h.className = "flex-1 py-3 text-center border-b-2 border-[#ff7283] text-[#ff7283] font-black text-[10px]";
-                    } else if(i < s) {
-                        h.className = "flex-1 py-3 text-center text-[#ff7283] font-bold text-[10px] opacity-50";
-                    } else {
-                        h.className = "flex-1 py-3 text-center text-gray-300 font-bold text-[10px]";
-                    }
-                }
+                if(h) h.className = (i === s) ? "flex-1 py-3 text-center border-b-2 border-[#ff7283] text-[#ff7283] font-black text-[10px]" : "flex-1 py-3 text-center text-gray-300 font-bold text-[10px]";
             }
             window.scrollTo(0,0);
             if(s === 2) renderCalendar();
         };
 
         window.toggleAdminMode = (chk) => { if(chk) document.getElementById('adminAuthModal').style.display = 'flex'; else { isAdmin = false; document.getElementById('modeLabel').innerText='OFF'; renderCalendar(); document.getElementById('adminBookingSection').classList.add('hidden'); } };
-        window.verifyAdmin = () => { if(document.getElementById('adminPass').value==='0000'){ isAdmin=true; document.getElementById('modeLabel').innerText='ON'; document.getElementById('adminAuthModal').style.display='none'; document.getElementById('adminBookingSection').classList.remove('hidden'); renderCalendar(); } else window.showAlert("認証エラー：正しい番号を入力してください"); };
+        window.verifyAdmin = () => { if(document.getElementById('adminPass').value==='0000'){ isAdmin=true; document.getElementById('modeLabel').innerText='ON'; document.getElementById('adminAuthModal').style.display='none'; document.getElementById('adminBookingSection').classList.remove('hidden'); renderCalendar(); } else window.showAlert("認証エラー"); };
         window.cancelAdmin = () => { document.getElementById('adminToggle').checked = false; document.getElementById('adminAuthModal').style.display = 'none'; };
     </script>
 </body>
