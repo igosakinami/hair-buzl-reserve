@@ -3,174 +3,274 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>hair Buzl 【ヘアーバズール】 | 公式24時間予約システム</title>
+    <title>hair Buzl 【ヘアーバズール】 | 24H予約システム</title>
     
-    <!-- スタイリングと外部ライブラリの読み込み -->
+    <!-- 外部ライブラリ -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <style>
-        :root { --hpb-pink: #ff7283; --hpb-border: #dcd6d6; }
-        body { font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; background-color: #f8f8f8; color: #333; -webkit-tap-highlight-color: transparent; }
-        .hpb-pink-btn { background: linear-gradient(to bottom, #ff8c99, #ff7283); color: white !important; border: 1px solid #e05c6c; border-radius: 4px; box-shadow: 0 2px 0 #d04b5a; }
-        .hpb-table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
-        .hpb-table th, .hpb-table td { border: 1px solid var(--hpb-border); text-align: center; padding: 0; min-width: 70px; height: 56px; position: relative; }
-        .time-col { background-color: #fdfafa; width: 60px !important; font-weight: bold; font-size: 11px; position: sticky; left: 0; z-index: 20; border-right: 2px solid var(--hpb-border) !important; }
-        .status-mark { font-size: 22px; font-weight: bold; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
-        .status-ok { color: var(--hpb-pink); cursor: pointer; }
-        .status-ng { color: #ccc; background-color: #fdfdfd; cursor: not-allowed; }
-        .status-closed { background-color: #f5f5f5; color: #bbb; font-size: 10px; font-weight: bold; }
-        .admin-active { background-color: #fffde7 !important; cursor: pointer; }
-        .admin-panel { background: #222; color: white; position: sticky; top: 0; z-index: 100; }
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        :root { --hpb-pink: #ff7283; --hpb-border: #eee; --admin-blue: #3b82f6; }
+        body { font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; background-color: #fcfcfc; color: #333; -webkit-tap-highlight-color: transparent; }
+        
+        /* ボタンアニメーション */
+        .hpb-pink-btn { background: linear-gradient(to bottom, #ff8c99, #ff7283); color: white !important; border-radius: 6px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(255, 114, 131, 0.3); }
+        .hpb-pink-btn:active { transform: translateY(1px); box-shadow: none; filter: brightness(0.95); }
+
+        /* カレンダー・テーブル改良（横スクロール対応・重なり防止） */
+        .calendar-outer-wrapper { overflow-x: auto; background: white; border: 1px solid #ddd; border-radius: 12px; position: relative; -webkit-overflow-scrolling: touch; }
+        .hpb-table { width: max-content; min-width: 100%; border-collapse: separate; border-spacing: 0; }
+        .hpb-table th, .hpb-table td { border: 0.5px solid #f0f0f0; text-align: center; height: 60px; padding: 0; position: relative; min-width: 75px; }
+        
+        /* 時間軸（固定） */
+        .time-col { background-color: #f9f9f9; width: 65px !important; min-width: 65px !important; font-weight: bold; font-size: 11px; position: sticky; left: 0; z-index: 30; border-right: 2px solid #eee !important; color: #666; }
+        
+        /* 日付ヘッダー（固定） */
+        #dateHeader th:not(.time-col) { background: #fff; position: sticky; top: 0; z-index: 20; border-bottom: 2px solid #eee; }
+        .day-label { font-size: 10px; font-weight: bold; margin-bottom: 2px; }
+        .date-label { font-weight: 800; line-height: 1; }
+        .weekday-日 { color: #e53e3e; background: #fff5f5; }
+        .weekday-土 { color: #3182ce; background: #ebf8ff; }
+        .weekday-月 { background: #f7fafc; opacity: 0.8; }
+
+        /* 予約マーク */
+        .status-mark { font-size: 24px; font-weight: bold; display: flex; align-items: center; justify-content: center; height: 100%; width: 100%; transition: background 0.1s; }
+        .status-ok { color: var(--hpb-pink); cursor: pointer; background: #fff; }
+        .status-ok:hover { background: #fff0f1; }
+        .status-ng { color: #ddd; background-color: #fafafa; cursor: not-allowed; font-size: 20px; }
+        .status-closed { background-color: #f1f1f1; color: #999; font-size: 11px; font-weight: bold; }
+
+        /* 管理モード表示 */
+        .admin-active { background-color: #fffde7 !important; outline: 1px dashed #ffd600; z-index: 10; }
+        .admin-panel { background: #1a1a1a; color: white; position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--admin-blue); }
+
+        /* モーダル */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
+        
+        /* ステップ表示 */
         .step-content { display: none; }
-        .step-content.active { display: block; animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        .menu-card { cursor: pointer; transition: all 0.1s; }
-        .calendar-outer-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--hpb-border); background: white; border-radius: 8px; }
-        .salon-footer { background: white; border-top: 1px solid #eee; margin-top: 50px; padding: 40px 16px; }
+        .step-content.active { display: block; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .menu-card { cursor: pointer; border: 1px solid #eee; border-radius: 12px; background: white; transition: all 0.2s; }
+        .menu-card:hover { border-color: var(--hpb-pink); transform: translateX(2px); }
+        
+        /* ローディング */
+        .loading-spinner { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid #fff; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <!-- 管理者パネル -->
-    <div class="admin-panel p-3 flex justify-between items-center shadow-lg">
-        <div class="flex items-center gap-2 text-xs font-bold text-blue-400">
-            <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-            hair Buzl Admin Panel
+    <!-- 管理者バー -->
+    <div class="admin-panel p-3 flex justify-between items-center">
+        <div class="flex items-center gap-2 text-[11px] font-black uppercase tracking-tighter">
+            <span class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></span>
+            hair Buzl Admin Professional
         </div>
-        <label class="relative inline-flex items-center cursor-pointer">
+        <label class="relative inline-flex items-center cursor-pointer scale-90">
             <input type="checkbox" id="adminToggle" class="sr-only peer" onchange="window.toggleAdminMode(this.checked)">
-            <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-            <span class="ml-2 text-[10px] font-bold uppercase text-white">Mode: <span id="modeLabel">Off</span></span>
+            <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+            <span class="ml-2 text-[10px] font-bold">MODE: <span id="modeLabel">OFF</span></span>
         </label>
     </div>
 
-    <!-- 店舗ヘッダー -->
-    <header class="max-w-4xl mx-auto p-4 flex justify-between items-center bg-white">
-        <div class="salon-info">
-            <p class="text-[10px] text-gray-400 m-0 leading-none uppercase tracking-widest">hair Buzl</p>
-            <h1 class="text-xl font-bold m-0 text-gray-800">ヘアーバズール</h1>
-            <div class="mt-1 text-[9px] text-gray-400 border border-gray-100 rounded-full px-2 inline-block">旭川東光 / 美容室 / 24H予約</div>
+    <!-- ロゴ -->
+    <header class="max-w-4xl mx-auto p-5 pb-2 bg-white">
+        <div class="flex justify-between items-end">
+            <div>
+                <p class="text-[9px] text-gray-400 font-bold tracking-widest uppercase">official reservation</p>
+                <h1 class="text-2xl font-black text-gray-800 m-0">hair Buzl</h1>
+                <p class="text-[10px] text-gray-500 font-bold mt-1">ヘアーバズール | 旭川東光 美容室</p>
+            </div>
+            <button class="hpb-pink-btn px-4 py-2 text-xs font-bold" onclick="location.reload()">予約TOPへ</button>
         </div>
-        <button class="hpb-pink-btn px-4 py-2 text-sm font-bold shadow-md" onclick="location.reload()">予約TOP</button>
+        <div class="h-1 w-full bg-gray-50 mt-4 rounded-full overflow-hidden">
+            <div id="progressBar" class="h-full bg-[#ff7283] transition-all duration-500" style="width: 25%"></div>
+        </div>
     </header>
 
-    <!-- プログレスナビ -->
-    <div class="flex border-y border-gray-100 bg-white max-w-4xl mx-auto sticky top-[48px] z-40">
-        <div id="stepHeader1" class="flex-1 py-3 text-center bg-red-50 text-[#ff7283] font-bold text-[10px]">STEP1 メニュー</div>
-        <div id="stepHeader2" class="flex-1 py-3 text-center border-l text-gray-400 font-bold text-[10px]">STEP2 日時</div>
-        <div id="stepHeader3" class="flex-1 py-3 text-center border-l text-gray-400 font-bold text-[10px]">STEP3 入力</div>
-        <div id="stepHeader4" class="flex-1 py-3 text-center border-l text-gray-400 font-bold text-[10px]">完了</div>
+    <!-- ナビゲーション -->
+    <div class="flex border-b border-gray-100 bg-white max-w-4xl mx-auto sticky top-[48px] z-40 shadow-sm">
+        <div id="stepHeader1" class="flex-1 py-3 text-center border-b-2 border-[#ff7283] text-[#ff7283] font-bold text-[10px]">STEP1 メニュー</div>
+        <div id="stepHeader2" class="flex-1 py-3 text-center text-gray-300 font-bold text-[10px]">STEP2 日時</div>
+        <div id="stepHeader3" class="flex-1 py-3 text-center text-gray-300 font-bold text-[10px]">STEP3 入力</div>
+        <div id="stepHeader4" class="flex-1 py-3 text-center text-gray-300 font-bold text-[10px]">完了</div>
     </div>
 
-    <main class="max-w-4xl mx-auto p-4 pb-20">
-        <!-- メニュー選択セクション -->
+    <main class="max-w-4xl mx-auto p-4 pb-24">
+        <!-- STEP1: メニュー -->
         <div id="step1" class="step-content active">
-            <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4 text-gray-700">メニューを選択してください</h2>
-            <div id="menuList" class="space-y-4"></div>
+            <div class="mb-4 flex items-center justify-between">
+                <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 text-gray-700">メニューを選択</h2>
+            </div>
+            <div id="menuList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
         </div>
 
-        <!-- カレンダー選択セクション -->
+        <!-- STEP2: カレンダー -->
         <div id="step2" class="step-content">
-            <div class="flex flex-col mb-3">
-                <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 text-gray-700 mb-1">日時を選択（2か月先まで）</h2>
-                <div id="selectedMenuDisplay" class="text-[11px] font-bold text-[#ff7283] bg-pink-50 p-2 rounded border border-pink-100"></div>
+            <div class="mb-4 bg-pink-50 p-3 rounded-lg border border-pink-100">
+                <p class="text-[10px] text-pink-400 font-bold uppercase leading-none mb-1">Selected Menu</p>
+                <div id="selectedMenuDisplay" class="text-sm font-bold text-gray-800"></div>
             </div>
-            <div class="calendar-outer-wrapper shadow-inner">
+            
+            <div class="calendar-outer-wrapper shadow-lg">
                 <table class="hpb-table" id="calendarTable">
-                    <thead><tr id="dateHeader" class="bg-gray-50 text-gray-600"><th class="time-col">時間</th></tr></thead>
+                    <thead>
+                        <tr id="dateHeader" class="bg-gray-50 text-gray-600">
+                            <th class="time-col">時間</th>
+                            <!-- JSで生成 -->
+                        </tr>
+                    </thead>
                     <tbody id="calendarBody"></tbody>
                 </table>
             </div>
-            <div class="mt-4 text-[10px] text-gray-400 leading-relaxed bg-white p-3 rounded border">
-                <p>◎：予約可能 / ×：満員または時間不足 / －：時間外</p>
-                <p>※施術時間（所要時間）に合わせて、その後の枠も自動でスキャンされます。</p>
+            
+            <div class="mt-4 flex flex-col gap-2 bg-white p-4 rounded-xl border border-gray-100 text-[10px] text-gray-500 shadow-sm">
+                <div class="flex gap-4">
+                    <span class="flex items-center gap-1"><span class="text-[#ff7283] text-lg">◎</span> 予約可能</span>
+                    <span class="flex items-center gap-1"><span class="text-gray-300 text-lg">×</span> 予約不可</span>
+                    <span class="flex items-center gap-1"><span class="text-gray-200 text-lg">－</span> 時間外</span>
+                </div>
+                <p>※施術メニューの所要時間に合わせて、連続した空き時間を自動チェックしています。</p>
             </div>
         </div>
 
-        <!-- お客様情報入力セクション -->
+        <!-- STEP3: 入力 -->
         <div id="step3" class="step-content">
             <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4 text-gray-700">お客様情報の入力</h2>
-            <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-                <div class="mb-4">
-                    <label class="block text-xs font-bold text-gray-500 mb-1">お名前（フルネーム）</label>
-                    <input type="text" id="custName" class="w-full p-3 border border-gray-200 rounded text-sm focus:ring-1 focus:ring-[#ff7283] outline-none" placeholder="例：旭川 太郎">
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-xl">
+                <div class="mb-5">
+                    <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">Customer Name</label>
+                    <input type="text" id="custName" class="w-full p-4 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="お名前（フルネーム）">
                 </div>
-                <div class="mb-6">
-                    <label class="block text-xs font-bold text-gray-500 mb-1">電話番号（半角）</label>
-                    <input type="tel" id="custTel" class="w-full p-3 border border-gray-200 rounded text-sm focus:ring-1 focus:ring-[#ff7283] outline-none" placeholder="09012345678">
+                <div class="mb-8">
+                    <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">Phone Number</label>
+                    <input type="tel" id="custTel" class="w-full p-4 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="090-0000-0000">
                 </div>
-                <button id="finalSubmitBtn" onclick="window.submitBooking()" class="w-full py-4 bg-[#1a252f] text-white font-bold rounded-lg shadow-xl active:scale-[0.98] transition-all">予約を確定する</button>
+                <button id="finalSubmitBtn" onclick="window.submitBooking()" class="w-full py-5 bg-[#1a252f] text-white font-bold rounded-xl shadow-2xl active:scale-[0.98] transition-all flex justify-center items-center">
+                    <span id="btnText">この内容で予約を確定する</span>
+                </button>
             </div>
         </div>
 
-        <!-- 完了通知セクション -->
-        <div id="step4" class="step-content text-center py-20 bg-white rounded-lg border">
-            <div class="text-6xl mb-6">✨</div>
-            <h2 class="text-xl font-bold text-gray-800">ご予約を承りました</h2>
-            <p class="text-sm text-gray-500 mt-2">当日のお越しを心よりお待ちしております。</p>
-            <button onclick="location.reload()" class="mt-12 text-[#ff7283] font-bold border-b-2 border-[#ff7283] pb-1">予約TOPへ戻る</button>
+        <!-- STEP4: 完了 -->
+        <div id="step4" class="step-content text-center py-16 bg-white rounded-3xl border border-gray-50 shadow-inner">
+            <div class="text-7xl mb-6">🎉</div>
+            <h2 class="text-2xl font-black text-gray-800">ご予約ありがとうございます！</h2>
+            <p class="text-sm text-gray-400 mt-3 px-10 leading-relaxed">
+                お店側で予約内容を確認いたしました。<br>
+                当日のお越しを心よりお待ちしております。
+            </p>
+            <button onclick="location.reload()" class="mt-12 hpb-pink-btn px-10 py-4 font-bold">予約トップへ戻る</button>
         </div>
 
-        <!-- オーナー用予約管理台帳 -->
-        <div id="adminBookingSection" class="mt-12 hidden">
-            <h2 class="text-sm font-bold border-l-4 border-blue-500 pl-2 text-blue-600 mb-4">【オーナー専用】予約管理リスト</h2>
-            <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md">
+        <!-- 管理台帳 -->
+        <div id="adminBookingSection" class="mt-16 hidden animate-pulse-slow">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-sm font-bold border-l-4 border-blue-500 pl-2 text-blue-600 uppercase">Bookings Management</h2>
+                <span class="text-[9px] bg-blue-50 text-blue-500 px-2 py-1 rounded font-bold">リアルタイム同期中</span>
+            </div>
+            <div class="bg-white rounded-2xl border border-blue-100 shadow-xl overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-[11px] text-left">
-                        <thead class="bg-gray-50 border-b">
-                            <tr><th class="p-3">日時</th><th class="p-3">お客様</th><th class="p-3">メニュー</th><th class="p-3 text-center">操作</th></tr>
+                    <table class="w-full text-left">
+                        <thead class="bg-blue-50 text-blue-800 text-[10px] uppercase font-bold">
+                            <tr>
+                                <th class="p-4 whitespace-nowrap">日時 / Menu</th>
+                                <th class="p-4 whitespace-nowrap">お客様情報</th>
+                                <th class="p-4 text-center whitespace-nowrap">操作</th>
+                            </tr>
                         </thead>
-                        <tbody id="adminBookingBody"></tbody>
+                        <tbody id="adminBookingBody" class="text-xs"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- フッター -->
-    <footer class="salon-footer">
-        <div class="max-w-4xl mx-auto border-t pt-10">
-            <h3 class="font-bold text-gray-800 mb-8 text-center text-lg tracking-widest uppercase">hair Buzl</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 text-sm">
-                <div class="space-y-4 text-center md:text-left">
-                    <div><span class="text-[9px] font-bold text-gray-300 uppercase tracking-widest">Representative</span><br><span class="text-gray-800 font-bold border-b border-gray-100 pb-1">谷口 博哉</span></div>
-                    <div><span class="text-[9px] font-bold text-gray-300 uppercase tracking-widest">Address</span><br><span class="text-gray-600">〒078-8345 旭川市東光5条6-3-5</span></div>
-                    <div><span class="text-[9px] font-bold text-gray-300 uppercase tracking-widest">Phone</span><br><a href="tel:0166378631" class="text-xl font-bold text-[#ff7283]">0166-37-8631</a></div>
+    <footer class="salon-footer text-center">
+        <div class="max-w-4xl mx-auto border-t border-gray-50 pt-12 pb-12">
+            <h3 class="font-black text-gray-800 text-lg mb-8 uppercase tracking-[0.2em]">hair Buzl</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm px-6">
+                <div class="space-y-6 text-center md:text-left">
+                    <div>
+                        <p class="text-[9px] font-bold text-gray-300 uppercase tracking-widest mb-1">Address</p>
+                        <p class="text-gray-600 font-bold leading-relaxed">〒078-8345<br>北海道旭川市東光5条6-3-5</p>
+                    </div>
+                    <div>
+                        <p class="text-[9px] font-bold text-gray-300 uppercase tracking-widest mb-1">Phone</p>
+                        <a href="tel:0166378631" class="text-xl font-black text-[#ff7283]">0166-37-8631</a>
+                    </div>
                 </div>
-                <div class="bg-gray-50 p-6 rounded-2xl space-y-4">
-                    <div><p class="text-[10px] font-bold text-gray-400 mb-1 border-l-2 border-[#ff7283] pl-2 uppercase">Business Hours</p>平・土 09:30-19:00 / 日・祝 09:30-18:00</div>
-                    <div><p class="text-[10px] font-bold text-gray-400 mb-1 border-l-2 border-[#ff7283] pl-2 uppercase">Regular Holiday</p>毎週月曜日</div>
+                <div class="bg-gray-50 p-6 rounded-3xl space-y-4">
+                    <div class="flex justify-between items-center border-b border-white pb-2">
+                        <span class="text-[10px] font-bold text-gray-400">平日・土曜</span>
+                        <span class="font-black text-gray-700">09:30 - 19:00</span>
+                    </div>
+                    <div class="flex justify-between items-center border-b border-white pb-2">
+                        <span class="text-[10px] font-bold text-gray-400">日曜・祝日</span>
+                        <span class="font-black text-gray-700">09:30 - 18:00</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-bold text-gray-400">定休日</span>
+                        <span class="font-black text-red-400">毎週月曜日</span>
+                    </div>
                 </div>
             </div>
-            <p class="mt-16 pt-8 border-t border-gray-50 text-[10px] text-center text-gray-300 tracking-widest uppercase">&copy; 2026 hair Buzl.</p>
+            <p class="mt-16 text-[9px] font-bold text-gray-300 tracking-widest uppercase">&copy; 2026 hair Buzl. All Rights Reserved.</p>
         </div>
     </footer>
 
-    <!-- 各種確認モーダル -->
-    <div id="confirmModal" class="modal-overlay">
-        <div class="bg-white rounded-xl w-full max-w-sm overflow-hidden shadow-2xl mx-4">
-            <div class="bg-gray-50 p-4 border-b text-center font-bold text-gray-700" id="modalTitle">予約内容の確認</div>
-            <div class="p-6 text-center">
-                <p class="text-2xl font-bold text-gray-800" id="selectedDateTimeDisplay"></p>
-                <div id="modalDescription" class="mt-4 text-xs text-gray-400 whitespace-pre-wrap leading-relaxed"></div>
+    <!-- カスタムメッセージモーダル (alertの代替) -->
+    <div id="messageModal" class="modal-overlay">
+        <div class="bg-white rounded-3xl w-full max-w-xs overflow-hidden shadow-2xl mx-4 transform transition-all">
+            <div class="p-8 text-center">
+                <p id="messageModalText" class="text-sm font-bold text-gray-800 whitespace-pre-wrap mt-2"></p>
             </div>
-            <div class="flex border-t">
-                <button onclick="window.closeModal()" class="flex-1 p-4 text-sm font-bold text-gray-400 border-r hover:bg-gray-50">戻る</button>
-                <button id="modalConfirmBtn" class="flex-1 p-4 text-sm font-bold text-[#ff7283] hover:bg-red-50">次に進む</button>
+            <div class="border-t border-gray-100">
+                <button onclick="document.getElementById('messageModal').style.display='none'" class="w-full p-4 text-sm font-black text-[#ff7283] hover:bg-pink-50 transition-colors">OK</button>
             </div>
         </div>
     </div>
 
-    <!-- 管理者ログインモーダル -->
+    <!-- アクション確認モーダル (confirmの代替) -->
+    <div id="actionConfirmModal" class="modal-overlay">
+        <div class="bg-white rounded-3xl w-full max-w-xs overflow-hidden shadow-2xl mx-4 transform transition-all">
+            <div class="p-8 text-center">
+                <p id="actionConfirmText" class="text-sm font-bold text-gray-800 whitespace-pre-wrap mt-2"></p>
+            </div>
+            <div class="flex border-t border-gray-100">
+                <button onclick="document.getElementById('actionConfirmModal').style.display='none'" class="flex-1 p-4 text-sm font-bold text-gray-400 border-r hover:bg-gray-50 transition-colors">キャンセル</button>
+                <button id="actionConfirmBtn" class="flex-1 p-4 text-sm font-black text-red-500 hover:bg-red-50 transition-colors">実行する</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 予約内容確認モーダル -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl mx-4 transform transition-all">
+            <div class="bg-gray-50 p-4 border-b text-center text-xs font-black text-gray-400 uppercase tracking-widest" id="modalTitle">RESERVATION</div>
+            <div class="p-8 text-center">
+                <p class="text-sm font-bold text-[#ff7283] mb-1" id="modalMenuName"></p>
+                <p class="text-3xl font-black text-gray-800" id="selectedDateTimeDisplay"></p>
+                <div id="modalDescription" class="mt-4 text-[11px] text-gray-400 leading-relaxed"></div>
+            </div>
+            <div class="flex border-t border-gray-100">
+                <button onclick="window.closeModal()" class="flex-1 p-5 text-sm font-bold text-gray-400 border-r hover:bg-gray-50 transition-colors">戻る</button>
+                <button id="modalConfirmBtn" class="flex-1 p-5 text-sm font-black text-[#ff7283] hover:bg-pink-50 transition-colors">次に進む</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理者ログイン -->
     <div id="adminAuthModal" class="modal-overlay">
-        <div class="bg-white rounded-xl w-full max-w-xs p-6 shadow-2xl text-center mx-4">
-            <h3 class="font-bold text-gray-800 mb-4">Owner Authentication</h3>
-            <input type="password" id="adminPass" class="w-full p-4 border rounded-lg mb-4 text-center text-2xl outline-none" placeholder="****" inputmode="numeric">
-            <div class="flex gap-2">
-                <button onclick="window.cancelAdmin()" class="flex-1 py-3 text-xs font-bold text-gray-400 border rounded-lg">キャンセル</button>
-                <button onclick="window.verifyAdmin()" class="flex-1 py-3 text-xs font-bold bg-blue-500 text-white rounded-lg shadow-md">ログイン</button>
+        <div class="bg-white rounded-3xl w-full max-w-xs p-8 shadow-2xl text-center mx-4 border-t-8 border-blue-500">
+            <h3 class="font-black text-gray-800 mb-2">Owner Only</h3>
+            <p class="text-[10px] text-gray-400 mb-6 font-bold uppercase tracking-widest">Authentication Required</p>
+            <input type="password" id="adminPass" class="w-full p-5 bg-gray-50 border-none rounded-2xl mb-6 text-center text-3xl font-black outline-none ring-2 ring-transparent focus:ring-blue-500 transition-all" placeholder="****" inputmode="numeric">
+            <div class="flex gap-3">
+                <button onclick="window.cancelAdmin()" class="flex-1 py-4 text-xs font-bold text-gray-400 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">戻る</button>
+                <button onclick="window.verifyAdmin()" class="flex-1 py-4 text-xs font-bold bg-blue-500 text-white rounded-xl shadow-lg active:scale-95 transition-all">認証</button>
             </div>
         </div>
     </div>
@@ -180,7 +280,7 @@
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- 設定エリア (鍵の保護と統合) ---
+        // --- 本番環境：鍵の設定 ---
         const NOTIFICATION_CONFIG = {
             emailjs_public_key: "zUdr_cmgl8wlxtNLw",
             emailjs_service_id: "service_tl9llam",
@@ -201,7 +301,7 @@
         const db = getFirestore(app);
         const appId = "hair-buzl-reserve";
 
-        let fbUser = null, reservationData = {}, isAdmin = false, selectedMenu = null, selectedSlot = null;
+        let fbUser = null, reservationData = {}, bookingsList = [], isAdmin = false, selectedMenu = null, selectedSlot = null;
         const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"];
         
         const menuData = [
@@ -211,8 +311,8 @@
             { name: "U24限定カット", time: 60, price: 3500, desc: "大学生まで。" },
             { name: "艶髪フルカラー", time: 90, price: 6600, desc: "フルボ酸配合、全体染め。" },
             { name: "カラーリタッチ", time: 60, price: 5500, desc: "根元2cm以内。" },
-            { name: "ブリーチ", time: 90, price: 6600, desc: "透明感カラー。" },
-            { name: "ダブルブリーチ", time: 120, price: 9900, desc: "極限の明るさ。" },
+            { name: "ブリーチ", time: 90, price: 6600, desc: "透明感カラーの土台作り。" },
+            { name: "ダブルブリーチ", time: 120, price: 9900, desc: "極限の明るさを追求。" },
             { name: "デザインカラー", time: 120, price: 7700, desc: "ハイライト、インナー等。" },
             { name: "艶髪縮毛矯正", time: 180, price: 16500, desc: "看板メニュー。カット込。" },
             { name: "艶髪パーマ", time: 120, price: 9900, desc: "柔らかい質感。カット込。" },
@@ -227,12 +327,34 @@
             { name: "シャンプー・ブロー", time: 30, price: 2200, desc: "プロの仕上げ。" }
         ];
 
+        // カスタムアラート・コンファーム関数
+        window.showAlert = (msg) => {
+            document.getElementById('messageModalText').innerText = msg;
+            document.getElementById('messageModal').style.display = 'flex';
+        };
+
+        window.showConfirmAction = (msg, onConfirm) => {
+            document.getElementById('actionConfirmText').innerText = msg;
+            const btn = document.getElementById('actionConfirmBtn');
+            btn.onclick = () => {
+                document.getElementById('actionConfirmModal').style.display = 'none';
+                onConfirm();
+            };
+            document.getElementById('actionConfirmModal').style.display = 'flex';
+        };
+
         window.onload = async () => {
             initMenu();
             if(NOTIFICATION_CONFIG.emailjs_public_key) emailjs.init(NOTIFICATION_CONFIG.emailjs_public_key);
             try {
                 await signInAnonymously(auth);
-                onAuthStateChanged(auth, (u) => { fbUser = u; if(u) startSync(); });
+                onAuthStateChanged(auth, (u) => { 
+                    fbUser = u; 
+                    if(u) {
+                        console.log("Firebase Connected: ", u.uid);
+                        startSync(); 
+                    }
+                });
             } catch(e) { console.error("Database connection failed", e); }
         };
 
@@ -242,75 +364,148 @@
             list.innerHTML = "";
             menuData.forEach(m => {
                 const card = document.createElement('div');
-                card.className = "menu-card bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:border-[#ff7283]";
-                card.onclick = () => { selectedMenu = m; window.changeStep(2); };
-                card.innerHTML = `<div class="flex justify-between items-start mb-1"><h3 class="font-bold text-gray-800 text-[14px]">${m.name}</h3><p class="text-[14px] font-bold text-[#ff7283]">¥${m.price.toLocaleString()}</p></div><p class="text-[11px] text-gray-400 mb-2">${m.desc}</p><div class="flex items-center justify-between"><span class="text-[9px] bg-gray-50 px-2 py-1 rounded text-gray-400 font-bold border border-gray-100">${m.time}分</span><span class="text-xs text-[#ff7283] font-bold">予約する ></span></div>`;
+                card.className = "menu-card p-5 flex flex-col justify-between shadow-sm active:shadow-none";
+                card.onclick = () => { 
+                    selectedMenu = m; 
+                    document.getElementById('selectedMenuDisplay').innerHTML = `<span>${m.name}</span> <span class="ml-2 text-pink-300 font-normal">所要目安: ${m.time}分</span>`;
+                    window.changeStep(2); 
+                };
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-black text-gray-800 text-[14px] leading-tight">${m.name}</h3>
+                        <p class="text-[14px] font-black text-[#ff7283]">¥${m.price.toLocaleString()}</p>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mb-4 line-clamp-2">${m.desc}</p>
+                    <div class="flex items-center justify-between mt-auto">
+                        <span class="text-[9px] bg-gray-50 px-2 py-1 rounded text-gray-400 font-bold border border-gray-100">${m.time}分</span>
+                        <span class="text-[11px] text-[#ff7283] font-black uppercase tracking-widest">Select ></span>
+                    </div>`;
                 list.appendChild(card);
             });
         };
 
         const startSync = () => {
+            // 1. スロット（手動ブロック）の監視
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'slots'), (snap) => {
-                reservationData = {}; snap.forEach(d => reservationData[d.id] = d.data().status);
+                reservationData = {}; 
+                snap.forEach(d => reservationData[d.id] = d.data().status);
                 renderCalendar();
-            });
+            }, (err) => console.error("Sync error (slots):", err));
+
+            // 2. 予約確定データの監視
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), (snap) => {
-                const body = document.getElementById('adminBookingBody'); if(!body) return;
+                bookingsList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                const body = document.getElementById('adminBookingBody');
+                if(!body) return;
                 body.innerHTML = '';
-                const sorted = snap.docs.sort((a,b) => (b.data().timestamp?.seconds||0)-(a.data().timestamp?.seconds||0));
-                sorted.forEach(docSnap => {
-                    const b = docSnap.data();
-                    const tr = document.createElement('tr'); tr.className = "border-b hover:bg-gray-50";
-                    tr.innerHTML = `<td class="p-3"><strong>${b.dateTime}</strong></td><td class="p-3"><b>${b.customerName}</b><br><span class='text-gray-400'>${b.customerTel}</span></td><td class="p-3">${b.menu}</td><td class="p-3 text-center"><button class="bg-red-50 text-red-500 px-3 py-1 rounded text-[10px] font-bold border border-red-100" onclick="window.deleteBooking('${docSnap.id}')">削除</button></td>`;
+                
+                // 新しい順にソート
+                const sorted = [...bookingsList].sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+                
+                sorted.forEach(b => {
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b border-gray-50 hover:bg-blue-50/30 transition-colors";
+                    tr.innerHTML = `
+                        <td class="p-4">
+                            <div class="font-black text-gray-800 text-[11px] mb-1">${b.dateTime}</div>
+                            <div class="text-[10px] text-gray-400 font-bold">${b.menu}</div>
+                        </td>
+                        <td class="p-4">
+                            <div class="font-black text-gray-800">${b.customerName} 様</div>
+                            <div class="text-blue-500 font-mono text-[10px] mt-1">${b.customerTel}</div>
+                        </td>
+                        <td class="p-4 text-center">
+                            <button class="bg-white text-red-400 px-3 py-2 rounded-lg text-[10px] font-black border border-red-100 hover:bg-red-50 active:scale-90 transition-all shadow-sm" onclick="window.deleteBooking('${b.id}')">削除</button>
+                        </td>`;
                     body.appendChild(tr);
                 });
-            });
+                renderCalendar(); // 予約リストが更新されたらカレンダーも再描画
+            }, (err) => console.error("Sync error (bookings):", err));
         };
 
-        // HPBロジック: 施術時間（slotsNeeded）分の連続した空きをチェック
-        const isDurationAvailable = (dateObj, tIdx, slotsNeeded) => {
-            if (dateObj.isHoliday) return false;
+        // ロジック：予約済みデータおよび手動ブロックから空き時間を判定
+        const isSlotAvailable = (dateId, dateLabel, dayOfWeek, timeStr, tIdx, slotsNeeded) => {
+            // 1. 定休日（月曜）
+            if (dayOfWeek === 1) return "closed";
+            
+            // 2. 営業時間外チェック
+            const hour = parseInt(timeStr.split(':')[0]);
+            if (dayOfWeek === 0 && hour >= 18) return "out"; // 日祝
+            
+            // 3. 施術時間分の連続した空きをチェック（HPB式）
             for(let i=0; i < slotsNeeded; i++) {
                 const targetIdx = tIdx + i;
-                if(targetIdx >= timeSlots.length) return false; 
-                const timeStr = timeSlots[targetIdx];
-                const hour = parseInt(timeStr.split(':')[0]);
-                if(dateObj.day === 0 && hour >= 18) return false; 
-                const slotId = `${dateObj.id}_${timeStr.replace(':','')}`;
-                if(reservationData[slotId] === 'ng') return false; 
+                if(targetIdx >= timeSlots.length) return "ng"; // 閉店時間を超える
+                
+                const checkTimeStr = timeSlots[targetIdx];
+                const checkHour = parseInt(checkTimeStr.split(':')[0]);
+                if(dayOfWeek === 0 && checkHour >= 18) return "ng"; // 閉店時間を超える(日祝)
+                
+                const slotKey = `${dateId}_${checkTimeStr.replace(':','')}`;
+                
+                // 手動ブロックチェック
+                if(reservationData[slotKey] === 'ng') return "ng";
+                
+                // 確定済み予約チェック（日付ラベルの不一致問題を解消）
+                const isBooked = bookingsList.some(b => b.dateTime === `${dateLabel} ${checkTimeStr}`);
+                if(isBooked) return "ng";
             }
-            return true;
+            
+            return "ok";
         };
 
         const renderCalendar = () => {
             const body = document.getElementById('calendarBody'), head = document.getElementById('dateHeader');
             if(!body || !head) return;
-            head.innerHTML = '<th class="time-col">時間</th>'; body.innerHTML = '';
             
-            const dates = []; const now = new Date();
+            head.innerHTML = '<th class="time-col uppercase tracking-tighter">TIME</th>';
+            body.innerHTML = '';
+            
+            const dates = []; 
+            const now = new Date();
             const slotsNeeded = selectedMenu ? Math.ceil(selectedMenu.time / 30) : 1;
-            if(selectedMenu) document.getElementById('selectedMenuDisplay').innerText = `選択メニュー：${selectedMenu.name} (所要：${selectedMenu.time}分)`;
 
+            // 60日間生成
             for (let i = 0; i < 60; i++) {
-                const d = new Date(); d.setDate(now.getDate() + i);
-                const id = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
-                dates.push({id, label: `${d.getMonth()+1}/${d.getDate()}`, isHoliday: d.getDay() === 1, day: d.getDay()});
+                const d = new Date();
+                d.setDate(now.getDate() + i);
+                const year = d.getFullYear();
+                const month = d.getMonth() + 1; // ゼロパディングなし
+                const date = d.getDate(); // ゼロパディングなし
+                const id = `${year}-${month.toString().padStart(2,'0')}-${date.toString().padStart(2,'0')}`;
+                const label = `${month}/${date}`; // "2/27" 形式で統一
+                const dayNames = ['日','月','火','水','木','金','土'];
+                const dayOfWeek = d.getDay();
+                
+                dates.push({id, label, dayName: dayNames[dayOfWeek], dayOfWeek});
+                
                 const th = document.createElement('th');
-                th.innerHTML = `<div class='flex flex-col'><span>${d.getMonth()+1}/${d.getDate()}</span><span class='text-[8px]'>(${['日','月','火','水','木','金','土'][d.getDay()]})</span></div>`;
+                th.className = `weekday-${dayNames[dayOfWeek]} py-3`;
+                th.innerHTML = `
+                    <div class="day-label uppercase tracking-widest">${dayNames[dayOfWeek]}</div>
+                    <div class="date-label text-sm tracking-tighter">${month}/${date}</div>
+                `;
                 head.appendChild(th);
             }
 
+            // 時間軸の描画
             timeSlots.forEach((t, tIdx) => {
-                const tr = document.createElement('tr'); tr.innerHTML = `<td class="time-col">${t}</td>`;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td class="time-col font-mono text-[10px]">${t}</td>`;
+                
                 dates.forEach(d => {
-                    const status = reservationData[`${d.id}_${t.replace(':','')}`] || 'ok';
+                    const availability = isSlotAvailable(d.id, d.label, d.dayOfWeek, t, tIdx, slotsNeeded);
                     const td = document.createElement('td');
-                    if(d.isHoliday) { td.className = 'status-closed'; td.innerText = '休業'; }
-                    else if(d.day === 0 && parseInt(t.split(':')[0]) >= 18) { td.className = 'text-gray-200'; td.innerText = '－'; }
-                    else {
-                        const canBook = isAdmin ? true : (status === 'ok' && isDurationAvailable(d, tIdx, slotsNeeded));
-                        td.innerHTML = `<div class="status-mark ${canBook?'status-ok':'status-ng'}">${canBook?'◎':'×'}</div>`;
-                        td.onclick = () => window.showConfirm(`${d.id}_${t.replace(':','')}`, status, d.label, t, tIdx, d, canBook);
+                    
+                    if(availability === "closed") {
+                        td.className = 'status-closed'; td.innerText = '定休';
+                    } else if(availability === "out") {
+                        td.className = 'text-gray-200 text-[18px]'; td.innerText = '－';
+                    } else {
+                        const canBook = (availability === "ok");
+                        td.innerHTML = `<div class="status-mark ${canBook ? 'status-ok' : 'status-ng'}">${canBook ? '◎' : '×'}</div>`;
+                        td.onclick = () => window.handleSlotClick(d, t, tIdx, availability, canBook);
                         if(isAdmin) td.className = 'admin-active';
                     }
                     tr.appendChild(td);
@@ -319,23 +514,28 @@
             });
         };
 
-        window.showConfirm = (slotId, status, dateLabel, time, tIdx, d, canBook) => {
+        window.handleSlotClick = (d, time, tIdx, availability, canBook) => {
             if(!isAdmin && !canBook) return;
-            selectedSlot = { slotId, dateLabel, time, tIdx, dateId: d.id, dateObj: d };
-            document.getElementById('selectedDateTimeDisplay').innerText = `${dateLabel} ${time}〜`;
+            
+            selectedSlot = { dateId: d.id, dateLabel: d.label, time, tIdx };
             const modal = document.getElementById('confirmModal');
-            document.getElementById('modalConfirmBtn').style.display = 'block';
+            document.getElementById('selectedDateTimeDisplay').innerText = `${d.label} ${time}〜`;
+            document.getElementById('modalMenuName').innerText = selectedMenu ? selectedMenu.name : "メニュー未選択";
             
             if(isAdmin) {
-                document.getElementById('modalTitle').innerText = '管理者：枠の直接操作';
-                document.getElementById('modalDescription').innerText = status==='ok'?"この枠を【× (予約不可)】にしますか？":"この枠を【◎ (予約可)】に戻しますか？";
+                const slotKey = `${d.id}_${time.replace(':','')}`;
+                const currentStatus = reservationData[slotKey] || 'ok';
+                document.getElementById('modalTitle').innerText = 'ADMIN CONTROL';
+                document.getElementById('modalDescription').innerText = currentStatus === 'ok' ? "この枠を【× 予約不可】にしますか？" : "この枠を【◎ 予約可能】に戻しますか？";
+                document.getElementById('modalConfirmBtn').innerText = currentStatus === 'ok' ? "× にする" : "◎ に戻す";
                 document.getElementById('modalConfirmBtn').onclick = async () => {
-                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotId), { status: status==='ok'?'ng':'ok' });
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotKey), { status: currentStatus === 'ok' ? 'ng' : 'ok' });
                     window.closeModal();
                 };
             } else {
-                document.getElementById('modalTitle').innerText = '予約時間の最終確認';
-                document.getElementById('modalDescription').innerText = `${selectedMenu.name}\nおよそ${selectedMenu.time}分間のお時間を確保します。\nよろしければ次に進んでください。`;
+                document.getElementById('modalTitle').innerText = 'CONFIRMATION';
+                document.getElementById('modalDescription').innerText = `所要時間目安：約${selectedMenu.time}分\nお時間にお間違いがなければ「次に進む」を押してください。`;
+                document.getElementById('modalConfirmBtn').innerText = "次に進む";
                 document.getElementById('modalConfirmBtn').onclick = () => { window.closeModal(); window.changeStep(3); };
             }
             modal.style.display = 'flex';
@@ -343,53 +543,92 @@
 
         window.submitBooking = async () => {
             const name = document.getElementById('custName').value.trim(), tel = document.getElementById('custTel').value.trim();
-            if(!name || !tel) return alert("お名前と電話番号を入力してください。");
-            const btn = document.getElementById('finalSubmitBtn'); btn.disabled = true; btn.innerText = "送信中...";
+            if(!name || !tel) return window.showAlert("お名前と電話番号を正しく入力してください。");
+            
+            const btn = document.getElementById('finalSubmitBtn');
+            const btnText = document.getElementById('btnText');
+            btn.disabled = true;
+            btnText.innerHTML = `<span class="loading-spinner"></span>送信中...`;
 
             try {
-                const slotsCount = Math.ceil(selectedMenu.time / 30);
-                // 1. Firebaseに予約データを保存
+                // 1. Firebaseに予約データを書き込み（timestamp付き）
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), { 
-                    customerName: name, customerTel: tel, menu: selectedMenu.name, 
-                    dateTime: `${selectedSlot.dateLabel} ${selectedSlot.time}`, timestamp: serverTimestamp() 
+                    customerName: name, 
+                    customerTel: tel, 
+                    menu: selectedMenu.name, 
+                    dateTime: `${selectedSlot.dateLabel} ${selectedSlot.time}`,
+                    timestamp: serverTimestamp()
                 });
-                // 2. 施術時間分のスロットを「×」にする
-                for(let i=0; i < slotsCount; i++) {
-                    const targetId = `${selectedSlot.dateId}_${timeSlots[selectedSlot.tIdx + i].replace(':','')}`;
-                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', targetId), { status: 'ng' });
-                }
-                // 3. EmailJSでオーナー/お客様に通知
-                if(NOTIFICATION_CONFIG.emailjs_service_id) {
-                    await emailjs.send(NOTIFICATION_CONFIG.emailjs_service_id, NOTIFICATION_CONFIG.emailjs_template_id, {
-                        customer_name: name, customer_tel: tel,
-                        date_time: `${selectedSlot.dateLabel} ${selectedSlot.time}`,
-                        menu_name: selectedMenu.name
-                    });
-                }
-                window.changeStep(4);
-            } catch(e) { alert(`エラーが発生しました: ${e.message}`); btn.disabled = false; }
-        };
 
-        window.deleteBooking = async (id) => {
-            if(confirm("この予約データを台帳から削除しますか？\n(注：カレンダーの×印は管理者モードで手動で戻してください)")) {
-                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id));
+                // 2. 所要時間分の枠をすべて「×」に即時反映
+                const slotsCount = Math.ceil(selectedMenu.time / 30);
+                for(let i=0; i < slotsCount; i++) {
+                    const targetTime = timeSlots[selectedSlot.tIdx + i];
+                    if(!targetTime) continue;
+                    const slotKey = `${selectedSlot.dateId}_${targetTime.replace(':','')}`;
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotKey), { status: 'ng' });
+                }
+
+                // 3. EmailJS通知（エラーが起きても予約完了画面へ進めるように分離）
+                if(NOTIFICATION_CONFIG.emailjs_service_id) {
+                    try {
+                        await emailjs.send(NOTIFICATION_CONFIG.emailjs_service_id, NOTIFICATION_CONFIG.emailjs_template_id, {
+                            customer_name: name,
+                            customer_tel: tel,
+                            date_time: `${selectedSlot.dateLabel} ${selectedSlot.time}`,
+                            menu_name: selectedMenu.name
+                        });
+                    } catch(emailError) {
+                        console.error("EmailJS Error:", emailError);
+                        // メール通知が失敗しても、データベースへの保存は完了しているため処理を続行
+                    }
+                }
+
+                window.changeStep(4);
+            } catch(e) { 
+                console.error("Critical booking error:", e);
+                window.showAlert(`通信エラーが発生しました。ネットワーク状況を確認してください。\nError: ${e.message}`); 
+                btn.disabled = false;
+                btnText.innerText = "この内容で予約を確定する";
             }
         };
 
+        window.deleteBooking = (id) => {
+            window.showConfirmAction("この予約データを削除しますか？\n(注：カレンダーの×印は管理者モードで個別に◎へ戻す必要があります)", async () => {
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id));
+                } catch(e) { window.showAlert("削除に失敗しました。通信環境を確認してください。"); }
+            });
+        };
+
         window.closeModal = () => document.getElementById('confirmModal').style.display = 'none';
+        
         window.changeStep = (s) => { 
             document.querySelectorAll('.step-content').forEach(c=>c.classList.remove('active'));
             document.getElementById(`step${s}`).classList.add('active'); 
+            
+            // 進捗バーとヘッダーの更新
+            const progress = (s / 4) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            
             for(let i=1;i<=4;i++){
                 const h = document.getElementById(`stepHeader${i}`);
-                if(h) h.className = i===s ? "flex-1 py-3 text-center bg-red-50 text-[#ff7283] font-bold text-[10px]" : "flex-1 py-3 text-center border-l text-gray-400 font-bold text-[10px]";
+                if(h) {
+                    if(i === s) {
+                        h.className = "flex-1 py-3 text-center border-b-2 border-[#ff7283] text-[#ff7283] font-black text-[10px]";
+                    } else if(i < s) {
+                        h.className = "flex-1 py-3 text-center text-[#ff7283] font-bold text-[10px] opacity-50";
+                    } else {
+                        h.className = "flex-1 py-3 text-center text-gray-300 font-bold text-[10px]";
+                    }
+                }
             }
             window.scrollTo(0,0);
             if(s === 2) renderCalendar();
         };
 
-        window.toggleAdminMode = (chk) => { if(chk) document.getElementById('adminAuthModal').style.display = 'flex'; else { isAdmin = false; document.getElementById('modeLabel').innerText='Off'; renderCalendar(); document.getElementById('adminBookingSection').classList.add('hidden'); } };
-        window.verifyAdmin = () => { if(document.getElementById('adminPass').value==='0000'){ isAdmin=true; document.getElementById('modeLabel').innerText='On'; document.getElementById('adminAuthModal').style.display='none'; document.getElementById('adminBookingSection').classList.remove('hidden'); renderCalendar(); } else alert("暗証番号が違います"); };
+        window.toggleAdminMode = (chk) => { if(chk) document.getElementById('adminAuthModal').style.display = 'flex'; else { isAdmin = false; document.getElementById('modeLabel').innerText='OFF'; renderCalendar(); document.getElementById('adminBookingSection').classList.add('hidden'); } };
+        window.verifyAdmin = () => { if(document.getElementById('adminPass').value==='0000'){ isAdmin=true; document.getElementById('modeLabel').innerText='ON'; document.getElementById('adminAuthModal').style.display='none'; document.getElementById('adminBookingSection').classList.remove('hidden'); renderCalendar(); } else window.showAlert("認証エラー：正しい番号を入力してください"); };
         window.cancelAdmin = () => { document.getElementById('adminToggle').checked = false; document.getElementById('adminAuthModal').style.display = 'none'; };
     </script>
 </body>
