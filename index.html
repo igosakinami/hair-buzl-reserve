@@ -160,7 +160,7 @@
                 </div>
             </div>
 
-            <!-- ★HPB風：サロンからお客様への確認事項（チェックボックス付き） -->
+            <!-- ★HPB風：サロンからお客様への確認事項 -->
             <div class="mb-8 border border-gray-200 rounded-xl overflow-hidden text-left shadow-sm">
                 <div class="bg-gray-400 text-white text-[11px] font-bold p-3 tracking-widest">サロンからお客様への確認事項</div>
                 
@@ -196,7 +196,7 @@
                 </div>
             </div>
 
-            <!-- キャンセルポリシー（既存デザインのブラッシュアップ） -->
+            <!-- キャンセルポリシー -->
             <div class="bg-[#fff8f8] p-5 rounded-xl border border-pink-100 mb-8 text-left shadow-sm">
                 <h4 class="text-xs font-bold text-red-500 mb-3 flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
@@ -214,7 +214,6 @@
                 </p>
             </div>
 
-            <!-- 確定ボタン（最初はグレーアウト） -->
             <button id="finalSubmitBtn" disabled onclick="window.submitBooking()" class="w-full py-5 bg-gray-400 text-white font-bold rounded-xl shadow-lg transition-all flex justify-center items-center cursor-not-allowed">
                 <span id="btnText">この内容で予約を確定する</span>
             </button>
@@ -309,7 +308,6 @@
         </div>
     </div>
 
-    <!-- ★HPB風：確認モーダル -->
     <div id="confirmModal" class="modal-overlay">
         <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl mx-4 transform transition-all">
             <div class="bg-gray-50 p-4 border-b text-center text-xs font-black text-gray-400 uppercase tracking-widest" id="modalTitle">CONFIRMATION</div>
@@ -394,7 +392,6 @@
             { name: "シャンプー・ブロー", time: 30, price: 2200, desc: "プロの仕上げ。" }
         ];
 
-        // ★時間表示のフォーマット（例: 150 -> 2時間30分）
         const formatTime = (mins) => {
             if (mins < 60) return `${mins}分`;
             const h = Math.floor(mins / 60);
@@ -487,7 +484,6 @@
 
         window.goToStep2 = () => {
             if (selectedMenus.length === 0) return;
-            // ＋の間にスペースを入れてHPB風の表示に
             const menuNames = selectedMenus.map(m => m.name).join(' ＋ ');
             const totalTime = selectedMenus.reduce((sum, m) => sum + Number(m.time), 0);
             const totalPrice = selectedMenus.reduce((sum, m) => sum + Number(m.price), 0);
@@ -500,14 +496,12 @@
                 noticeEl.innerHTML = `<span class="text-[#ff7283] text-sm tracking-tight">【自動ブロック機能 稼働中】</span><br>選択されたメニューの所要時間（<span class="text-[#ff7283] font-black">${formatTime(totalTime)}</span>）が連続して空いている枠のみ「◎」を表示しています。`;
             }
 
-            // STEP3用の金額もあらかじめセットしておく
             const step3PriceEl = document.getElementById('step3Price');
             if (step3PriceEl) step3PriceEl.innerText = `¥${totalPrice.toLocaleString()}`;
 
             window.changeStep(2);
         };
 
-        // ★同意チェックボックスの制御関数
         window.toggleSubmitBtn = () => {
             const btn = document.getElementById('finalSubmitBtn');
             const chk = document.getElementById('agreeCheck');
@@ -534,12 +528,13 @@
                 bookingsList.forEach(b => {
                     let time = b.timeNeeded; 
                     
+                    // ★修正：部分一致バグを解消し、過去データも完全一致で探す
                     if (!time) {
                         let calcTime = 0;
-                        menuData.forEach(md => {
-                            if (b.menu && b.menu.includes(md.name)) {
-                                calcTime += md.time;
-                            }
+                        const menuNames = b.menu ? b.menu.split(' ＋ ') : [];
+                        menuNames.forEach(mn => {
+                            const found = menuData.find(md => md.name === mn.trim());
+                            if (found) calcTime += found.time;
                         });
                         time = calcTime > 0 ? calcTime : 30;
                     }
@@ -548,8 +543,22 @@
                     const parts = b.dateTime.split(' ');
                     if(parts.length === 2) {
                         const dateLabel = parts[0], startTime = parts[1], startIdx = timeSlots.indexOf(startTime);
+                        
+                        // ★修正：年またぎバグを解消するため、絶対的なdateIdを使用する
+                        let targetDateId = b.dateId;
+                        if (!targetDateId) { 
+                            // 過去データ用のフォールバック（強制的に今の年をくっつける）
+                            const [m, d] = dateLabel.split('/');
+                            const year = new Date().getFullYear();
+                            targetDateId = `${year}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+                        }
+
                         if(startIdx !== -1) {
-                            for(let i=0; i<slotsCount; i++) if(startIdx + i < timeSlots.length) bookedSlots.add(`${dateLabel} ${timeSlots[startIdx + i]}`);
+                            for(let i=0; i<slotsCount; i++) {
+                                if(startIdx + i < timeSlots.length) {
+                                    bookedSlots.add(`${targetDateId}_${timeSlots[startIdx + i]}`);
+                                }
+                            }
                         }
                     }
                 });
@@ -573,9 +582,12 @@
                 if(targetIdx >= timeSlots.length) return "ng"; 
                 const checkTimeStr = timeSlots[targetIdx], checkHour = parseInt(checkTimeStr.split(':')[0]);
                 if(dayOfWeek === 0 && checkHour >= 18) return "ng"; 
+                
                 const slotKey = `${dateId}_${checkTimeStr.replace(':','')}`;
                 if(reservationData[slotKey] === 'ng') return "ng";
-                if(bookedSlots.has(`${dateLabel} ${checkTimeStr}`)) return "ng";
+                
+                // ★修正：ブロックチェックも絶対的なdateIdを使用する
+                if(bookedSlots.has(`${dateId}_${checkTimeStr}`)) return "ng";
             }
             return "ok";
         };
@@ -669,11 +681,10 @@
                 document.getElementById('selectedDateTimeDisplay').innerText = `${d.label} ${time}〜`;
                 document.getElementById('modalMenuName').innerText = selectedMenu ? selectedMenu.name : "メニュー未選択";
                 document.getElementById('modalTitle').innerText = 'ADMIN CONTROL';
-                // 管理者用は金額・時間を隠す
                 document.getElementById('modalPrice').parentElement.style.display = 'none';
                 document.getElementById('modalTime').parentElement.style.display = 'none';
 
-                const isBooked = bookedSlots.has(`${d.label} ${time}`);
+                const isBooked = bookedSlots.has(`${d.dateId}_${time}`); // 管理者画面でも絶対IDで判定
                 if (isBooked) {
                     document.getElementById('modalTitle').innerText = 'ADMIN INFO';
                     document.getElementById('modalDescription').innerText = "予約枠のため削除は下のリストから行ってください。";
@@ -686,14 +697,12 @@
                     document.getElementById('modalConfirmBtn').onclick = async () => { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotKey), { status: currentStatus === 'ok' ? 'ng' : 'ok' }); window.closeModal(); };
                 }
             } else {
-                // 一般お客様用のHPB風表示セット
                 document.getElementById('modalTitle').innerText = 'CONFIRMATION';
                 document.getElementById('modalMenuName').innerText = selectedMenu.name;
                 document.getElementById('selectedDateTimeDisplay').innerText = `${d.label} ${time}〜`;
                 document.getElementById('modalPrice').innerText = `¥${selectedMenu.price.toLocaleString()}`;
                 document.getElementById('modalTime').innerText = `約${formatTime(selectedMenu.time)}`;
                 
-                // 表示をオンに戻す
                 document.getElementById('modalPrice').parentElement.style.display = 'block';
                 document.getElementById('modalTime').parentElement.style.display = 'block';
                 document.getElementById('modalDescription').innerText = "お間違いがなければ次に進んでください。";
@@ -725,11 +734,13 @@
             const btn = document.getElementById('finalSubmitBtn'), btnText = document.getElementById('btnText');
             btn.disabled = true; btnText.innerHTML = `<span class="loading-spinner"></span>送信中...`;
             try {
+                // ★修正：DBに年を含めた絶対ID（dateId）を保存
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), { 
                     customerName: name, 
                     customerTel: tel, 
                     menu: selectedMenu.name, 
                     dateTime: `${selectedSlot.dateLabel} ${selectedSlot.time}`, 
+                    dateId: selectedSlot.dateId,
                     timeNeeded: selectedMenu.time, 
                     timestamp: serverTimestamp() 
                 });
@@ -757,7 +768,6 @@
                 if(h) h.className = (i === s) ? "flex-1 py-3 text-center border-b-2 border-[#ff7283] text-[#ff7283] font-black text-[10px]" : "flex-1 py-3 text-center text-gray-300 font-bold text-[10px]";
             }
             
-            // STEP3に入った時にチェックボックスをリセットしてボタンをグレーにする
             if(s === 3) {
                 document.getElementById('agreeCheck').checked = false;
                 window.toggleSubmitBtn();
