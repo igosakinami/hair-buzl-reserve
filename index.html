@@ -141,7 +141,8 @@
                     <span class="flex items-center gap-1"><span class="text-[#ff7283] text-lg">◎</span> 予約可能</span>
                     <span class="flex items-center gap-1"><span class="text-gray-300 text-lg">×</span> 予約不可</span>
                 </div>
-                <p>※施術メニューの所要時間に合わせて、連続した空き時間を自動チェックしています。</p>
+                <!-- ★ここに自動ブロックを伝えるメッセージが表示されます -->
+                <p id="dynamicTimeNotice" class="font-bold text-gray-600 leading-relaxed bg-gray-50 p-2 rounded"></p>
             </div>
         </div>
 
@@ -158,7 +159,6 @@
                     <input type="tel" id="custTel" class="w-full p-4 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="090-0000-0000">
                 </div>
 
-                <!-- ▼ 追加: 注意事項・キャンセルポリシー ▼ -->
                 <div class="bg-pink-50 p-4 rounded-xl border border-pink-100 mb-8 text-left">
                     <h4 class="text-xs font-bold text-[#ff7283] mb-2 flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style="min-width: 16px; margin-right: 4px;" fill="currentColor" viewBox="0 0 16 16">
@@ -175,7 +175,6 @@
                         ※深夜帯や定休日のご予約につきましては、他サイトとの予約システムの兼ね合いにより、やむを得ず翌営業日にお時間変更のお願い（またはお断り）をご連絡させていただく場合がございます。あらかじめご了承ください。
                     </p>
                 </div>
-                <!-- ▲ 追加ここまで ▲ -->
 
                 <button id="finalSubmitBtn" onclick="window.submitBooking()" class="w-full py-5 bg-[#1a252f] text-white font-bold rounded-xl shadow-2xl active:scale-[0.98] transition-all flex justify-center items-center">
                     <span id="btnText">この内容で予約を確定する</span>
@@ -438,7 +437,15 @@
             const totalTime = selectedMenus.reduce((sum, m) => sum + Number(m.time), 0);
             const totalPrice = selectedMenus.reduce((sum, m) => sum + Number(m.price), 0);
             selectedMenu = { name: menuNames, time: totalTime, price: totalPrice };
+            
             document.getElementById('selectedMenuDisplay').innerHTML = `<span>${menuNames}</span> <span class="ml-2 text-pink-300 font-normal">所要目安: ${totalTime}分 / 合計: ¥${totalPrice.toLocaleString()}</span>`;
+            
+            // ★追加：カレンダーの下に表示される自動ブロック機能の案内文をアップデート
+            const noticeEl = document.getElementById('dynamicTimeNotice');
+            if (noticeEl) {
+                noticeEl.innerHTML = `<span class="text-[#ff7283] text-sm tracking-tight">【自動ブロック機能 稼働中】</span><br>選択されたメニューの所要時間（<span class="text-[#ff7283] font-black">${totalTime}分</span>）が連続して空いている枠のみ「◎」を表示しています。`;
+            }
+
             window.changeStep(2);
         };
 
@@ -452,10 +459,20 @@
                 bookingsList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 bookedSlots.clear(); 
                 bookingsList.forEach(b => {
-                    let time = 30;
-                    const names = b.menu.split(' ＋ ');
-                    const foundMenus = names.map(n => menuData.find(md => md.name === n)).filter(m => m);
-                    if(foundMenus.length > 0) time = foundMenus.reduce((sum, m) => sum + m.time, 0);
+                    // DBに保存された「所要時間」を取得
+                    let time = b.timeNeeded; 
+                    
+                    // ★修正ポイント：過去のデータ（時間が記録されていなかった頃のもの）から、確実に時間を復元する強力な検索システム
+                    if (!time) {
+                        let calcTime = 0;
+                        menuData.forEach(md => {
+                            if (b.menu && b.menu.includes(md.name)) {
+                                calcTime += md.time;
+                            }
+                        });
+                        time = calcTime > 0 ? calcTime : 30; // 復元できなければ最低1枠
+                    }
+
                     const slotsCount = Math.ceil(time / 30);
                     const parts = b.dateTime.split(' ');
                     if(parts.length === 2) {
@@ -501,8 +518,6 @@
             
             const dates = [], now = new Date(), slotsNeeded = isAdmin ? 1 : (selectedMenu ? Math.ceil(selectedMenu.time / 30) : 1);
             
-            // ★本日(2/26)から5/27までを表示（合計91日間）
-            // 明日になれば「今日」が2/27になるので、自動で常に約3ヶ月分をスライド生成します。
             const daysToShow = 91;
 
             for (let i = 0; i < daysToShow; i++) {
@@ -515,7 +530,6 @@
                 th.innerHTML = `<div class="day-label uppercase tracking-widest">${dayNames[dayOfWeek]}</div><div class="date-label text-sm tracking-tighter">${month}/${date}</div>`;
                 head.appendChild(th);
 
-                // ★日曜日(0)の後に「TIME」ヘッダーを挿入（週の区切り）
                 if (dayOfWeek === 0 && i < daysToShow - 1) {
                     const thMid = document.createElement('th');
                     thMid.className = "time-col uppercase tracking-tighter bg-gray-50";
@@ -549,7 +563,6 @@
                     }
                     tr.appendChild(td);
 
-                    // ★日曜日(0)の後に「TIME」セルを挿入（週の区切り）
                     if (d.dayOfWeek === 0 && dIdx < dates.length - 1) {
                         const tdMid = document.createElement('td');
                         tdMid.className = "time-col font-mono text-[10px] bg-gray-50";
@@ -600,10 +613,8 @@
             const name = document.getElementById('custName').value.trim(), tel = document.getElementById('custTel').value.trim();
             if(!name || !tel) return window.showAlert("お名前と電話番号を入力してください。");
 
-            // --- 最終空き状況チェック（ダブルブッキング完全防止） ---
             const slotsNeeded = Math.ceil(selectedMenu.time / 30);
             const parts = selectedSlot.dateId.split('-');
-            // スマホ等でも確実に日付を計算できるように調整
             const d = new Date(parts[0], parts[1] - 1, parts[2]);
             const dayOfWeek = d.getDay();
             
@@ -612,12 +623,18 @@
             if (availability !== "ok") {
                 return window.showAlert("申し訳ございません。入力中に他のお客様の予約が入り、必要な時間枠が埋まってしまいました。\nお手数ですが、別のお時間をお選びください。");
             }
-            // --------------------------------------------------------
 
             const btn = document.getElementById('finalSubmitBtn'), btnText = document.getElementById('btnText');
             btn.disabled = true; btnText.innerHTML = `<span class="loading-spinner"></span>送信中...`;
             try {
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), { customerName: name, customerTel: tel, menu: selectedMenu.name, dateTime: `${selectedSlot.dateLabel} ${selectedSlot.time}`, timestamp: serverTimestamp() });
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), { 
+                    customerName: name, 
+                    customerTel: tel, 
+                    menu: selectedMenu.name, 
+                    dateTime: `${selectedSlot.dateLabel} ${selectedSlot.time}`, 
+                    timeNeeded: selectedMenu.time, 
+                    timestamp: serverTimestamp() 
+                });
                 if(NOTIFICATION_CONFIG.emailjs_service_id) {
                     try { await emailjs.send(NOTIFICATION_CONFIG.emailjs_service_id, NOTIFICATION_CONFIG.emailjs_template_id, { customer_name: name, customer_tel: tel, date_time: `${selectedSlot.dateLabel} ${selectedSlot.time}`, menu_name: selectedMenu.name }); } 
                     catch(emailError) { console.warn("EmailJS Error: メールは送信されませんでした"); }
