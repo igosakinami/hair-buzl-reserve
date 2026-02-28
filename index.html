@@ -157,6 +157,26 @@
                     <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">Phone Number</label>
                     <input type="tel" id="custTel" class="w-full p-4 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="090-0000-0000">
                 </div>
+
+                <!-- ▼ 追加: 注意事項・キャンセルポリシー ▼ -->
+                <div class="bg-pink-50 p-4 rounded-xl border border-pink-100 mb-8 text-left">
+                    <h4 class="text-xs font-bold text-[#ff7283] mb-2 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style="min-width: 16px; margin-right: 4px;" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+                        </svg>
+                        ご予約に関する注意事項
+                    </h4>
+                    <p class="text-[10px] text-gray-600 mb-2 leading-relaxed">
+                        <strong>【キャンセルポリシー】</strong><br>
+                        キャンセルや日時変更をご希望の場合は、前日までにご連絡をお願いいたします。当日の無断キャンセル等につきましては、キャンセル料が発生する場合がございます。
+                    </p>
+                    <p class="text-[10px] text-red-500 font-bold leading-relaxed border-t border-pink-200 pt-2 mt-2">
+                        ※深夜帯や定休日のご予約につきましては、他サイトとの予約システムの兼ね合いにより、やむを得ず翌営業日にお時間変更のお願い（またはお断り）をご連絡させていただく場合がございます。あらかじめご了承ください。
+                    </p>
+                </div>
+                <!-- ▲ 追加ここまで ▲ -->
+
                 <button id="finalSubmitBtn" onclick="window.submitBooking()" class="w-full py-5 bg-[#1a252f] text-white font-bold rounded-xl shadow-2xl active:scale-[0.98] transition-all flex justify-center items-center">
                     <span id="btnText">この内容で予約を確定する</span>
                 </button>
