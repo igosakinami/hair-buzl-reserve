@@ -423,8 +423,8 @@
             const footer = document.getElementById('step1Footer');
             if (selectedMenus.length > 0) {
                 footer.classList.remove('hidden');
-                const totalPrice = selectedMenus.reduce((sum, m) => sum + m.price, 0);
-                const totalTime = selectedMenus.reduce((sum, m) => sum + m.time, 0);
+                const totalPrice = selectedMenus.reduce((sum, m) => sum + Number(m.price), 0);
+                const totalTime = selectedMenus.reduce((sum, m) => sum + Number(m.time), 0);
                 document.getElementById('totalPriceDisplay').innerText = totalPrice.toLocaleString();
                 document.getElementById('totalTimeDisplay').innerText = totalTime;
             } else {
@@ -435,8 +435,8 @@
         window.goToStep2 = () => {
             if (selectedMenus.length === 0) return;
             const menuNames = selectedMenus.map(m => m.name).join(' ＋ ');
-            const totalTime = selectedMenus.reduce((sum, m) => sum + m.time, 0);
-            const totalPrice = selectedMenus.reduce((sum, m) => sum + m.price, 0);
+            const totalTime = selectedMenus.reduce((sum, m) => sum + Number(m.time), 0);
+            const totalPrice = selectedMenus.reduce((sum, m) => sum + Number(m.price), 0);
             selectedMenu = { name: menuNames, time: totalTime, price: totalPrice };
             document.getElementById('selectedMenuDisplay').innerHTML = `<span>${menuNames}</span> <span class="ml-2 text-pink-300 font-normal">所要目安: ${totalTime}分 / 合計: ¥${totalPrice.toLocaleString()}</span>`;
             window.changeStep(2);
@@ -599,6 +599,21 @@
         window.submitBooking = async () => {
             const name = document.getElementById('custName').value.trim(), tel = document.getElementById('custTel').value.trim();
             if(!name || !tel) return window.showAlert("お名前と電話番号を入力してください。");
+
+            // --- 最終空き状況チェック（ダブルブッキング完全防止） ---
+            const slotsNeeded = Math.ceil(selectedMenu.time / 30);
+            const parts = selectedSlot.dateId.split('-');
+            // スマホ等でも確実に日付を計算できるように調整
+            const d = new Date(parts[0], parts[1] - 1, parts[2]);
+            const dayOfWeek = d.getDay();
+            
+            const availability = isSlotAvailable(selectedSlot.dateId, selectedSlot.dateLabel, dayOfWeek, selectedSlot.time, selectedSlot.tIdx, slotsNeeded);
+            
+            if (availability !== "ok") {
+                return window.showAlert("申し訳ございません。入力中に他のお客様の予約が入り、必要な時間枠が埋まってしまいました。\nお手数ですが、別のお時間をお選びください。");
+            }
+            // --------------------------------------------------------
+
             const btn = document.getElementById('finalSubmitBtn'), btnText = document.getElementById('btnText');
             btn.disabled = true; btnText.innerHTML = `<span class="loading-spinner"></span>送信中...`;
             try {
