@@ -109,7 +109,7 @@
             <div id="step1Footer" class="bg-white p-4 rounded-2xl border-2 border-[#ff7283] shadow-lg sticky bottom-4 hidden z-50 transform transition-all">
                 <div class="flex justify-between items-end">
                     <div class="text-left">
-                        <p class="text-[10px] text-gray-500 font-bold mb-1">選択中のメニュー（目安: <span id="totalTimeDisplay">0</span>分）</p>
+                        <p class="text-[10px] text-gray-500 font-bold mb-1">選択中のメニュー（目安: <span id="totalTimeDisplay">0分</span>）</p>
                         <p class="text-xl font-black text-[#ff7283]">合計 ¥<span id="totalPriceDisplay">0</span></p>
                     </div>
                     <button onclick="window.goToStep2()" class="hpb-pink-btn px-6 py-3 text-sm font-bold shadow-md">日時を選択する</button>
@@ -141,7 +141,6 @@
                     <span class="flex items-center gap-1"><span class="text-[#ff7283] text-lg">◎</span> 予約可能</span>
                     <span class="flex items-center gap-1"><span class="text-gray-300 text-lg">×</span> 予約不可</span>
                 </div>
-                <!-- ★ここに自動ブロックを伝えるメッセージが表示されます -->
                 <p id="dynamicTimeNotice" class="font-bold text-gray-600 leading-relaxed bg-gray-50 p-2 rounded"></p>
             </div>
         </div>
@@ -149,37 +148,77 @@
         <!-- STEP3 -->
         <div id="step3" class="step-content">
             <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4 text-gray-700 text-left">お客様情報の入力</h2>
-            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-xl">
+            
+            <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-xl mb-6">
                 <div class="mb-5 text-left">
                     <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">Customer Name</label>
-                    <input type="text" id="custName" class="w-full p-4 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="お名前（フルネーム）">
+                    <input type="text" id="custName" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="お名前（フルネーム）">
                 </div>
-                <div class="mb-8 text-left">
+                <div class="text-left">
                     <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">Phone Number</label>
-                    <input type="tel" id="custTel" class="w-full p-4 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="090-0000-0000">
+                    <input type="tel" id="custTel" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="090-0000-0000">
                 </div>
-
-                <div class="bg-pink-50 p-4 rounded-xl border border-pink-100 mb-8 text-left">
-                    <h4 class="text-xs font-bold text-[#ff7283] mb-2 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style="min-width: 16px; margin-right: 4px;" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                            <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
-                        </svg>
-                        ご予約に関する注意事項
-                    </h4>
-                    <p class="text-[10px] text-gray-600 mb-2 leading-relaxed">
-                        <strong>【キャンセルポリシー】</strong><br>
-                        キャンセルや日時変更をご希望の場合は、前日までにご連絡をお願いいたします。当日の無断キャンセル等につきましては、キャンセル料が発生する場合がございます。
-                    </p>
-                    <p class="text-[10px] text-red-500 font-bold leading-relaxed border-t border-pink-200 pt-2 mt-2">
-                        ※深夜帯や定休日のご予約につきましては、他サイトとの予約システムの兼ね合いにより、やむを得ず翌営業日にお時間変更のお願い（またはお断り）をご連絡させていただく場合がございます。あらかじめご了承ください。
-                    </p>
-                </div>
-
-                <button id="finalSubmitBtn" onclick="window.submitBooking()" class="w-full py-5 bg-[#1a252f] text-white font-bold rounded-xl shadow-2xl active:scale-[0.98] transition-all flex justify-center items-center">
-                    <span id="btnText">この内容で予約を確定する</span>
-                </button>
             </div>
+
+            <!-- ★HPB風：サロンからお客様への確認事項（チェックボックス付き） -->
+            <div class="mb-8 border border-gray-200 rounded-xl overflow-hidden text-left shadow-sm">
+                <div class="bg-gray-400 text-white text-[11px] font-bold p-3 tracking-widest">サロンからお客様への確認事項</div>
+                
+                <!-- 注意事項と同意チェック -->
+                <div class="p-4 md:p-6 bg-white flex flex-col md:flex-row gap-4 border-b border-gray-100">
+                    <div class="md:w-1/3 flex items-start gap-2 pt-1">
+                        <span class="bg-red-600 text-white text-[9px] px-2 py-0.5 rounded-sm font-bold shrink-0">必須</span>
+                        <span class="text-sm font-bold text-gray-700 leading-tight">ご来店に際しての<br class="hidden md:block">注意事項</span>
+                    </div>
+                    <div class="md:w-2/3 text-[11px] text-gray-600 space-y-3">
+                        <p class="leading-relaxed">一人営業の為、ご予約のキャンセルにつきましてはなるべくお早めのご連絡をお願いしております。</p>
+                        <p class="leading-relaxed text-gray-500">※現在コロナウイルス対策として、懸念がある方はご連絡・変更は承っております。</p>
+                        <label class="flex items-center gap-2 mt-4 cursor-pointer p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors w-fit">
+                            <input type="checkbox" id="agreeCheck" class="w-5 h-5 text-[#ff7283] rounded border-gray-300 focus:ring-[#ff7283]" onchange="window.toggleSubmitBtn()">
+                            <span class="text-sm font-black text-gray-800">確認しました</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- お支払い予定金額表示 -->
+                <div class="p-4 md:p-6 bg-gray-50 flex flex-col md:flex-row gap-4 items-start">
+                    <div class="md:w-1/3">
+                        <p class="text-sm font-bold text-gray-700 mb-1">お支払い予定金額</p>
+                        <p class="text-[10px] text-gray-500">（合計金額）</p>
+                    </div>
+                    <div class="md:w-1/3">
+                        <p class="font-black text-xl text-gray-800" id="step3Price">¥0</p>
+                    </div>
+                    <div class="md:w-1/3 text-[10px] text-gray-500 space-y-2">
+                        <p>※予約時の選択メニューや、来店時のメニュー変更により、実際の支払い金額と異なる場合があります。</p>
+                        <p>※サロンのキャンセル規定によりキャンセル料を請求される場合があります。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- キャンセルポリシー（既存デザインのブラッシュアップ） -->
+            <div class="bg-[#fff8f8] p-5 rounded-xl border border-pink-100 mb-8 text-left shadow-sm">
+                <h4 class="text-xs font-bold text-red-500 mb-3 flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                        <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+                    </svg>
+                    ご予約に関する注意事項
+                </h4>
+                <p class="text-[11px] text-gray-700 mb-3 leading-relaxed">
+                    <strong>【キャンセルポリシー】</strong><br>
+                    キャンセルや日時変更をご希望の場合は、前日までにご連絡をお願いいたします。当日の無断キャンセル等につきましては、キャンセル料が発生する場合がございます。
+                </p>
+                <p class="text-[10px] text-red-500 font-bold leading-relaxed border-t border-pink-100 pt-3">
+                    ※深夜帯や定休日のご予約につきましては、他サイトとの予約システムの兼ね合いにより、やむを得ず翌営業日にお時間変更のお願い（またはお断り）をご連絡させていただく場合がございます。あらかじめご了承ください。
+                </p>
+            </div>
+
+            <!-- 確定ボタン（最初はグレーアウト） -->
+            <button id="finalSubmitBtn" disabled onclick="window.submitBooking()" class="w-full py-5 bg-gray-400 text-white font-bold rounded-xl shadow-lg transition-all flex justify-center items-center cursor-not-allowed">
+                <span id="btnText">この内容で予約を確定する</span>
+            </button>
+            <p class="text-[10px] text-gray-400 text-center mt-3">※上の「確認しました」にチェックを入れるとボタンが押せます</p>
         </div>
 
         <!-- STEP4 -->
@@ -270,13 +309,20 @@
         </div>
     </div>
 
+    <!-- ★HPB風：確認モーダル -->
     <div id="confirmModal" class="modal-overlay">
         <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl mx-4 transform transition-all">
-            <div class="bg-gray-50 p-4 border-b text-center text-xs font-black text-gray-400 uppercase tracking-widest" id="modalTitle">RESERVATION</div>
+            <div class="bg-gray-50 p-4 border-b text-center text-xs font-black text-gray-400 uppercase tracking-widest" id="modalTitle">CONFIRMATION</div>
             <div class="p-8 text-center">
-                <p class="text-sm font-bold text-[#ff7283] mb-1" id="modalMenuName"></p>
-                <p class="text-3xl font-black text-gray-800" id="selectedDateTimeDisplay"></p>
-                <div id="modalDescription" class="mt-4 text-[11px] text-gray-400 leading-relaxed whitespace-pre-wrap text-center"></div>
+                <p class="text-sm font-bold text-[#ff7283] mb-2" id="modalMenuName"></p>
+                <p class="text-3xl font-black text-gray-800 mb-4" id="selectedDateTimeDisplay"></p>
+                
+                <div class="text-[11px] text-gray-500 space-y-1 mb-6">
+                    <p>【お会計予定】 <span id="modalPrice" class="font-bold"></span></p>
+                    <p>【所要目安】 <span id="modalTime"></span></p>
+                </div>
+                
+                <div id="modalDescription" class="text-[10px] text-gray-400 mt-2">お間違いがなければ次に進んでください。</div>
             </div>
             <div class="flex border-t border-gray-100">
                 <button onclick="window.closeModal()" class="flex-1 p-5 text-sm font-bold text-gray-400 border-r hover:bg-gray-50 transition-colors">戻る</button>
@@ -348,6 +394,14 @@
             { name: "シャンプー・ブロー", time: 30, price: 2200, desc: "プロの仕上げ。" }
         ];
 
+        // ★時間表示のフォーマット（例: 150 -> 2時間30分）
+        const formatTime = (mins) => {
+            if (mins < 60) return `${mins}分`;
+            const h = Math.floor(mins / 60);
+            const m = mins % 60;
+            return m > 0 ? `${h}時間${m}分` : `${h}時間`;
+        };
+
         window.showAlert = (msg) => {
             document.getElementById('messageModalText').innerText = msg;
             document.getElementById('messageModal').style.display = 'flex';
@@ -411,7 +465,7 @@
                     </div>
                     <p class="text-[10px] text-gray-400 mb-4 line-clamp-2 text-left">${m.desc}</p>
                     <div class="flex items-center justify-between mt-auto">
-                        <span class="text-[9px] bg-gray-50 px-2 py-1 rounded text-gray-400 font-bold border border-gray-100">${m.time}分</span>
+                        <span class="text-[9px] bg-gray-50 px-2 py-1 rounded text-gray-400 font-bold border border-gray-100">${formatTime(m.time)}</span>
                         <span class="select-btn-text text-[11px] text-[#ff7283] font-black uppercase tracking-widest transition-colors">Select ></span>
                     </div>`;
                 list.appendChild(card);
@@ -425,7 +479,7 @@
                 const totalPrice = selectedMenus.reduce((sum, m) => sum + Number(m.price), 0);
                 const totalTime = selectedMenus.reduce((sum, m) => sum + Number(m.time), 0);
                 document.getElementById('totalPriceDisplay').innerText = totalPrice.toLocaleString();
-                document.getElementById('totalTimeDisplay').innerText = totalTime;
+                document.getElementById('totalTimeDisplay').innerText = formatTime(totalTime);
             } else {
                 footer.classList.add('hidden');
             }
@@ -433,20 +487,39 @@
 
         window.goToStep2 = () => {
             if (selectedMenus.length === 0) return;
+            // ＋の間にスペースを入れてHPB風の表示に
             const menuNames = selectedMenus.map(m => m.name).join(' ＋ ');
             const totalTime = selectedMenus.reduce((sum, m) => sum + Number(m.time), 0);
             const totalPrice = selectedMenus.reduce((sum, m) => sum + Number(m.price), 0);
             selectedMenu = { name: menuNames, time: totalTime, price: totalPrice };
             
-            document.getElementById('selectedMenuDisplay').innerHTML = `<span>${menuNames}</span> <span class="ml-2 text-pink-300 font-normal">所要目安: ${totalTime}分 / 合計: ¥${totalPrice.toLocaleString()}</span>`;
+            document.getElementById('selectedMenuDisplay').innerHTML = `<span>${menuNames}</span> <span class="ml-2 text-pink-300 font-normal">所要目安: ${formatTime(totalTime)} / 合計: ¥${totalPrice.toLocaleString()}</span>`;
             
-            // ★追加：カレンダーの下に表示される自動ブロック機能の案内文をアップデート
             const noticeEl = document.getElementById('dynamicTimeNotice');
             if (noticeEl) {
-                noticeEl.innerHTML = `<span class="text-[#ff7283] text-sm tracking-tight">【自動ブロック機能 稼働中】</span><br>選択されたメニューの所要時間（<span class="text-[#ff7283] font-black">${totalTime}分</span>）が連続して空いている枠のみ「◎」を表示しています。`;
+                noticeEl.innerHTML = `<span class="text-[#ff7283] text-sm tracking-tight">【自動ブロック機能 稼働中】</span><br>選択されたメニューの所要時間（<span class="text-[#ff7283] font-black">${formatTime(totalTime)}</span>）が連続して空いている枠のみ「◎」を表示しています。`;
             }
 
+            // STEP3用の金額もあらかじめセットしておく
+            const step3PriceEl = document.getElementById('step3Price');
+            if (step3PriceEl) step3PriceEl.innerText = `¥${totalPrice.toLocaleString()}`;
+
             window.changeStep(2);
+        };
+
+        // ★同意チェックボックスの制御関数
+        window.toggleSubmitBtn = () => {
+            const btn = document.getElementById('finalSubmitBtn');
+            const chk = document.getElementById('agreeCheck');
+            if(chk.checked) {
+                btn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                btn.classList.add('bg-[#1a252f]', 'active:scale-[0.98]');
+                btn.disabled = false;
+            } else {
+                btn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                btn.classList.remove('bg-[#1a252f]', 'active:scale-[0.98]');
+                btn.disabled = true;
+            }
         };
 
         const startSync = () => {
@@ -459,10 +532,8 @@
                 bookingsList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 bookedSlots.clear(); 
                 bookingsList.forEach(b => {
-                    // DBに保存された「所要時間」を取得
                     let time = b.timeNeeded; 
                     
-                    // ★修正ポイント：過去のデータ（時間が記録されていなかった頃のもの）から、確実に時間を復元する強力な検索システム
                     if (!time) {
                         let calcTime = 0;
                         menuData.forEach(md => {
@@ -470,7 +541,7 @@
                                 calcTime += md.time;
                             }
                         });
-                        time = calcTime > 0 ? calcTime : 30; // 復元できなければ最低1枠
+                        time = calcTime > 0 ? calcTime : 30;
                     }
 
                     const slotsCount = Math.ceil(time / 30);
@@ -582,11 +653,26 @@
 
         window.handleSlotClick = (d, time, tIdx, availability, canBook) => {
             if(!isAdmin && !canBook) return;
+
+            if (!isAdmin && selectedMenu) {
+                const slotsNeeded = Math.ceil(selectedMenu.time / 30);
+                const actualAvailability = isSlotAvailable(d.id, d.label, d.dayOfWeek, time, tIdx, slotsNeeded);
+                if (actualAvailability !== "ok") {
+                    return window.showAlert(`【予約エラー】\n選択されたメニュー（目安: ${formatTime(selectedMenu.time)}）を行うためには、後の時間が足りません。\n\nお手数ですが、より空き時間のある枠をお選びください。`);
+                }
+            }
+
             selectedSlot = { dateId: d.id, dateLabel: d.label, time, tIdx };
             const modal = document.getElementById('confirmModal');
-            document.getElementById('selectedDateTimeDisplay').innerText = `${d.label} ${time}〜`;
-            document.getElementById('modalMenuName').innerText = selectedMenu ? selectedMenu.name : "メニュー未選択";
+            
             if(isAdmin) {
+                document.getElementById('selectedDateTimeDisplay').innerText = `${d.label} ${time}〜`;
+                document.getElementById('modalMenuName').innerText = selectedMenu ? selectedMenu.name : "メニュー未選択";
+                document.getElementById('modalTitle').innerText = 'ADMIN CONTROL';
+                // 管理者用は金額・時間を隠す
+                document.getElementById('modalPrice').parentElement.style.display = 'none';
+                document.getElementById('modalTime').parentElement.style.display = 'none';
+
                 const isBooked = bookedSlots.has(`${d.label} ${time}`);
                 if (isBooked) {
                     document.getElementById('modalTitle').innerText = 'ADMIN INFO';
@@ -595,14 +681,23 @@
                     document.getElementById('modalConfirmBtn').onclick = () => window.closeModal();
                 } else {
                     const slotKey = `${d.id}_${time.replace(':','')}`, currentStatus = reservationData[slotKey] || 'ok';
-                    document.getElementById('modalTitle').innerText = 'ADMIN CONTROL';
                     document.getElementById('modalDescription').innerText = currentStatus === 'ok' ? "この枠を×にしますか？" : "この枠を◎に戻しますか？";
                     document.getElementById('modalConfirmBtn').innerText = currentStatus === 'ok' ? "× にする" : "◎ に戻す";
                     document.getElementById('modalConfirmBtn').onclick = async () => { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotKey), { status: currentStatus === 'ok' ? 'ng' : 'ok' }); window.closeModal(); };
                 }
             } else {
+                // 一般お客様用のHPB風表示セット
                 document.getElementById('modalTitle').innerText = 'CONFIRMATION';
-                document.getElementById('modalDescription').innerText = `【お会計予定】 ¥${selectedMenu.price.toLocaleString()}\n【所要目安】 約${selectedMenu.time}分\n\nお間違いがなければ次に進んでください。`;
+                document.getElementById('modalMenuName').innerText = selectedMenu.name;
+                document.getElementById('selectedDateTimeDisplay').innerText = `${d.label} ${time}〜`;
+                document.getElementById('modalPrice').innerText = `¥${selectedMenu.price.toLocaleString()}`;
+                document.getElementById('modalTime').innerText = `約${formatTime(selectedMenu.time)}`;
+                
+                // 表示をオンに戻す
+                document.getElementById('modalPrice').parentElement.style.display = 'block';
+                document.getElementById('modalTime').parentElement.style.display = 'block';
+                document.getElementById('modalDescription').innerText = "お間違いがなければ次に進んでください。";
+
                 document.getElementById('modalConfirmBtn').innerText = "次に進む";
                 document.getElementById('modalConfirmBtn').onclick = () => { window.closeModal(); window.changeStep(3); };
             }
@@ -611,7 +706,10 @@
 
         window.submitBooking = async () => {
             const name = document.getElementById('custName').value.trim(), tel = document.getElementById('custTel').value.trim();
+            const agreeCheck = document.getElementById('agreeCheck').checked;
+
             if(!name || !tel) return window.showAlert("お名前と電話番号を入力してください。");
+            if(!agreeCheck) return window.showAlert("「ご来店に際しての注意事項」をご確認いただき、チェックを入れてください。");
 
             const slotsNeeded = Math.ceil(selectedMenu.time / 30);
             const parts = selectedSlot.dateId.split('-');
@@ -658,6 +756,13 @@
                 const h = document.getElementById(`stepHeader${i}`);
                 if(h) h.className = (i === s) ? "flex-1 py-3 text-center border-b-2 border-[#ff7283] text-[#ff7283] font-black text-[10px]" : "flex-1 py-3 text-center text-gray-300 font-bold text-[10px]";
             }
+            
+            // STEP3に入った時にチェックボックスをリセットしてボタンをグレーにする
+            if(s === 3) {
+                document.getElementById('agreeCheck').checked = false;
+                window.toggleSubmitBtn();
+            }
+
             window.scrollTo(0,0);
             if(s === 2) renderCalendar();
         };
