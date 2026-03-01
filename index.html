@@ -367,21 +367,23 @@
         const appId = "hair-buzl-reserve";
 
         let fbUser = null, reservationData = {}, bookingsList = [], bookedSlots = new Set(), isAdmin = false, selectedMenu = null, selectedSlot = null, selectedMenus = [];
+        
         const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"];
         
+        // ★修正：メニューデータに「カット（type: "cut"）」と「カット込み（includesCut: true）」の識別フラグを追加
         const menuData = [
-            { name: "スタイリストカット", time: 60, price: 3850, desc: "オーナーによる似合わせカット。" },
-            { name: "チャイルドカット", time: 30, price: 2300, desc: "小学生まで。" },
-            { name: "スクールカット", time: 60, price: 2950, desc: "中・高生限定。" },
-            { name: "U24限定カット", time: 60, price: 3500, desc: "大学生まで。" },
+            { name: "スタイリストカット", time: 60, price: 3850, desc: "オーナーによる似合わせカット。", type: "cut" },
+            { name: "チャイルドカット", time: 30, price: 2300, desc: "小学生まで。", type: "cut" },
+            { name: "スクールカット", time: 60, price: 2950, desc: "中・高生限定。", type: "cut" },
+            { name: "U24限定カット", time: 60, price: 3500, desc: "大学生まで。", type: "cut" },
             { name: "艶髪フルカラー", time: 90, price: 6600, desc: "フルボ酸配合、全体染め。" },
             { name: "カラーリタッチ", time: 60, price: 5500, desc: "根元2cm以内。" },
             { name: "ブリーチ", time: 90, price: 6600, desc: "透明感カラーの土台。" },
             { name: "ダブルブリーチ", time: 120, price: 9900, desc: "極限の明るさを追求。" },
             { name: "デザインカラー", time: 120, price: 7700, desc: "ハイライト、インナー等。" },
-            { name: "艶髪縮毛矯正", time: 180, price: 16500, desc: "看板メニュー。カット込。" },
-            { name: "艶髪パーマ", time: 120, price: 9900, desc: "柔らかい質感。カット込。" },
-            { name: "セラミックスカール", time: 150, price: 15000, desc: "進化系デジパ。カット込。" },
+            { name: "艶髪縮毛矯正", time: 180, price: 16500, desc: "看板メニュー。カット込。", includesCut: true },
+            { name: "艶髪パーマ", time: 120, price: 9900, desc: "柔らかい質感。カット込。", includesCut: true },
+            { name: "セラミックスカール", time: 150, price: 15000, desc: "進化系デジパ。カット込。", includesCut: true },
             { name: "特殊パーマ", time: 150, price: 11000, desc: "ツイスト、スパイラル等。" },
             { name: "酸熱トリートメント", time: 90, price: 7700, desc: "髪質改善集中ケア。" },
             { name: "艶髪トリートメント", time: 30, price: 2950, desc: "潤いと質感をプラス。" },
@@ -433,28 +435,75 @@
             selectedMenus = []; 
             window.updateStep1Footer(); 
             
-            menuData.forEach(m => {
+            // カードの見た目を切り替える関数
+            const updateCardUI = (c, isSelected) => {
+                if(!c) return;
+                const btnText = c.querySelector('.select-btn-text');
+                if (isSelected) {
+                    c.classList.remove('border-gray-100', 'bg-white');
+                    c.classList.add('border-[#ff7283]', 'bg-pink-50');
+                    btnText.innerText = '✓ 選択中';
+                    btnText.classList.remove('text-[#ff7283]');
+                    btnText.classList.add('text-white', 'bg-[#ff7283]', 'px-2', 'py-1', 'rounded');
+                } else {
+                    c.classList.remove('border-[#ff7283]', 'bg-pink-50');
+                    c.classList.add('border-gray-100', 'bg-white');
+                    btnText.innerText = 'Select >';
+                    btnText.classList.remove('text-white', 'bg-[#ff7283]', 'px-2', 'py-1', 'rounded');
+                    btnText.classList.add('text-[#ff7283]');
+                }
+            };
+
+            menuData.forEach((m, index) => {
                 const card = document.createElement('div');
+                card.id = `menu-card-${index}`;
                 card.className = "menu-card p-5 flex flex-col justify-between shadow-sm border border-gray-100 bg-white rounded-xl transition-all";
+                
                 card.onclick = () => { 
                     const idx = selectedMenus.findIndex(sm => sm.name === m.name);
+                    
                     if (idx > -1) {
+                        // 選択解除の処理
                         selectedMenus.splice(idx, 1);
-                        card.classList.remove('border-[#ff7283]', 'bg-pink-50');
-                        card.classList.add('border-gray-100', 'bg-white');
-                        card.querySelector('.select-btn-text').innerText = 'Select >';
-                        card.querySelector('.select-btn-text').classList.remove('text-white', 'bg-[#ff7283]', 'px-2', 'py-1', 'rounded');
-                        card.querySelector('.select-btn-text').classList.add('text-[#ff7283]');
+                        updateCardUI(card, false);
                     } else {
+                        // ★新規選択時のスマートブロック処理
+                        if (m.includesCut) {
+                            // 「カット込み」のメニューを選んだ時、すでに「カット」を選んでいたら自動解除する
+                            const cutIndexes = [];
+                            selectedMenus.forEach((sm, i) => { if(sm.type === "cut") cutIndexes.push(i); });
+                            
+                            if (cutIndexes.length > 0) {
+                                let cutNames = [];
+                                // 後ろから消さないと順番がズレるため逆順で処理
+                                for (let i = cutIndexes.length - 1; i >= 0; i--) {
+                                    const cIdx = cutIndexes[i];
+                                    const cutMenu = selectedMenus[cIdx];
+                                    cutNames.push(cutMenu.name);
+                                    selectedMenus.splice(cIdx, 1);
+                                    
+                                    // 画面上のカットメニューの見た目も元に戻す
+                                    const cutMenuOriginalIndex = menuData.findIndex(md => md.name === cutMenu.name);
+                                    const cutCard = document.getElementById(`menu-card-${cutMenuOriginalIndex}`);
+                                    updateCardUI(cutCard, false);
+                                }
+                                window.showAlert(`💡 アシスト機能\n\n「${m.name}」はカットが含まれているメニューのため、選択されていた「${cutNames.join('、')}」を自動で解除し、料金・時間を調整しました！`);
+                            }
+                        } else if (m.type === "cut") {
+                            // 「カット」を選んだ時、すでに「カット込みメニュー」を選んでいたらブロックする
+                            const includedMenu = selectedMenus.find(sm => sm.includesCut);
+                            if (includedMenu) {
+                                return window.showAlert(`💡 アシスト機能\n\n選択中の「${includedMenu.name}」には既にカットが含まれているため、追加でのカット選択は不要です！`);
+                            }
+                        }
+                        
+                        // 問題なければ選択リストに追加
                         selectedMenus.push(m);
-                        card.classList.remove('border-gray-100', 'bg-white');
-                        card.classList.add('border-[#ff7283]', 'bg-pink-50');
-                        card.querySelector('.select-btn-text').innerText = '✓ 選択中';
-                        card.querySelector('.select-btn-text').classList.remove('text-[#ff7283]');
-                        card.querySelector('.select-btn-text').classList.add('text-white', 'bg-[#ff7283]', 'px-2', 'py-1', 'rounded');
+                        updateCardUI(card, true);
                     }
                     window.updateStep1Footer();
                 };
+
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-2 text-left">
                         <h3 class="font-black text-gray-800 text-[14px] leading-tight">${m.name}</h3>
@@ -528,7 +577,6 @@
                 bookingsList.forEach(b => {
                     let time = b.timeNeeded; 
                     
-                    // ★修正：部分一致バグを解消し、過去データも完全一致で探す
                     if (!time) {
                         let calcTime = 0;
                         const menuNames = b.menu ? b.menu.split(' ＋ ') : [];
@@ -544,10 +592,8 @@
                     if(parts.length === 2) {
                         const dateLabel = parts[0], startTime = parts[1], startIdx = timeSlots.indexOf(startTime);
                         
-                        // ★修正：年またぎバグを解消するため、絶対的なdateIdを使用する
                         let targetDateId = b.dateId;
                         if (!targetDateId) { 
-                            // 過去データ用のフォールバック（強制的に今の年をくっつける）
                             const [m, d] = dateLabel.split('/');
                             const year = new Date().getFullYear();
                             targetDateId = `${year}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
@@ -586,7 +632,6 @@
                 const slotKey = `${dateId}_${checkTimeStr.replace(':','')}`;
                 if(reservationData[slotKey] === 'ng') return "ng";
                 
-                // ★修正：ブロックチェックも絶対的なdateIdを使用する
                 if(bookedSlots.has(`${dateId}_${checkTimeStr}`)) return "ng";
             }
             return "ok";
@@ -684,7 +729,7 @@
                 document.getElementById('modalPrice').parentElement.style.display = 'none';
                 document.getElementById('modalTime').parentElement.style.display = 'none';
 
-                const isBooked = bookedSlots.has(`${d.dateId}_${time}`); // 管理者画面でも絶対IDで判定
+                const isBooked = bookedSlots.has(`${d.dateId}_${time}`); 
                 if (isBooked) {
                     document.getElementById('modalTitle').innerText = 'ADMIN INFO';
                     document.getElementById('modalDescription').innerText = "予約枠のため削除は下のリストから行ってください。";
@@ -734,7 +779,6 @@
             const btn = document.getElementById('finalSubmitBtn'), btnText = document.getElementById('btnText');
             btn.disabled = true; btnText.innerHTML = `<span class="loading-spinner"></span>送信中...`;
             try {
-                // ★修正：DBに年を含めた絶対ID（dateId）を保存
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), { 
                     customerName: name, 
                     customerTel: tel, 
