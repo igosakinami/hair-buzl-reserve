@@ -160,7 +160,6 @@
                 </div>
             </div>
 
-            <!-- ★HPB風：サロンからお客様への確認事項 -->
             <div class="mb-8 border border-gray-200 rounded-xl overflow-hidden text-left shadow-sm">
                 <div class="bg-gray-400 text-white text-[11px] font-bold p-3 tracking-widest">サロンからお客様への確認事項</div>
                 
@@ -191,6 +190,7 @@
                     </div>
                     <div class="md:w-1/3 text-[10px] text-gray-500 space-y-2">
                         <p>※予約時の選択メニューや、来店時のメニュー変更により、実際の支払い金額と異なる場合があります。</p>
+                        <p class="text-pink-600 font-bold">※カラーやパーマ、縮毛矯正などのメニューは、髪の長さによりロング料金（¥500〜¥1,000）が加算される場合がございます。</p>
                         <p>※サロンのキャンセル規定によりキャンセル料を請求される場合があります。</p>
                     </div>
                 </div>
@@ -370,22 +370,22 @@
         
         const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"];
         
-        // ★修正：メニューデータに「カット（type: "cut"）」と「カット込み（includesCut: true）」の識別フラグを追加
+        // ★修正：ロング料金がかかるメニューに isStartingPrice: true を追加し、desc に記載。
         const menuData = [
             { name: "スタイリストカット", time: 60, price: 3850, desc: "オーナーによる似合わせカット。", type: "cut" },
             { name: "チャイルドカット", time: 30, price: 2300, desc: "小学生まで。", type: "cut" },
             { name: "スクールカット", time: 60, price: 2950, desc: "中・高生限定。", type: "cut" },
             { name: "U24限定カット", time: 60, price: 3500, desc: "大学生まで。", type: "cut" },
-            { name: "艶髪フルカラー", time: 90, price: 6600, desc: "フルボ酸配合、全体染め。" },
+            { name: "艶髪フルカラー", time: 90, price: 6600, desc: "■ロング料金 ¥500〜¥1000<br>フルボ酸配合、全体染め。", isStartingPrice: true },
             { name: "カラーリタッチ", time: 60, price: 5500, desc: "根元2cm以内。" },
-            { name: "ブリーチ", time: 90, price: 6600, desc: "透明感カラーの土台。" },
-            { name: "ダブルブリーチ", time: 120, price: 9900, desc: "極限の明るさを追求。" },
-            { name: "デザインカラー", time: 120, price: 7700, desc: "ハイライト、インナー等。" },
-            { name: "艶髪縮毛矯正", time: 180, price: 16500, desc: "看板メニュー。カット込。", includesCut: true },
-            { name: "艶髪パーマ", time: 120, price: 9900, desc: "柔らかい質感。カット込。", includesCut: true },
-            { name: "セラミックスカール", time: 150, price: 15000, desc: "進化系デジパ。カット込。", includesCut: true },
-            { name: "特殊パーマ", time: 150, price: 11000, desc: "ツイスト、スパイラル等。" },
-            { name: "酸熱トリートメント", time: 90, price: 7700, desc: "髪質改善集中ケア。" },
+            { name: "ブリーチ", time: 90, price: 6600, desc: "■ロング料金 ¥500〜¥1000<br>透明感カラーの土台。", isStartingPrice: true },
+            { name: "ダブルブリーチ", time: 120, price: 9900, desc: "■ロング料金 ¥500〜¥1000<br>極限の明るさを追求。", isStartingPrice: true },
+            { name: "デザインカラー", time: 120, price: 7700, desc: "■ロング料金 ¥500〜¥1000<br>ハイライト、インナー等。", isStartingPrice: true },
+            { name: "艶髪縮毛矯正", time: 180, price: 16500, desc: "■ロング料金 ¥500〜¥1000<br>看板メニュー。カット込。", includesCut: true, isStartingPrice: true },
+            { name: "艶髪パーマ", time: 120, price: 9900, desc: "■ロング料金 ¥500〜¥1000<br>柔らかい質感。カット込。", includesCut: true, isStartingPrice: true },
+            { name: "セラミックスカール", time: 150, price: 15000, desc: "■ロング料金 ¥500〜¥1000<br>進化系デジパ。カット込。", includesCut: true, isStartingPrice: true },
+            { name: "特殊パーマ", time: 150, price: 11000, desc: "■ロング料金 ¥500〜¥1000<br>ツイスト、スパイラル等。", isStartingPrice: true },
+            { name: "酸熱トリートメント", time: 90, price: 7700, desc: "■ロング料金 ¥500〜¥1000<br>髪質改善集中ケア。", isStartingPrice: true },
             { name: "艶髪トリートメント", time: 30, price: 2950, desc: "潤いと質感をプラス。" },
             { name: "前髪カット", time: 30, price: 1100, desc: "印象を変えるメンテナンス。" },
             { name: "眉カット", time: 30, price: 1100, desc: "プロの手で清潔感を。" },
@@ -435,7 +435,6 @@
             selectedMenus = []; 
             window.updateStep1Footer(); 
             
-            // カードの見た目を切り替える関数
             const updateCardUI = (c, isSelected) => {
                 if(!c) return;
                 const btnText = c.querySelector('.select-btn-text');
@@ -463,26 +462,21 @@
                     const idx = selectedMenus.findIndex(sm => sm.name === m.name);
                     
                     if (idx > -1) {
-                        // 選択解除の処理
                         selectedMenus.splice(idx, 1);
                         updateCardUI(card, false);
                     } else {
-                        // ★新規選択時のスマートブロック処理
                         if (m.includesCut) {
-                            // 「カット込み」のメニューを選んだ時、すでに「カット」を選んでいたら自動解除する
                             const cutIndexes = [];
                             selectedMenus.forEach((sm, i) => { if(sm.type === "cut") cutIndexes.push(i); });
                             
                             if (cutIndexes.length > 0) {
                                 let cutNames = [];
-                                // 後ろから消さないと順番がズレるため逆順で処理
                                 for (let i = cutIndexes.length - 1; i >= 0; i--) {
                                     const cIdx = cutIndexes[i];
                                     const cutMenu = selectedMenus[cIdx];
                                     cutNames.push(cutMenu.name);
                                     selectedMenus.splice(cIdx, 1);
                                     
-                                    // 画面上のカットメニューの見た目も元に戻す
                                     const cutMenuOriginalIndex = menuData.findIndex(md => md.name === cutMenu.name);
                                     const cutCard = document.getElementById(`menu-card-${cutMenuOriginalIndex}`);
                                     updateCardUI(cutCard, false);
@@ -490,24 +484,25 @@
                                 window.showAlert(`💡 アシスト機能\n\n「${m.name}」はカットが含まれているメニューのため、選択されていた「${cutNames.join('、')}」を自動で解除し、料金・時間を調整しました！`);
                             }
                         } else if (m.type === "cut") {
-                            // 「カット」を選んだ時、すでに「カット込みメニュー」を選んでいたらブロックする
                             const includedMenu = selectedMenus.find(sm => sm.includesCut);
                             if (includedMenu) {
                                 return window.showAlert(`💡 アシスト機能\n\n選択中の「${includedMenu.name}」には既にカットが含まれているため、追加でのカット選択は不要です！`);
                             }
                         }
                         
-                        // 問題なければ選択リストに追加
                         selectedMenus.push(m);
                         updateCardUI(card, true);
                     }
                     window.updateStep1Footer();
                 };
 
+                // ★修正：isStartingPrice が true なら金額に「〜」をつける
+                const displayPrice = m.isStartingPrice ? `¥${m.price.toLocaleString()}〜` : `¥${m.price.toLocaleString()}`;
+
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-2 text-left">
                         <h3 class="font-black text-gray-800 text-[14px] leading-tight">${m.name}</h3>
-                        <p class="text-[14px] font-black text-[#ff7283]">¥${m.price.toLocaleString()}</p>
+                        <p class="text-[14px] font-black text-[#ff7283]">${displayPrice}</p>
                     </div>
                     <p class="text-[10px] text-gray-400 mb-4 line-clamp-2 text-left">${m.desc}</p>
                     <div class="flex items-center justify-between mt-auto">
@@ -522,9 +517,15 @@
             const footer = document.getElementById('step1Footer');
             if (selectedMenus.length > 0) {
                 footer.classList.remove('hidden');
+                
+                // ★修正：選択中のメニューに1つでも「〜」があれば、合計金額にも「〜」をつける
+                const hasStartingPrice = selectedMenus.some(m => m.isStartingPrice);
                 const totalPrice = selectedMenus.reduce((sum, m) => sum + Number(m.price), 0);
+                const totalPriceStr = hasStartingPrice ? `${totalPrice.toLocaleString()}〜` : `${totalPrice.toLocaleString()}`;
+                
                 const totalTime = selectedMenus.reduce((sum, m) => sum + Number(m.time), 0);
-                document.getElementById('totalPriceDisplay').innerText = totalPrice.toLocaleString();
+                
+                document.getElementById('totalPriceDisplay').innerText = totalPriceStr;
                 document.getElementById('totalTimeDisplay').innerText = formatTime(totalTime);
             } else {
                 footer.classList.add('hidden');
@@ -535,10 +536,14 @@
             if (selectedMenus.length === 0) return;
             const menuNames = selectedMenus.map(m => m.name).join(' ＋ ');
             const totalTime = selectedMenus.reduce((sum, m) => sum + Number(m.time), 0);
-            const totalPrice = selectedMenus.reduce((sum, m) => sum + Number(m.price), 0);
-            selectedMenu = { name: menuNames, time: totalTime, price: totalPrice };
             
-            document.getElementById('selectedMenuDisplay').innerHTML = `<span>${menuNames}</span> <span class="ml-2 text-pink-300 font-normal">所要目安: ${formatTime(totalTime)} / 合計: ¥${totalPrice.toLocaleString()}</span>`;
+            const hasStartingPrice = selectedMenus.some(m => m.isStartingPrice);
+            const totalPrice = selectedMenus.reduce((sum, m) => sum + Number(m.price), 0);
+            const totalPriceStr = hasStartingPrice ? `¥${totalPrice.toLocaleString()}〜` : `¥${totalPrice.toLocaleString()}`;
+
+            selectedMenu = { name: menuNames, time: totalTime, price: totalPrice, priceStr: totalPriceStr };
+            
+            document.getElementById('selectedMenuDisplay').innerHTML = `<span>${menuNames}</span> <span class="ml-2 text-pink-300 font-normal">所要目安: ${formatTime(totalTime)} / 合計: ${totalPriceStr}</span>`;
             
             const noticeEl = document.getElementById('dynamicTimeNotice');
             if (noticeEl) {
@@ -546,7 +551,7 @@
             }
 
             const step3PriceEl = document.getElementById('step3Price');
-            if (step3PriceEl) step3PriceEl.innerText = `¥${totalPrice.toLocaleString()}`;
+            if (step3PriceEl) step3PriceEl.innerText = totalPriceStr;
 
             window.changeStep(2);
         };
@@ -745,7 +750,10 @@
                 document.getElementById('modalTitle').innerText = 'CONFIRMATION';
                 document.getElementById('modalMenuName').innerText = selectedMenu.name;
                 document.getElementById('selectedDateTimeDisplay').innerText = `${d.label} ${time}〜`;
-                document.getElementById('modalPrice').innerText = `¥${selectedMenu.price.toLocaleString()}`;
+                
+                // ★修正：確認モーダルでも「〜」を反映
+                document.getElementById('modalPrice').innerText = selectedMenu.priceStr;
+                
                 document.getElementById('modalTime').innerText = `約${formatTime(selectedMenu.time)}`;
                 
                 document.getElementById('modalPrice').parentElement.style.display = 'block';
