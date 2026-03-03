@@ -49,7 +49,7 @@
         .status-ng { color: #ddd; background-color: #fafafa; cursor: not-allowed; font-size: 20px; }
         .status-closed { background-color: #f1f1f1; color: #999; font-size: 11px; font-weight: bold; }
 
-        /* 追加: 記号ごとのカラー設定 */
+        /* お客様用：記号ごとのカラー設定 */
         .mark-double { color: #e11d48; }
         .mark-circle { color: #f59e0b; }
         .mark-triangle { color: #10b981; }
@@ -67,10 +67,15 @@
         
         .loading-spinner { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid #fff; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* 募集用コピーボタンのアニメーション */
+        @keyframes copySuccess { 0% { transform: scale(1); } 50% { transform: scale(1.05); background-color: #10b981; color: white; border-color: #10b981; } 100% { transform: scale(1); } }
+        .copy-success { animation: copySuccess 0.5s ease-out forwards; }
     </style>
 </head>
 <body>
 
+    <!-- 管理者パネル -->
     <div class="admin-panel p-3 flex justify-between items-center text-center md:text-left">
         <div class="flex items-center gap-2 text-[11px] font-black uppercase tracking-tighter">
             <span class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></span>
@@ -83,6 +88,7 @@
         </label>
     </div>
 
+    <!-- ヘッダー -->
     <header class="max-w-4xl mx-auto p-5 pb-2 bg-white text-center md:text-left">
         <div class="flex justify-between items-end">
             <div class="text-left">
@@ -97,6 +103,7 @@
         </div>
     </header>
 
+    <!-- プログレスバー -->
     <div class="flex border-b border-gray-100 bg-white max-w-4xl mx-auto sticky top-[48px] z-40 shadow-sm">
         <div id="stepHeader1" class="flex-1 py-3 text-center border-b-2 border-[#ff7283] text-[#ff7283] font-bold text-[10px]">STEP1 メニュー</div>
         <div id="stepHeader2" class="flex-1 py-3 text-center text-gray-300 font-bold text-[10px]">STEP2 日時</div>
@@ -105,7 +112,8 @@
     </div>
 
     <main class="max-w-4xl mx-auto p-4 pb-24 text-center md:text-left">
-        <!-- STEP1 -->
+        
+        <!-- STEP1: メニュー選択 -->
         <div id="step1" class="step-content active">
             <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 text-gray-700 mb-1 text-left">メニューを選択</h2>
             <p class="text-[10px] text-[#ff7283] font-bold mb-4 bg-pink-50 p-2 rounded-lg border border-pink-100 text-left">💡 複数のメニューを組み合わせてご予約いただけます（タップで選択・解除）</p>
@@ -122,11 +130,30 @@
             </div>
         </div>
 
-        <!-- STEP2 -->
+        <!-- STEP2: 日時選択 -->
         <div id="step2" class="step-content">
             <div class="mb-4 bg-pink-50 p-3 rounded-lg border border-pink-100 text-left">
                 <p class="text-[10px] text-pink-400 font-bold uppercase leading-none mb-1">Selected Menu</p>
                 <div id="selectedMenuDisplay" class="text-sm font-bold text-gray-800"></div>
+            </div>
+
+            <!-- ★ 新機能：テトリスマッチング（管理者のみ表示） -->
+            <div id="adminTetrisSection" class="hidden mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 shadow-sm text-left">
+                <div class="flex items-center justify-between mb-3 border-b border-blue-100 pb-2">
+                    <h3 class="text-sm font-black text-blue-800 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        空き枠テトリスマッチング
+                    </h3>
+                    <span class="text-[9px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">Auto Pick Up</span>
+                </div>
+                <p class="text-[10px] text-blue-600 font-bold mb-3 leading-relaxed">
+                    1時間〜1.5時間の「ショートカット等がピッタリ入る隙間時間」を自動で探し出し、募集文を作成します。
+                </p>
+                
+                <div id="tetrisList" class="space-y-2 max-h-56 overflow-y-auto pr-2">
+                    <!-- 自動抽出された隙間枠がここに入ります -->
+                    <div class="text-center py-4 text-xs text-gray-400">隙間時間を検索中...</div>
+                </div>
             </div>
             
             <p class="text-[10px] text-pink-500 font-bold mb-1 flex items-center gap-1 justify-center md:justify-start">
@@ -141,6 +168,7 @@
                 </table>
             </div>
             
+            <!-- 凡例 -->
             <div class="mt-4 flex flex-col gap-2 bg-white p-4 rounded-xl border border-gray-100 text-[10px] text-gray-500 shadow-sm text-left">
                 <div id="customerLegend">
                     <p class="font-bold mb-1 text-gray-700">【空き状況の目安】</p>
@@ -155,7 +183,7 @@
             </div>
         </div>
 
-        <!-- STEP3 -->
+        <!-- STEP3: 情報入力 -->
         <div id="step3" class="step-content">
             <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4 text-gray-700 text-left">お客様情報の入力</h2>
             
@@ -230,7 +258,7 @@
             <p class="text-[10px] text-gray-400 text-center mt-3">※上の「確認しました」にチェックを入れるとボタンが押せます</p>
         </div>
 
-        <!-- STEP4 -->
+        <!-- STEP4: 完了 -->
         <div id="step4" class="step-content text-center py-16 bg-white rounded-3xl border border-gray-50 shadow-inner">
             <div class="text-7xl mb-6">🎉</div>
             <h2 class="text-2xl font-black text-gray-800">ご予約ありがとうございます！</h2>
@@ -241,7 +269,7 @@
             <button onclick="location.reload()" class="mt-12 hpb-pink-btn px-10 py-4 font-bold">予約トップへ戻る</button>
         </div>
 
-        <!-- 管理台帳 -->
+        <!-- 管理台帳 (管理者のみ) -->
         <div id="adminBookingSection" class="mt-16 hidden text-left text-xs">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-sm font-bold border-l-4 border-blue-500 pl-2 text-blue-600 uppercase">Bookings Management</h2>
@@ -264,6 +292,7 @@
         </div>
     </main>
 
+    <!-- フッター -->
     <footer class="salon-footer text-center">
         <div class="max-w-4xl mx-auto border-t border-gray-50 pt-12 pb-12">
             <h3 class="font-black text-gray-800 text-lg mb-8 uppercase tracking-[0.2em]">hair Buzl</h3>
@@ -300,7 +329,7 @@
         </div>
     </footer>
 
-    <!-- Modals -->
+    <!-- モーダル群 -->
     <div id="messageModal" class="modal-overlay">
         <div class="bg-white rounded-3xl w-full max-w-xs overflow-hidden shadow-2xl mx-4 transform transition-all">
             <div class="p-8 text-center"><p id="messageModalText" class="text-sm font-bold text-gray-800 whitespace-pre-wrap mt-2"></p></div>
@@ -351,6 +380,7 @@
         </div>
     </div>
 
+    <!-- メインスクリプト -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -376,7 +406,8 @@
         const db = getFirestore(app);
         const appId = "hair-buzl-reserve";
 
-        let fbUser = null, reservationData = {}, bookingsList = [], bookedSlots = new Set(), isAdmin = false, selectedMenu = null, selectedSlot = null, selectedMenus = [];
+        let fbUser = null, reservationData = {}, bookingsList = [], bookedSlots = new Set();
+        let isAdmin = false, selectedMenu = null, selectedSlot = null, selectedMenus = [];
         
         const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"];
         
@@ -579,10 +610,124 @@
             }
         };
 
+        // ----------------------------------------------------
+        // ★ 新機能：空き枠テトリスマッチング関数
+        // ----------------------------------------------------
+        const updateTetrisMatching = () => {
+            if (!isAdmin) return;
+            
+            const tetrisList = document.getElementById('tetrisList');
+            tetrisList.innerHTML = '';
+            let gapFound = false;
+            
+            const dates = [];
+            const now = new Date();
+            
+            // 直近14日間を検索対象とする
+            for (let i = 0; i < 14; i++) {
+                const d = new Date(); d.setDate(now.getDate() + i);
+                const month = d.getMonth() + 1, date = d.getDate();
+                const id = `${d.getFullYear()}-${month.toString().padStart(2,'0')}-${date.toString().padStart(2,'0')}`;
+                const label = `${month}/${date}`;
+                const dayNames = ['日','月','火','水','木','金','土'];
+                dates.push({ id, label, dayName: dayNames[d.getDay()], dayOfWeek: d.getDay(), isToday: i === 0 });
+            }
+
+            dates.forEach(d => {
+                if (d.dayOfWeek === 1) return; // 月曜定休はスキップ
+                
+                let skipUntilIdx = -1; // 重複検出を防ぐためのスキップ変数
+
+                timeSlots.forEach((t, tIdx) => {
+                    if (tIdx < skipUntilIdx) return; // すでに検出した枠の一部ならスキップ
+
+                    const hour = parseInt(t.split(':')[0]);
+                    if (d.dayOfWeek === 0 && hour >= 18) return;
+
+                    // その枠の連続空き時間を取得
+                    const freeSlots = getContinuousFreeSlots(d.id, d.dayOfWeek, tIdx);
+                    const freeMinutes = freeSlots * 30;
+
+                    // 1時間（60分）または1時間半（90分）の「隙間」だけを狙い撃ち
+                    if (freeMinutes === 60 || freeMinutes === 90) {
+                        
+                        // 当日の場合、すでに過ぎた時間はスキップする
+                        if (d.isToday) {
+                             const currentHour = now.getHours();
+                             const currentMin = now.getMinutes();
+                             const slotHour = parseInt(t.split(':')[0]);
+                             const slotMin = parseInt(t.split(':')[1]);
+                             if (slotHour < currentHour || (slotHour === currentHour && slotMin <= currentMin)) return;
+                        }
+
+                        gapFound = true;
+                        const item = document.createElement('div');
+                        item.className = "flex items-center justify-between bg-white p-3 rounded-lg border border-blue-100 mb-2 shadow-sm";
+                        
+                        const timeText = `${d.label}(${d.dayName}) ${t}〜 (${freeMinutes/60}時間)`;
+                        const copyText = `${d.label}(${d.dayName}) ${t}から${freeMinutes/60}時間の空きが出ました！\nショートカットや前髪カットなど、短いメニューならすぐにご案内可能です✂️\n\n▼ご予約はこちらから\nhttps://lit.link/hairbuzl`;
+
+                        item.innerHTML = `
+                            <div>
+                                <p class="text-xs font-black text-gray-800">${timeText}</p>
+                                <p class="text-[9px] text-gray-500 mt-0.5">ショート・リタッチ等に最適</p>
+                            </div>
+                            <button class="bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-2 rounded text-[10px] font-bold transition-colors shadow-sm flex items-center gap-1" onclick="window.copyToClipboard(this, \`${copyText}\`)">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                募集文をコピー
+                            </button>
+                        `;
+                        tetrisList.appendChild(item);
+                        
+                        // 同じ日の連続した隙間を重複して出さないためにスキップインデックスを設定
+                        skipUntilIdx = tIdx + freeSlots;
+                    }
+                });
+            });
+
+            if (!gapFound) {
+                tetrisList.innerHTML = `<div class="text-center py-4 text-xs text-gray-500">直近14日間に「中途半端な隙間時間」はありません。<br>綺麗に予約が埋まっています！🎉</div>`;
+            }
+        };
+
+        window.copyToClipboard = (btnElement, text) => {
+            // 見えないテキストエリアを作成して、強制的に選択・コピーさせる手法
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    const originalText = btnElement.innerHTML;
+                    btnElement.innerHTML = `✓ コピー完了`;
+                    btnElement.classList.add('copy-success');
+                    setTimeout(() => {
+                        btnElement.innerHTML = originalText;
+                        btnElement.classList.remove('copy-success');
+                    }, 2000);
+                } else {
+                    window.showAlert("コピーに失敗しました。お手数ですが手動でコピーしてください。");
+                }
+            } catch (err) {
+                window.showAlert("コピーに失敗しました。お手数ですが手動でコピーしてください。");
+            }
+            
+            document.body.removeChild(textArea);
+        };
+        // ----------------------------------------------------
+
         const startSync = () => {
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'slots'), (snap) => {
                 reservationData = {}; snap.forEach(d => reservationData[d.id] = d.data().status);
                 renderCalendar();
+                if(isAdmin) updateTetrisMatching(); 
             }, (err) => console.warn("Sync error (slots):", err));
 
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), (snap) => {
@@ -630,10 +775,11 @@
                     body.appendChild(tr);
                 });
                 renderCalendar(); 
+                if(isAdmin) updateTetrisMatching(); 
             }, (err) => console.warn("Sync error (bookings):", err));
         };
 
-        // 連続した空き枠数をカウントする（お客様モード専用）
+        // 連続した空き枠数をカウントする
         const getContinuousFreeSlots = (dateId, dayOfWeek, tIdx) => {
             let freeCount = 0;
             for (let i = 0; i < timeSlots.length - tIdx; i++) {
@@ -788,7 +934,6 @@
                 document.getElementById('modalPrice').parentElement.style.display = 'none';
                 document.getElementById('modalTime').parentElement.style.display = 'none';
 
-                // お客様の予約が既に入っているかを判定 (d.idに変更してバグ修正)
                 const isBooked = bookedSlots.has(`${d.id}_${time}`); 
                 if (isBooked) {
                     document.getElementById('modalTitle').innerText = 'ADMIN INFO';
@@ -890,6 +1035,7 @@
                 isAdmin = false; 
                 document.getElementById('modeLabel').innerText='OFF'; 
                 document.getElementById('adminBookingSection').classList.add('hidden');
+                document.getElementById('adminTetrisSection').classList.add('hidden');
                 
                 const noticeEl = document.getElementById('dynamicTimeNotice');
                 if (noticeEl) noticeEl.innerHTML = "";
@@ -905,6 +1051,7 @@
                 document.getElementById('modeLabel').innerText='ON'; 
                 document.getElementById('adminAuthModal').style.display='none'; 
                 document.getElementById('adminBookingSection').classList.remove('hidden'); 
+                document.getElementById('adminTetrisSection').classList.remove('hidden');
                 
                 document.getElementById('selectedMenuDisplay').innerHTML = `<span class="text-blue-600 font-black">【管理者モード】予約枠の操作</span>`;
                 
@@ -912,6 +1059,7 @@
                 const noticeEl = document.getElementById('dynamicTimeNotice');
                 if(noticeEl) noticeEl.innerHTML = `<span class="text-gray-600 font-bold text-[11px]">枠をタップして「×」と「◎」を切り替えます。<br>※<span class="text-blue-500 text-lg">×</span>（青色）はお客様の予約が入っている枠です。</span>`;
                 
+                updateTetrisMatching(); // ログイン時にテトリスも起動
                 window.changeStep(2); 
             } else {
                 window.showAlert("認証エラー"); 
