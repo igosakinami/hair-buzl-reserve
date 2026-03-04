@@ -679,7 +679,7 @@
                         item.className = "flex items-center justify-between bg-white p-3 rounded-lg border border-blue-100 mb-2 shadow-sm";
                         
                         const timeText = `${d.label}(${d.dayName}) ${t}〜 (${freeMinutes/60}時間)`;
-                        const copyText = `${d.label}(${d.dayName}) ${t}から${freeMinutes/60}時間の空きが出ました！\nショートカットや前髪カットなど、短いメニューならすぐにご案内可能です✂️\n\n▼ご予約はこちらから\nhttps://lit.link/hairbuzl`;
+                        const copyText = `${d.label}(${d.dayName}) ${t}から${freeMinutes/60}時間の空きが出ました！\nショートカットや前髪カットなど、短いメニューならすぐにご案内可能です✂️\n\n▼ご予約はこちらから\nhttps://lin.ee/L8Z2tVsG`;
 
                         item.innerHTML = `
                             <div>
@@ -724,7 +724,7 @@
                         btnElement.classList.remove('copy-success');
                     }, 2000);
                 } else {
-                    window.showAlert("コピーに失敗しました。お手数ですが手借でコピーしてください。");
+                    window.showAlert("コピーに失敗しました。お手数ですが手動でコピーしてください。");
                 }
             } catch (err) {
                 window.showAlert("コピーに失敗しました。お手数ですが手動でコピーしてください。");
@@ -810,7 +810,6 @@
             return freeCount;
         };
 
-        // ★修正箇所：ハイブリッド仕様（トップ画面は〇△あり、選択後は◎×のみ）
         const isSlotAvailable = (dateId, dateLabel, dayOfWeek, timeStr, tIdx, slotsNeeded) => {
             if (dayOfWeek === 1) return { status: "closed", symbol: "定休", class: "status-closed", canBook: false };
             const hour = parseInt(timeStr.split(':')[0]);
@@ -832,7 +831,6 @@
 
             const freeSlots = getContinuousFreeSlots(dateId, dayOfWeek, tIdx);
 
-            // 過去時間のブロック（これは安全のため絶対に残す）
             const now = new Date();
             const isToday = (dateId === `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')}`);
             if (isToday) {
