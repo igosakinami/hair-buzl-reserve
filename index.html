@@ -51,6 +51,8 @@
 
         /* お客様用：記号ごとのカラー設定 */
         .mark-double { color: #e11d48; }
+        .mark-circle { color: #f59e0b; }
+        .mark-triangle { color: #10b981; }
 
         .admin-active { background-color: #fffde7 !important; outline: 1px dashed #ffd600; z-index: 10; }
         .admin-panel { background: #1a1a1a; color: white; position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--admin-blue); }
@@ -153,15 +155,29 @@
                 </div>
             </div>
 
-            <!-- ★ お客様用：記号の意味ガイド（HPBに合わせてシンプル化） -->
+            <!-- ★ お客様用：記号の意味ガイド（〇△を復活） -->
             <div id="customerLegend" class="mb-4 bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-left">
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Availability Guide</p>
                 <div class="grid grid-cols-2 gap-2">
                     <div class="flex items-center gap-2 p-2 bg-rose-50 rounded-lg">
                         <span class="text-[#e11d48] text-xl font-black">◎</span>
                         <div>
-                            <p class="text-[10px] font-black text-gray-800 leading-none">予約可能</p>
-                            <p class="text-[8px] text-gray-400 mt-1">ご希望のメニューでご案内可能です</p>
+                            <p class="text-[10px] font-black text-gray-800 leading-none">余裕あり</p>
+                            <p class="text-[8px] text-gray-400 mt-1">長いメニューもご案内可能</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 p-2 bg-amber-50 rounded-lg">
+                        <span class="text-[#f59e0b] text-xl font-black">〇</span>
+                        <div>
+                            <p class="text-[10px] font-black text-gray-800 leading-none">やや空き</p>
+                            <p class="text-[8px] text-gray-400 mt-1">カットやカラー等に最適</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 p-2 bg-emerald-50 rounded-lg">
+                        <span class="text-[#10b981] text-xl font-black">△</span>
+                        <div>
+                            <p class="text-[10px] font-black text-gray-800 leading-none">残りわずか</p>
+                            <p class="text-[8px] text-gray-400 mt-1">前髪カット等短いメニューのみ</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
@@ -708,7 +724,7 @@
                         btnElement.classList.remove('copy-success');
                     }, 2000);
                 } else {
-                    window.showAlert("コピーに失敗しました。お手数ですが手動でコピーしてください。");
+                    window.showAlert("コピーに失敗しました。お手数ですが手借でコピーしてください。");
                 }
             } catch (err) {
                 window.showAlert("コピーに失敗しました。お手数ですが手動でコピーしてください。");
@@ -794,7 +810,7 @@
             return freeCount;
         };
 
-        // ★修正箇所：HPB仕様に合わせる（入れるなら◎、入れないなら×）
+        // ★修正箇所：ハイブリッド仕様（トップ画面は〇△あり、選択後は◎×のみ）
         const isSlotAvailable = (dateId, dateLabel, dayOfWeek, timeStr, tIdx, slotsNeeded) => {
             if (dayOfWeek === 1) return { status: "closed", symbol: "定休", class: "status-closed", canBook: false };
             const hour = parseInt(timeStr.split(':')[0]);
@@ -815,11 +831,10 @@
             }
 
             const freeSlots = getContinuousFreeSlots(dateId, dayOfWeek, tIdx);
-            const requiredSlots = slotsNeeded || 1; 
 
+            // 過去時間のブロック（これは安全のため絶対に残す）
             const now = new Date();
             const isToday = (dateId === `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')}`);
-            
             if (isToday) {
                 const currentHour = now.getHours();
                 const currentMin = now.getMinutes();
@@ -829,12 +844,34 @@
                 }
             }
 
-            // ★変更：必要な時間が空いていれば、一律で「◎」とする
-            if (freeSlots < requiredSlots || freeSlots === 0) {
+            if (freeSlots === 0) {
                 return { status: "ng", symbol: "×", class: "status-ng", canBook: false };
             }
 
-            return { status: "ok", symbol: "◎", class: "status-ok mark-double", canBook: true };
+            // メニュー未選択時（トップ画面）：親切に〇△を出す
+            if (slotsNeeded === null) {
+                let symbol = '×';
+                let statusClass = 'status-ok '; 
+                
+                if (freeSlots >= 7) { 
+                    symbol = '◎';
+                    statusClass += 'mark-double'; 
+                } else if (freeSlots >= 3) {
+                    symbol = '〇';
+                    statusClass += 'mark-circle'; 
+                } else {
+                    symbol = '△';
+                    statusClass += 'mark-triangle'; 
+                }
+                return { status: "ok", symbol: symbol, class: statusClass, canBook: true };
+            } 
+            // メニュー選択後：必要な時間が空いていれば◎、足りなければ×
+            else {
+                if (freeSlots < slotsNeeded) {
+                    return { status: "ng", symbol: "×", class: "status-ng", canBook: false };
+                }
+                return { status: "ok", symbol: "◎", class: "status-ok mark-double", canBook: true };
+            }
         };
 
         const renderCalendar = () => {
