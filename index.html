@@ -16,6 +16,16 @@
         .hpb-pink-btn { background: linear-gradient(to bottom, #ff8c99, #ff7283); color: white !important; border-radius: 6px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(255, 114, 131, 0.3); }
         .hpb-pink-btn:active { transform: translateY(1px); box-shadow: none; filter: brightness(0.95); }
 
+        /* 7周年記念バナー */
+        .anniversary-banner {
+            background: linear-gradient(135deg, #fff5f6 0%, #fff 100%);
+            border: 1px solid #ffe4e6;
+            color: #e11d48;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+            box-shadow: 0 4px 12px rgba(225, 29, 72, 0.05);
+        }
+
         /* Calendar Table Enhancements */
         .calendar-outer-wrapper { overflow-x: auto; background: white; border: 1px solid #ddd; border-radius: 12px; position: relative; -webkit-overflow-scrolling: touch; }
         .hpb-table { width: max-content; min-width: 100%; border-collapse: separate; border-spacing: 0; }
@@ -86,6 +96,18 @@
             <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
             <span class="ml-2 text-[10px] font-bold">MODE: <span id="modeLabel">OFF</span></span>
         </label>
+    </div>
+
+    <!-- 7周年記念メッセージバナー -->
+    <div class="max-w-4xl mx-auto px-4 pt-4">
+        <div class="anniversary-banner rounded-xl p-3 flex items-center justify-center gap-3 text-center">
+            <span class="text-xl">✨</span>
+            <div class="text-[10px] md:text-[11px]">
+                <p class="leading-none mb-1 uppercase tracking-widest font-black">7th Anniversary | 4.15</p>
+                <p class="leading-tight text-gray-500">おかげさまで7周年。感謝を込めて、最高の艶髪をお届けします。</p>
+            </div>
+            <span class="text-xl">✨</span>
+        </div>
     </div>
 
     <!-- ヘッダー -->
@@ -214,9 +236,14 @@
                     <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">Customer Name</label>
                     <input type="text" id="custName" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="お名前（フルネーム）">
                 </div>
-                <div class="text-left">
+                <div class="mb-5 text-left">
                     <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">Phone Number</label>
                     <input type="tel" id="custTel" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="090-0000-0000">
+                </div>
+                <!-- ★ Email入力欄を追加 -->
+                <div class="text-left">
+                    <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">Email <span class="text-[9px] font-normal text-gray-400">※ご案内用（任意）</span></label>
+                    <input type="email" id="custEmail" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="hello@example.com">
                 </div>
             </div>
 
@@ -300,7 +327,7 @@
                         <thead class="bg-blue-50 text-blue-800 text-[10px] uppercase font-bold">
                             <tr>
                                 <th class="p-4 whitespace-nowrap">日時 / Menu</th>
-                                <th class="p-4 whitespace-nowrap">お客様情報</th>
+                                <th class="p-4 whitespace-nowrap min-w-[250px]">お客様情報 / メモ</th>
                                 <th class="p-4 text-center whitespace-nowrap">操作</th>
                             </tr>
                         </thead>
@@ -404,12 +431,15 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // ★ メモ保存等のために updateDoc を追加インポート
+        import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, deleteDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const NOTIFICATION_CONFIG = {
             emailjs_public_key: "zUdr_cmgl8wIxtNLw",
             emailjs_service_id: "service_tl9llam",
-            emailjs_template_id: "template_ih81vlp"
+            emailjs_template_id: "template_ih81vlp",
+            // ★ 口コミ依頼用テンプレートIDを設定
+            emailjs_review_template_id: "template_bx1t8sa" 
         };
 
         const firebaseConfig = {
@@ -774,13 +804,46 @@
                         }
                     }
                 });
+                
+                // ★ 管理画面リストの描画（メモ＆サンキュー送信機能）
                 const body = document.getElementById('adminBookingBody');
                 if(!body) return; body.innerHTML = '';
                 [...bookingsList].sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0)).forEach(b => {
-                    const tr = document.createElement('tr'); tr.className = "border-b border-gray-50 hover:bg-blue-50/30 transition-colors text-left";
-                    tr.innerHTML = `<td class="p-4"><div class="font-black text-gray-800 text-[11px] mb-1">${b.dateTime}</div><div class="text-[10px] text-gray-400 font-bold">${b.menu}</div></td><td class="p-4"><div class="font-black text-gray-800">${b.customerName} 様</div><div class="text-blue-500 font-mono text-[10px] mt-1">${b.customerTel}</div></td><td class="p-4 text-center"><button class="bg-white text-red-400 px-3 py-2 rounded-lg text-[10px] font-black border border-red-100 hover:bg-red-50 active:scale-90 transition-all shadow-sm" onclick="window.deleteBooking('${b.id}')">削除</button></td>`;
+                    const tr = document.createElement('tr'); 
+                    tr.className = "border-b border-gray-50 hover:bg-blue-50/30 transition-colors text-left";
+                    
+                    const memoText = b.memo || ''; 
+                    const emailText = b.customerEmail 
+                        ? `<div class="text-gray-500 text-[10px] mb-2 break-all font-mono">✉️ ${b.customerEmail}</div>` 
+                        : `<div class="text-gray-300 text-[10px] mb-2">✉️ メール未登録</div>`;
+                    
+                    tr.innerHTML = `
+                        <td class="p-4 align-top">
+                            <div class="font-black text-gray-800 text-[11px] mb-1">${b.dateTime}</div>
+                            <div class="text-[10px] text-gray-400 font-bold">${b.menu}</div>
+                        </td>
+                        <td class="p-4">
+                            <div class="font-black text-gray-800">${b.customerName} 様</div>
+                            <div class="text-blue-500 font-mono text-[10px] mt-1">${b.customerTel}</div>
+                            ${emailText}
+                            <div class="flex flex-col gap-1 mt-1">
+                                <textarea id="memo-${b.id}" class="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-[10px] outline-none focus:ring-1 focus:ring-blue-400 transition-shadow" rows="2" placeholder="お客様メモ（カラーの配合や要望など）">${memoText}</textarea>
+                                <button id="memo-btn-${b.id}" class="self-end bg-blue-50 text-blue-600 px-3 py-1 rounded text-[9px] font-bold hover:bg-blue-100 transition-colors" onclick="window.saveMemo('${b.id}')">保存する</button>
+                            </div>
+                        </td>
+                        <td class="p-4 text-center align-middle">
+                            <div class="flex flex-col gap-2">
+                                <button id="review-btn-${b.id}" class="bg-purple-50 text-purple-600 px-3 py-2 rounded-lg text-[10px] font-black border border-purple-100 hover:bg-purple-100 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-1" onclick="window.sendReviewEmail('${b.id}', '${b.customerEmail || ''}', '${b.customerName}')">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                    サンキュー送信
+                                </button>
+                                <button class="bg-white text-red-400 px-3 py-2 rounded-lg text-[10px] font-black border border-red-100 hover:bg-red-50 active:scale-95 transition-all shadow-sm" onclick="window.deleteBooking('${b.id}')">削除</button>
+                            </div>
+                        </td>
+                    `;
                     body.appendChild(tr);
                 });
+
                 if (document.getElementById('step2').classList.contains('active') === false) {
                    renderCalendar();
                 } else {
@@ -999,8 +1062,83 @@
             modal.style.display = 'flex';
         };
 
+        // ★ 新機能：メモ保存機能
+        window.saveMemo = async (id) => {
+            const memoText = document.getElementById(`memo-${id}`).value;
+            const btn = document.getElementById(`memo-btn-${id}`);
+            
+            btn.disabled = true;
+            btn.innerText = "保存中...";
+            
+            try {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { memo: memoText });
+                
+                btn.innerText = "✓ 保存完了";
+                btn.classList.remove('text-blue-600', 'bg-blue-50', 'hover:bg-blue-100');
+                btn.classList.add('text-green-600', 'bg-green-50');
+                
+                setTimeout(() => {
+                    btn.innerText = "保存する";
+                    btn.classList.remove('text-green-600', 'bg-green-50');
+                    btn.classList.add('text-blue-600', 'bg-blue-50', 'hover:bg-blue-100');
+                    btn.disabled = false;
+                }, 2000);
+            } catch(e) {
+                window.showAlert("メモの保存に失敗しました");
+                btn.disabled = false;
+                btn.innerText = "保存する";
+            }
+        };
+
+        // ★ 新機能：サンキューメール（口コミ依頼）送信機能
+        window.sendReviewEmail = async (id, email, name) => {
+            if(!email || email === 'undefined') {
+                return window.showAlert("お客様のメールアドレスが登録されていないため、送信できません。");
+            }
+            
+            window.showConfirmAction(`${name} 様へサンキューメール（口コミ案内）を送信しますか？`, async () => {
+                const btn = document.getElementById(`review-btn-${id}`);
+                const originalContent = btn.innerHTML;
+                btn.disabled = true;
+                
+                // Tailwindを使用したインラインスピナー
+                btn.innerHTML = `<svg class="animate-spin h-3 w-3 mr-1 text-purple-600 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>送信中...`;
+                
+                try {
+                    // ★ 指定されたGoogleビジネスプロフィールの口コミリンク
+                    const googleReviewLink = "https://g.page/r/CRSIVTj6bfhuEAE/review"; 
+                    
+                    await emailjs.send(NOTIFICATION_CONFIG.emailjs_service_id, NOTIFICATION_CONFIG.emailjs_review_template_id, {
+                        to_email: email,             // 宛先アドレス（お客様）
+                        to_name: name,               // お客様名
+                        review_link: googleReviewLink // Google口コミURL
+                    });
+                    
+                    btn.innerHTML = "✓ 送信完了";
+                    btn.classList.remove('bg-purple-50', 'text-purple-600', 'border-purple-100', 'hover:bg-purple-100');
+                    btn.classList.add('bg-green-50', 'text-green-600', 'border-green-100');
+                    
+                    // 送信履歴をメモに自動追記して保存
+                    const memoBox = document.getElementById(`memo-${id}`);
+                    const today = new Date();
+                    const dateStr = `${today.getMonth()+1}/${today.getDate()}`;
+                    memoBox.value = memoBox.value ? memoBox.value + `\n[${dateStr} サンキューメール送信済]` : `[${dateStr} サンキューメール送信済]`;
+                    window.saveMemo(id); // 上の保存関数を呼び出す
+                    
+                } catch(e) {
+                    console.error(e);
+                    window.showAlert("送信に失敗しました。EmailJSのテンプレートIDなどの設定を確認してください。");
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                }
+            });
+        };
+
         window.submitBooking = async () => {
-            const name = document.getElementById('custName').value.trim(), tel = document.getElementById('custTel').value.trim();
+            const name = document.getElementById('custName').value.trim();
+            const tel = document.getElementById('custTel').value.trim();
+            // ★ Emailの取得処理を追加
+            const email = document.getElementById('custEmail') ? document.getElementById('custEmail').value.trim() : ""; 
             const agreeCheck = document.getElementById('agreeCheck').checked;
 
             if(!name || !tel) return window.showAlert("お名前と電話番号を入力してください。");
@@ -1023,6 +1161,7 @@
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), { 
                     customerName: name, 
                     customerTel: tel, 
+                    customerEmail: email, // ★ Emailをデータベースに保存
                     menu: selectedMenu.name, 
                     dateTime: `${selectedSlot.dateLabel} ${selectedSlot.time}`, 
                     dateId: selectedSlot.dateId,
