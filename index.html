@@ -441,16 +441,14 @@
     <!-- メインスクリプト -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        // ★ メモ保存等のために updateDoc を追加インポート
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, deleteDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const NOTIFICATION_CONFIG = {
             emailjs_public_key: "zUdr_cmgl8wIxtNLw",
             emailjs_service_id: "service_tl9llam",
-            emailjs_template_id: "template_ih81vlp",
-            // ★ 口コミ依頼用テンプレートIDを設定
-            emailjs_review_template_id: "template_bx1t8sa" 
+            emailjs_template_id: "template_ih81vlp", // オーナー通知用
+            emailjs_review_template_id: "template_bx1t8sa" // 口コミ依頼用
         };
 
         const firebaseConfig = {
@@ -465,11 +463,11 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = "hair-buzl-reserve";
+        const appId = typeof __app_id !== 'undefined' ? __app_id : "hair-buzl-reserve";
 
         let fbUser = null, reservationData = {}, bookingsList = [], bookedSlots = new Set();
         let isAdmin = false, selectedMenu = null, selectedSlot = null, selectedMenus = [];
-        let menuChartInstance = null; // ★ 追加：チャートのインスタンスを保持する変数
+        let menuChartInstance = null; 
         
         const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"];
         
@@ -522,7 +520,14 @@
             initMenu();
             if(NOTIFICATION_CONFIG.emailjs_public_key) emailjs.init(NOTIFICATION_CONFIG.emailjs_public_key);
             try {
-                await signInAnonymously(auth);
+                // 強化された認証フロー
+                const signIn = async () => {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        try { await signInWithCustomToken(auth, __initial_auth_token); } 
+                        catch (e) { await signInAnonymously(auth); }
+                    } else { await signInAnonymously(auth); }
+                };
+                await signIn();
                 onAuthStateChanged(auth, (u) => { 
                     fbUser = u; 
                     if(u) { startSync(); }
@@ -621,7 +626,7 @@
                 
                 const hasStartingPrice = selectedMenus.some(m => m.isStartingPrice);
                 const totalPrice = selectedMenus.reduce((sum, m) => sum + Number(m.price), 0);
-                const totalPriceStr = hasStartingPrice ? `${totalPrice.toLocaleString()}〜` : `${totalPrice.toLocaleString()}`;
+                const totalPriceStr = hasStartingPrice ? `¥${totalPrice.toLocaleString()}〜` : `¥${totalPrice.toLocaleString()}`;
                 
                 const totalTime = selectedMenus.reduce((sum, m) => sum + Number(m.time), 0);
                 
@@ -641,6 +646,7 @@
             const totalPrice = selectedMenus.reduce((sum, m) => sum + Number(m.price), 0);
             const totalPriceStr = hasStartingPrice ? `¥${totalPrice.toLocaleString()}〜` : `¥${totalPrice.toLocaleString()}`;
 
+            // ★ 通知用に priceStr を設定
             selectedMenu = { name: menuNames, time: totalTime, price: totalPrice, priceStr: totalPriceStr };
             
             document.getElementById('selectedMenuDisplay').innerHTML = `<span>${menuNames}</span> <span class="ml-2 text-pink-300 font-normal">所要目安: ${formatTime(totalTime)} / 合計: ${totalPriceStr}</span>`;
@@ -829,6 +835,25 @@
                         ? `<div class="text-gray-500 text-[10px] mb-2 break-all font-mono">✉️ ${b.customerEmail}</div>` 
                         : `<div class="text-gray-300 text-[10px] mb-2">✉️ メール未登録</div>`;
                     
+                    let reviewBtnHtml = '';
+                    if (b.reviewEmailSent) {
+                        // 送信済みの場合はグレーのボタン
+                        reviewBtnHtml = `
+                            <button class="bg-gray-100 text-gray-400 px-3 py-2 rounded-lg text-[10px] font-black border border-gray-200 cursor-not-allowed shadow-sm flex items-center justify-center gap-1 w-full" disabled>
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                送信済
+                            </button>
+                        `;
+                    } else {
+                        // 未送信の場合は紫色の送信ボタン
+                        reviewBtnHtml = `
+                            <button id="review-btn-${b.id}" class="bg-purple-50 text-purple-600 px-3 py-2 rounded-lg text-[10px] font-black border border-purple-100 hover:bg-purple-100 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-1 w-full" onclick="window.sendReviewEmail('${b.id}', '${b.customerEmail || ''}', '${b.customerName}')">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                サンキュー送信
+                            </button>
+                        `;
+                    }
+                    
                     tr.innerHTML = `
                         <td class="p-4 align-top">
                             <div class="font-black text-gray-800 text-[11px] mb-1">${b.dateTime}</div>
@@ -839,17 +864,14 @@
                             <div class="text-blue-500 font-mono text-[10px] mt-1">${b.customerTel}</div>
                             ${emailText}
                             <div class="flex flex-col gap-1 mt-1">
-                                <textarea id="memo-${b.id}" class="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-[10px] outline-none focus:ring-1 focus:ring-blue-400 transition-shadow" rows="2" placeholder="お客様メモ（カラーの配合や要望など）">${memoText}</textarea>
-                                <button id="memo-btn-${b.id}" class="self-end bg-blue-50 text-blue-600 px-3 py-1 rounded text-[9px] font-bold hover:bg-blue-100 transition-colors" onclick="window.saveMemo('${b.id}')">保存する</button>
+                                <textarea id="memo-${b.id}" oninput="window.markMemoUnsaved('${b.id}')" class="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-[10px] outline-none focus:ring-1 focus:ring-blue-400 transition-shadow" rows="2" placeholder="お客様メモ（カラーの配合や要望など）">${memoText}</textarea>
+                                <button id="memo-btn-${b.id}" class="self-end ${memoText ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'} px-3 py-1 rounded text-[9px] font-bold transition-colors" onclick="window.saveMemo('${b.id}')">${memoText ? '✓ 保存済' : '保存する'}</button>
                             </div>
                         </td>
                         <td class="p-4 text-center align-middle">
                             <div class="flex flex-col gap-2">
-                                <button id="review-btn-${b.id}" class="bg-purple-50 text-purple-600 px-3 py-2 rounded-lg text-[10px] font-black border border-purple-100 hover:bg-purple-100 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-1" onclick="window.sendReviewEmail('${b.id}', '${b.customerEmail || ''}', '${b.customerName}')">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                                    サンキュー送信
-                                </button>
-                                <button class="bg-white text-red-400 px-3 py-2 rounded-lg text-[10px] font-black border border-red-100 hover:bg-red-50 active:scale-95 transition-all shadow-sm" onclick="window.deleteBooking('${b.id}')">削除</button>
+                                ${reviewBtnHtml}
+                                <button class="bg-white text-red-400 px-3 py-2 rounded-lg text-[10px] font-black border border-red-100 hover:bg-red-50 active:scale-95 transition-all shadow-sm w-full" onclick="window.deleteBooking('${b.id}')">削除</button>
                             </div>
                         </td>
                     `;
@@ -869,6 +891,8 @@
 
         // ★ 新機能：メニュー別予約割合チャートの描画処理
         const updateMenuChart = () => {
+            if (typeof Chart === 'undefined') return;
+
             const ctx = document.getElementById('menuChart');
             if (!ctx) return;
 
@@ -878,7 +902,8 @@
                 if (b.menu) {
                     const menus = b.menu.split(' ＋ ');
                     menus.forEach(m => {
-                        menuCounts[m] = (menuCounts[m] || 0) + 1;
+                        const cleanMenu = m.trim();
+                        menuCounts[cleanMenu] = (menuCounts[cleanMenu] || 0) + 1;
                     });
                 }
             });
@@ -1145,6 +1170,16 @@
             modal.style.display = 'flex';
         };
 
+        // ★ 新機能：メモの入力があったらボタンを「保存する」に戻す
+        window.markMemoUnsaved = (id) => {
+            const btn = document.getElementById(`memo-btn-${id}`);
+            if(btn && btn.innerText !== "保存する") {
+                btn.innerText = "保存する";
+                btn.classList.remove('text-green-600', 'bg-green-50');
+                btn.classList.add('text-blue-600', 'bg-blue-50', 'hover:bg-blue-100');
+            }
+        };
+
         // ★ 新機能：メモ保存機能
         window.saveMemo = async (id) => {
             const memoText = document.getElementById(`memo-${id}`).value;
@@ -1156,16 +1191,11 @@
             try {
                 await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { memo: memoText });
                 
-                btn.innerText = "✓ 保存完了";
+                btn.innerText = "✓ 保存済";
                 btn.classList.remove('text-blue-600', 'bg-blue-50', 'hover:bg-blue-100');
                 btn.classList.add('text-green-600', 'bg-green-50');
+                btn.disabled = false;
                 
-                setTimeout(() => {
-                    btn.innerText = "保存する";
-                    btn.classList.remove('text-green-600', 'bg-green-50');
-                    btn.classList.add('text-blue-600', 'bg-blue-50', 'hover:bg-blue-100');
-                    btn.disabled = false;
-                }, 2000);
             } catch(e) {
                 window.showAlert("メモの保存に失敗しました");
                 btn.disabled = false;
@@ -1197,20 +1227,20 @@
                         review_link: googleReviewLink // Google口コミURL
                     });
                     
-                    btn.innerHTML = "✓ 送信完了";
-                    btn.classList.remove('bg-purple-50', 'text-purple-600', 'border-purple-100', 'hover:bg-purple-100');
-                    btn.classList.add('bg-green-50', 'text-green-600', 'border-green-100');
+                    // Firebaseに「送信済み」を記録
+                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { reviewEmailSent: true });
                     
                     // 送信履歴をメモに自動追記して保存
                     const memoBox = document.getElementById(`memo-${id}`);
                     const today = new Date();
                     const dateStr = `${today.getMonth()+1}/${today.getDate()}`;
-                    memoBox.value = memoBox.value ? memoBox.value + `\n[${dateStr} サンキューメール送信済]` : `[${dateStr} サンキューメール送信済]`;
+                    const log = `[${dateStr} サンキューメール送信済]`;
+                    memoBox.value = memoBox.value ? memoBox.value + `\n${log}` : log;
                     window.saveMemo(id); // 上の保存関数を呼び出す
                     
                 } catch(e) {
                     console.error(e);
-                    window.showAlert("送信に失敗しました。EmailJSのテンプレートIDなどの設定を確認してください。");
+                    window.showAlert("送信に失敗しました。\n※プレビュー環境の場合は制限がかかっている可能性があります。公開したURLでお試しください。");
                     btn.disabled = false;
                     btn.innerHTML = originalContent;
                 }
@@ -1241,26 +1271,39 @@
             const btn = document.getElementById('finalSubmitBtn'), btnText = document.getElementById('btnText');
             btn.disabled = true; btnText.innerHTML = `<span class="loading-spinner"></span>送信中...`;
             try {
+                const now = new Date();
+                const visitDateTime = `${selectedSlot.dateLabel} ${selectedSlot.time}`;
+                
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), { 
                     customerName: name, 
                     customerTel: tel, 
                     customerEmail: email, // ★ Emailをデータベースに保存
                     menu: selectedMenu.name, 
-                    dateTime: `${selectedSlot.dateLabel} ${selectedSlot.time}`, 
+                    dateTime: visitDateTime, 
                     dateId: selectedSlot.dateId,
                     timeNeeded: selectedMenu.time, 
                     timestamp: serverTimestamp() 
                 });
+                
+                // ★ ご要望の5項目を店側へ通知する
                 if(NOTIFICATION_CONFIG.emailjs_service_id) {
-                    try { await emailjs.send(NOTIFICATION_CONFIG.emailjs_service_id, NOTIFICATION_CONFIG.emailjs_template_id, { customer_name: name, customer_tel: tel, date_time: `${selectedSlot.dateLabel} ${selectedSlot.time}`, menu_name: selectedMenu.name }); } 
-                    catch(emailError) { console.warn("EmailJS Error: メールは送信されませんでした"); }
+                    try { 
+                        await emailjs.send(NOTIFICATION_CONFIG.emailjs_service_id, NOTIFICATION_CONFIG.emailjs_template_id, { 
+                            staff_name: name,
+                            visit_date: visitDateTime,
+                            menu_name: selectedMenu.name,
+                            total_price: selectedMenu.priceStr,
+                            booking_date: now.toLocaleString('ja-JP'),
+                            customer_tel: tel 
+                        }); 
+                    } catch(emailError) { console.warn("EmailJS Error: メールは送信されませんでした", emailError); }
                 }
                 window.changeStep(4);
             } catch(e) { window.showAlert(`エラー: ${e.message}`); btn.disabled = false; btnText.innerText = "この内容で予約を確定する"; }
         };
 
         window.deleteBooking = (id) => {
-            window.showConfirmAction("予約を削除しますか？", async () => {
+            window.showConfirmAction("予約を削除しますか？\n(カレンダーのブロックも解除されます)", async () => {
                 try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id)); } catch(e) { window.showAlert("削除失敗"); }
             });
         };
