@@ -8,6 +8,7 @@
     <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <!-- ★ 追加：円グラフを描画するためのライブラリ Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -17,6 +18,7 @@
         .hpb-pink-btn { background: linear-gradient(to bottom, #ff8c99, #ff7283); color: white !important; border-radius: 6px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(255, 114, 131, 0.3); }
         .hpb-pink-btn:active { transform: translateY(1px); box-shadow: none; filter: brightness(0.95); }
 
+        /* 7周年記念バナー */
         .anniversary-banner {
             background: linear-gradient(135deg, #fff5f6 0%, #fff 100%);
             border: 1px solid #ffe4e6;
@@ -26,14 +28,24 @@
             box-shadow: 0 4px 12px rgba(225, 29, 72, 0.05);
         }
 
+        /* Calendar Table Enhancements */
         .calendar-outer-wrapper { overflow-x: auto; background: white; border: 1px solid #ddd; border-radius: 12px; position: relative; -webkit-overflow-scrolling: touch; }
         .hpb-table { width: max-content; min-width: 100%; border-collapse: separate; border-spacing: 0; }
         .hpb-table th, .hpb-table td { border: 0.5px solid #f0f0f0; text-align: center; height: 60px; padding: 0; position: relative; min-width: 80px; }
         
-        .time-col { background-color: #f9f9f9 !important; width: 60px !important; min-width: 60px !important; font-weight: bold; font-size: 11px; color: #666; }
+        /* Sticky Time Column Settings */
+        .time-col { 
+            background-color: #f9f9f9 !important; 
+            width: 60px !important; 
+            min-width: 60px !important; 
+            font-weight: bold; 
+            font-size: 11px; 
+            color: #666;
+        }
         .sticky-left { position: sticky; left: 0; z-index: 40; border-right: 2px solid #eee !important; box-shadow: 2px 0 5px rgba(0,0,0,0.02); }
         .sticky-right { position: sticky; right: 0; z-index: 40; border-left: 2px solid #eee !important; box-shadow: -2px 0 5px rgba(0,0,0,0.02); }
         
+        /* Sticky Header for Dates */
         #dateHeader th.time-col { z-index: 50; top: 0; }
         #dateHeader th:not(.time-col) { background: #fff; position: sticky; top: 0; z-index: 20; border-bottom: 2px solid #eee; }
         
@@ -49,6 +61,7 @@
         .status-ng { color: #ddd; background-color: #fafafa; cursor: not-allowed; font-size: 20px; }
         .status-closed { background-color: #f1f1f1; color: #999; font-size: 11px; font-weight: bold; }
 
+        /* お客様用：記号ごとのカラー設定 */
         .mark-double { color: #e11d48; }
         .mark-circle { color: #f59e0b; }
         .mark-triangle { color: #10b981; }
@@ -67,8 +80,9 @@
         .loading-spinner { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid #fff; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .copy-success { animation: copySuccess 0.5s ease-out forwards; }
+        /* 募集用コピーボタンのアニメーション */
         @keyframes copySuccess { 0% { transform: scale(1); } 50% { transform: scale(1.05); background-color: #10b981; color: white; border-color: #10b981; } 100% { transform: scale(1); } }
+        .copy-success { animation: copySuccess 0.5s ease-out forwards; }
     </style>
 </head>
 <body>
@@ -165,7 +179,7 @@
                 </div>
             </div>
 
-            <!-- ★ お客様用：記号の意味ガイド -->
+            <!-- ★ お客様用：記号の意味ガイド（〇△を復活） -->
             <div id="customerLegend" class="mb-4 bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-left">
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Availability Guide</p>
                 <div class="grid grid-cols-2 gap-2">
@@ -437,7 +451,7 @@
             emailjs_review_template_id: "template_bx1t8sa", // 口コミ依頼用
             
             // ★ 教えていただいた最新のLINE通知用GASウェブアプリURLを組み込みました
-            gas_webapp_url: "https://script.google.com/macros/s/AKfycbwnYE5Ng6wmb2HiEbYh7vj6uhIlXwn3z7Uwc_a5QfzVx_4D4obGue313zDtj6RGmceSqg/exec"
+            gas_webapp_url: "https://script.google.com/macros/s/AKfycbwZDuinYajoAkMkomQxEVZevxWLnr7gAnMc8c6PK5K_FNBr_9xgglQeXL2iFFt97PR9gA/exec"
         };
 
         const firebaseConfig = {
@@ -761,7 +775,6 @@
             }
             document.body.removeChild(textArea);
         };
-        // ----------------------------------------------------
 
         const startSync = () => {
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'slots'), (snap) => {
@@ -805,7 +818,6 @@
                     }
                 });
                 
-                // ★ 管理画面リストの描画（メモ＆サンキュー送信機能）
                 const body = document.getElementById('adminBookingBody');
                 if(!body) return; body.innerHTML = '';
                 [...bookingsList].sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0)).forEach(b => {
@@ -819,7 +831,6 @@
                     
                     let reviewBtnHtml = '';
                     if (b.reviewEmailSent) {
-                        // 送信済みの場合はグレーのボタン
                         reviewBtnHtml = `
                             <button class="bg-gray-100 text-gray-400 px-3 py-2 rounded-lg text-[10px] font-black border border-gray-200 cursor-not-allowed shadow-sm flex items-center justify-center gap-1 w-full" disabled>
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
@@ -827,10 +838,9 @@
                             </button>
                         `;
                     } else {
-                        // 未送信の場合は紫色の送信ボタン
                         reviewBtnHtml = `
                             <button id="review-btn-${b.id}" class="bg-purple-50 text-purple-600 px-3 py-2 rounded-lg text-[10px] font-black border border-purple-100 hover:bg-purple-100 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-1 w-full" onclick="window.sendReviewEmail('${b.id}', '${b.customerEmail || ''}', '${b.customerName}')">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z"></path></svg>
                                 サンキュー送信
                             </button>
                         `;
@@ -867,18 +877,16 @@
                 }
                 
                 if(isAdmin) updateTetrisMatching(); 
-                updateMenuChart(); // ★ 追加：予約データ取得後にグラフを更新
+                updateMenuChart(); 
             }, (err) => console.warn("Sync error (bookings):", err));
         };
 
-        // ★ 新機能：メニュー別予約割合チャートの描画処理
         const updateMenuChart = () => {
             if (typeof Chart === 'undefined') return;
 
             const ctx = document.getElementById('menuChart');
             if (!ctx) return;
 
-            // メニューの集計（「＋」で分割して個別にカウント）
             const menuCounts = {};
             bookingsList.forEach(b => {
                 if (b.menu) {
@@ -890,17 +898,14 @@
                 }
             });
 
-            // カウント数で降順にソート
             const sortedMenus = Object.keys(menuCounts).sort((a, b) => menuCounts[b] - menuCounts[a]);
             const labels = sortedMenus;
             const data = sortedMenus.map(m => menuCounts[m]);
 
-            // 既にチャートが存在する場合は破棄して再描画（データ更新時のため）
             if (menuChartInstance) {
                 menuChartInstance.destroy();
             }
 
-            // データがない場合は描画しないで終了
             if (labels.length === 0) return;
 
             menuChartInstance = new Chart(ctx, {
@@ -909,7 +914,6 @@
                     labels: labels,
                     datasets: [{
                         data: data,
-                        // hair Buzl に合わせた洗練されたカラーパレット
                         backgroundColor: [
                             '#ff7283', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', 
                             '#ec4899', '#06b6d4', '#14b8a6', '#f97316', '#6366f1'
@@ -922,13 +926,7 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                boxWidth: 12,
-                                font: { size: 10, family: 'sans-serif' }
-                            }
-                        },
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10, family: 'sans-serif' } } },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
@@ -973,12 +971,8 @@
                 const isManuallyBlocked = reservationData[slotKey] === 'ng';
                 const isBooked = bookedSlots.has(`${dateId}_${timeStr}`);
 
-                if (isBooked) {
-                    return { status: "ng", symbol: "×", class: "text-blue-500 font-black bg-blue-50 text-[20px]", canBook: true }; 
-                }
-                if (isManuallyBlocked) {
-                    return { status: "ng", symbol: "×", class: "status-ng", canBook: true }; 
-                }
+                if (isBooked) { return { status: "ng", symbol: "×", class: "text-blue-500 font-black bg-blue-50 text-[20px]", canBook: true }; }
+                if (isManuallyBlocked) { return { status: "ng", symbol: "×", class: "status-ng", canBook: true }; }
                 return { status: "ok", symbol: "◎", class: "status-ok text-[#e11d48]", canBook: true };
             }
 
@@ -990,37 +984,19 @@
                 const currentHour = now.getHours();
                 const currentMin = now.getMinutes();
                 const slotMin = parseInt(timeStr.split(':')[1]);
-                if (hour < currentHour || (hour === currentHour && slotMin <= currentMin)) {
-                    return { status: "ng", symbol: "×", class: "status-ng", canBook: false };
-                }
+                if (hour < currentHour || (hour === currentHour && slotMin <= currentMin)) { return { status: "ng", symbol: "×", class: "status-ng", canBook: false }; }
             }
 
-            if (freeSlots === 0) {
-                return { status: "ng", symbol: "×", class: "status-ng", canBook: false };
-            }
+            if (freeSlots === 0) { return { status: "ng", symbol: "×", class: "status-ng", canBook: false }; }
 
-            // メニュー未選択時（トップ画面）：親切に〇△を出す
             if (slotsNeeded === null) {
-                let symbol = '×';
-                let statusClass = 'status-ok '; 
-                
-                if (freeSlots >= 7) { 
-                    symbol = '◎';
-                    statusClass += 'mark-double'; 
-                } else if (freeSlots >= 3) {
-                    symbol = '〇';
-                    statusClass += 'mark-circle'; 
-                } else {
-                    symbol = '△';
-                    statusClass += 'mark-triangle'; 
-                }
+                let symbol = '×'; let statusClass = 'status-ok '; 
+                if (freeSlots >= 7) { symbol = '◎'; statusClass += 'mark-double'; } 
+                else if (freeSlots >= 3) { symbol = '〇'; statusClass += 'mark-circle'; } 
+                else { symbol = '△'; statusClass += 'mark-triangle'; }
                 return { status: "ok", symbol: symbol, class: statusClass, canBook: true };
-            } 
-            // メニュー選択後：必要な時間が空いていれば◎、足りなければ×
-            else {
-                if (freeSlots < slotsNeeded) {
-                    return { status: "ng", symbol: "×", class: "status-ng", canBook: false };
-                }
+            } else {
+                if (freeSlots < slotsNeeded) { return { status: "ng", symbol: "×", class: "status-ng", canBook: false }; }
                 return { status: "ok", symbol: "◎", class: "status-ok mark-double", canBook: true };
             }
         };
@@ -1034,14 +1010,11 @@
             
             const dates = [];
             const now = new Date();
-            
             const slotsNeeded = isAdmin ? 1 : (selectedMenu ? Math.ceil(selectedMenu.time / 30) : null);
-            
             const daysToShow = 91; 
 
             for (let i = 0; i < daysToShow; i++) {
-                const d = new Date(); 
-                d.setDate(now.getDate() + i);
+                const d = new Date(); d.setDate(now.getDate() + i);
                 const month = d.getMonth() + 1, date = d.getDate(), id = `${d.getFullYear()}-${month.toString().padStart(2,'0')}-${date.toString().padStart(2,'0')}`, label = `${month}/${date}`, dayNames = ['日','月','火','水','木','金','土'], dayOfWeek = d.getDay();
                 dates.push({id, label, dayName: dayNames[dayOfWeek], dayOfWeek});
                 
@@ -1050,10 +1023,7 @@
                 head.appendChild(th);
 
                 if (dayOfWeek === 0 && i < daysToShow - 1) {
-                    const thMid = document.createElement('th');
-                    thMid.className = "time-col uppercase tracking-tighter bg-gray-50";
-                    thMid.innerText = "TIME";
-                    head.appendChild(thMid);
+                    const thMid = document.createElement('th'); thMid.className = "time-col uppercase tracking-tighter bg-gray-50"; thMid.innerText = "TIME"; head.appendChild(thMid);
                 }
             }
             
@@ -1064,10 +1034,7 @@
 
             timeSlots.forEach((t, tIdx) => {
                 const tr = document.createElement('tr');
-                const tdLeft = document.createElement('td');
-                tdLeft.className = "time-col sticky-left font-mono text-[10px]";
-                tdLeft.innerText = t;
-                tr.appendChild(tdLeft);
+                const tdLeft = document.createElement('td'); tdLeft.className = "time-col sticky-left font-mono text-[10px]"; tdLeft.innerText = t; tr.appendChild(tdLeft);
                 
                 dates.forEach((d, dIdx) => {
                     const availabilityData = isSlotAvailable(d.id, d.label, d.dayOfWeek, t, tIdx, slotsNeeded);
@@ -1082,18 +1049,11 @@
                     tr.appendChild(td);
 
                     if (d.dayOfWeek === 0 && dIdx < dates.length - 1) {
-                        const tdMid = document.createElement('td');
-                        tdMid.className = "time-col font-mono text-[10px] bg-gray-50";
-                        tdMid.innerText = t;
-                        tr.appendChild(tdMid);
+                        const tdMid = document.createElement('td'); tdMid.className = "time-col font-mono text-[10px] bg-gray-50"; tdMid.innerText = t; tr.appendChild(tdMid);
                     }
                 });
                 
-                const tdRight = document.createElement('td');
-                tdRight.className = "time-col sticky-right font-mono text-[10px]";
-                tdRight.innerText = t;
-                tr.appendChild(tdRight);
-                
+                const tdRight = document.createElement('td'); tdRight.className = "time-col sticky-right font-mono text-[10px]"; tdRight.innerText = t; tr.appendChild(tdRight);
                 body.appendChild(tr);
             });
         };
@@ -1152,7 +1112,6 @@
             modal.style.display = 'flex';
         };
 
-        // ★ メモの入力があったらボタンを「保存する」に戻す
         window.markMemoUnsaved = (id) => {
             const btn = document.getElementById(`memo-btn-${id}`);
             if(btn && btn.innerText !== "保存する") {
@@ -1162,83 +1121,48 @@
             }
         };
 
-        // ★ メモ保存機能
         window.saveMemo = async (id) => {
             const memoText = document.getElementById(`memo-${id}`).value;
             const btn = document.getElementById(`memo-btn-${id}`);
-            
-            btn.disabled = true;
-            btn.innerText = "保存中...";
-            
+            btn.disabled = true; btn.innerText = "保存中...";
             try {
                 await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { memo: memoText });
-                
                 btn.innerText = "✓ 保存完了";
                 btn.classList.remove('text-blue-600', 'bg-blue-50', 'hover:bg-blue-100');
                 btn.classList.add('text-green-600', 'bg-green-50');
-                
                 setTimeout(() => {
                     btn.innerText = "保存する";
                     btn.classList.remove('text-green-600', 'bg-green-50');
                     btn.classList.add('text-blue-600', 'bg-blue-50', 'hover:bg-blue-100');
                     btn.disabled = false;
                 }, 2000);
-            } catch(e) {
-                window.showAlert("メモの保存に失敗しました");
-                btn.disabled = false;
-                btn.innerText = "保存する";
-            }
+            } catch(e) { window.showAlert("メモの保存に失敗しました"); btn.disabled = false; btn.innerText = "保存する"; }
         };
 
-        // ★ サンキューメール（口コミ依頼）送信機能
         window.sendReviewEmail = async (id, email, name) => {
-            if(!email || email === 'undefined') {
-                return window.showAlert("お客様のメールアドレスが登録されていないため、送信できません。");
-            }
-            
+            if(!email || email === 'undefined') { return window.showAlert("お客様のメールアドレスが登録されていないため、送信できません。"); }
             window.showConfirmAction(`${name} 様へサンキューメール（口コミ案内）を送信しますか？`, async () => {
                 const btn = document.getElementById(`review-btn-${id}`);
                 const originalContent = btn.innerHTML;
                 btn.disabled = true;
-                
-                // Tailwindを使用したインラインスピナー
                 btn.innerHTML = `<svg class="animate-spin h-3 w-3 mr-1 text-purple-600 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>送信中...`;
-                
                 try {
-                    // ★ 指定されたGoogleビジネスプロフィールの口コミリンク
                     const googleReviewLink = "https://g.page/r/CRSIVTj6bfhuEAE/review"; 
-                    
-                    await emailjs.send(NOTIFICATION_CONFIG.emailjs_service_id, NOTIFICATION_CONFIG.emailjs_review_template_id, {
-                        to_email: email,             // 宛先アドレス（お客様）
-                        to_name: name,               // お客様名
-                        review_link: googleReviewLink // Google口コミURL
-                    });
-                    
-                    // Firebaseに「送信済み」を記録
+                    await emailjs.send(NOTIFICATION_CONFIG.emailjs_service_id, NOTIFICATION_CONFIG.emailjs_review_template_id, { to_email: email, to_name: name, review_link: googleReviewLink });
                     await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { reviewEmailSent: true });
-                    
-                    // 送信履歴をメモに自動追記して保存
                     const memoBox = document.getElementById(`memo-${id}`);
                     const today = new Date();
                     const dateStr = `${today.getMonth()+1}/${today.getDate()}`;
                     const log = `[${dateStr} サンキューメール送信済]`;
                     memoBox.value = memoBox.value ? memoBox.value + `\n${log}` : log;
-                    window.saveMemo(id); // 上の保存関数を呼び出す
-                    
-                } catch(e) {
-                    console.error(e);
-                    window.showAlert("送信に失敗しました。\n※プレビュー環境の場合は制限がかかっている可能性があります。公開したURLでお試しください。");
-                    btn.disabled = false;
-                    btn.innerHTML = originalContent;
-                }
+                    window.saveMemo(id); 
+                } catch(e) { console.error(e); window.showAlert("送信に失敗しました。\n※プレビュー環境の場合は制限がかかっている可能性があります。公開したURLでお試しください。"); btn.disabled = false; btn.innerHTML = originalContent; }
             });
         };
 
-        // ★ 予約確定ボタンが押された時の処理
         window.submitBooking = async () => {
             const name = document.getElementById('custName').value.trim();
             const tel = document.getElementById('custTel').value.trim();
-            // ★ Emailの取得処理を追加
             const email = document.getElementById('custEmail') ? document.getElementById('custEmail').value.trim() : ""; 
             const agreeCheck = document.getElementById('agreeCheck').checked;
 
@@ -1249,133 +1173,51 @@
             const parts = selectedSlot.dateId.split('-');
             const d = new Date(parts[0], parts[1] - 1, parts[2]);
             const dayOfWeek = d.getDay();
-            
             const availabilityData = isSlotAvailable(selectedSlot.dateId, selectedSlot.dateLabel, dayOfWeek, selectedSlot.time, selectedSlot.tIdx, slotsNeeded);
             
-            if (!availabilityData.canBook) {
-                return window.showAlert("申し訳ございません。入力中に他のお客様の予約が入り、必要な時間枠が埋まってしまいました。\nお手数ですが、別のお時間をお選びください。");
-            }
+            if (!availabilityData.canBook) return window.showAlert("申し訳ございません。入力中に他のお客様の予約が入り、必要な時間枠が埋まってしまいました。");
 
             const btn = document.getElementById('finalSubmitBtn'), btnText = document.getElementById('btnText');
             btn.disabled = true; btnText.innerHTML = `<span class="loading-spinner"></span>送信中...`;
+            
             try {
                 const now = new Date();
                 const visitDateTime = `${selectedSlot.dateLabel} ${selectedSlot.time}`;
-                
-                // ① データベース（Firebase）に予約情報を保存
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), { 
-                    customerName: name, 
-                    customerTel: tel, 
-                    customerEmail: email, 
-                    menu: selectedMenu.name, 
-                    dateTime: visitDateTime, 
-                    dateId: selectedSlot.dateId,
-                    timeNeeded: selectedMenu.time, 
-                    timestamp: serverTimestamp() 
+                    customerName: name, customerTel: tel, customerEmail: email, menu: selectedMenu.name, 
+                    dateTime: visitDateTime, dateId: selectedSlot.dateId, timeNeeded: selectedMenu.time, timestamp: serverTimestamp() 
                 });
                 
-                // ★ 共通の通知データを作成（5項目）
-                const notificationData = { 
-                    staff_name: name,
-                    visit_date: visitDateTime,
-                    menu_name: selectedMenu.name,
-                    total_price: selectedMenu.priceStr,
-                    booking_date: now.toLocaleString('ja-JP'),
-                    customer_tel: tel 
-                };
+                const notificationData = { staff_name: name, visit_date: visitDateTime, menu_name: selectedMenu.name, total_price: selectedMenu.priceStr, booking_date: now.toLocaleString('ja-JP'), customer_tel: tel };
 
-                // ② EmailJS (メール通知) 送信：オーナー様用
                 if(NOTIFICATION_CONFIG.emailjs_service_id) {
-                    try { 
-                        await emailjs.send(NOTIFICATION_CONFIG.emailjs_service_id, NOTIFICATION_CONFIG.emailjs_template_id, notificationData); 
-                    } catch(emailError) { console.warn("EmailJS Error: メールは送信されませんでした", emailError); }
+                    try { await emailjs.send(NOTIFICATION_CONFIG.emailjs_service_id, NOTIFICATION_CONFIG.emailjs_template_id, notificationData); } catch(emailError) { console.warn("EmailJS Error"); }
                 }
 
-                // ③ GAS (LINE即時通知) 送信：オーナー様用
+                // ★ ここでGAS経由のLINE通知を実行しています
                 if(NOTIFICATION_CONFIG.gas_webapp_url && NOTIFICATION_CONFIG.gas_webapp_url.startsWith("https://script.google.com/")) {
                     try {
-                        await fetch(NOTIFICATION_CONFIG.gas_webapp_url, {
-                            method: 'POST',
-                            mode: 'no-cors', // セキュリティエラー（CORS）を回避するため必須
-                            headers: { 'Content-Type': 'text/plain' },
-                            body: JSON.stringify(notificationData)
-                        });
-                    } catch(gasError) { console.warn("GAS Error: LINE通知に失敗しました", gasError); }
+                        await fetch(NOTIFICATION_CONFIG.gas_webapp_url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(notificationData) });
+                    } catch(gasError) { console.warn("GAS Error", gasError); }
                 }
-
-                // すべて完了したらSTEP4（完了画面）へ
                 window.changeStep(4);
-            } catch(e) { 
-                window.showAlert(`エラーが発生しました。時間を置いて再度お試しください。\n${e.message}`); 
-                btn.disabled = false; 
-                btnText.innerText = "この内容で予約を確定する"; 
-            }
+            } catch(e) { window.showAlert(`エラーが発生しました。\n${e.message}`); btn.disabled = false; btnText.innerText = "この内容で予約を確定する"; }
         };
 
-        window.deleteBooking = (id) => {
-            window.showConfirmAction("予約を削除しますか？\n(カレンダーのブロックも解除されます)", async () => {
-                try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id)); } catch(e) { window.showAlert("削除失敗"); }
-            });
-        };
-
+        window.deleteBooking = (id) => window.showConfirmAction("予約を削除しますか？\n(カレンダーのブロックも解除されます)", async () => { try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id)); } catch(e) { window.showAlert("削除失敗"); } });
         window.closeModal = () => document.getElementById('confirmModal').style.display = 'none';
-        
         window.changeStep = (s) => { 
             document.querySelectorAll('.step-content').forEach(c=>c.classList.remove('active'));
             document.getElementById(`step${s}`).classList.add('active'); 
             document.getElementById('progressBar').style.width = `${(s/4)*100}%`;
-            for(let i=1;i<=4;i++){
-                const h = document.getElementById(`stepHeader${i}`);
-                if(h) h.className = (i === s) ? "flex-1 py-3 text-center border-b-2 border-[#ff7283] text-[#ff7283] font-black text-[10px]" : "flex-1 py-3 text-center text-gray-300 font-bold text-[10px]";
-            }
-            
-            if(s === 3) {
-                document.getElementById('agreeCheck').checked = false;
-                window.toggleSubmitBtn();
-            }
-
+            for(let i=1;i<=4;i++){ const h = document.getElementById(`stepHeader${i}`); if(h) h.className = (i === s) ? "flex-1 py-3 text-center border-b-2 border-[#ff7283] text-[#ff7283] font-black text-[10px]" : "flex-1 py-3 text-center text-gray-300 font-bold text-[10px]"; }
+            if(s === 3) { document.getElementById('agreeCheck').checked = false; window.toggleSubmitBtn(); }
             window.scrollTo(0,0);
             if(s === 2) renderCalendar();
         };
 
-        window.toggleAdminMode = (chk) => { 
-            if(chk) {
-                document.getElementById('adminAuthModal').style.display = 'flex'; 
-            } else { 
-                isAdmin = false; 
-                document.getElementById('modeLabel').innerText='OFF'; 
-                document.getElementById('adminBookingSection').classList.add('hidden');
-                document.getElementById('adminTetrisSection').classList.add('hidden');
-                
-                const noticeEl = document.getElementById('dynamicTimeNotice');
-                if (noticeEl) noticeEl.innerHTML = "";
-                document.getElementById('customerLegend').style.display = 'block';
-
-                window.changeStep(1); 
-            } 
-        };
-        
-        window.verifyAdmin = () => { 
-            if(document.getElementById('adminPass').value==='0000'){ 
-                isAdmin=true; 
-                document.getElementById('modeLabel').innerText='ON'; 
-                document.getElementById('adminAuthModal').style.display='none'; 
-                document.getElementById('adminBookingSection').classList.remove('hidden'); 
-                document.getElementById('adminTetrisSection').classList.remove('hidden');
-                
-                document.getElementById('selectedMenuDisplay').innerHTML = `<span class="text-blue-600 font-black">【管理者モード】予約枠の操作</span>`;
-                
-                document.getElementById('customerLegend').style.display = 'none';
-                const noticeEl = document.getElementById('dynamicTimeNotice');
-                if(noticeEl) noticeEl.innerHTML = `<span class="text-gray-600 font-bold text-[11px]">枠をタップして「×」と「◎」を切り替えます。<br>※<span class="text-blue-500 text-lg">×</span>（青色）はお客様の予約が入っている枠です。</span>`;
-                
-                updateTetrisMatching(); 
-                window.changeStep(2); 
-            } else {
-                window.showAlert("認証エラー"); 
-            }
-        };
-        
+        window.toggleAdminMode = (chk) => { if(chk) { document.getElementById('adminAuthModal').style.display = 'flex'; } else { isAdmin = false; document.getElementById('modeLabel').innerText='OFF'; document.getElementById('adminBookingSection').classList.add('hidden'); document.getElementById('adminTetrisSection').classList.add('hidden'); const noticeEl = document.getElementById('dynamicTimeNotice'); if (noticeEl) noticeEl.innerHTML = ""; document.getElementById('customerLegend').style.display = 'block'; window.changeStep(1); } };
+        window.verifyAdmin = () => { if(document.getElementById('adminPass').value==='0000'){ isAdmin=true; document.getElementById('modeLabel').innerText='ON'; document.getElementById('adminAuthModal').style.display='none'; document.getElementById('adminBookingSection').classList.remove('hidden'); document.getElementById('adminTetrisSection').classList.remove('hidden'); document.getElementById('selectedMenuDisplay').innerHTML = `<span class="text-blue-600 font-black">【管理者モード】予約枠の操作</span>`; document.getElementById('customerLegend').style.display = 'none'; const noticeEl = document.getElementById('dynamicTimeNotice'); if(noticeEl) noticeEl.innerHTML = `<span class="text-gray-600 font-bold text-[11px]">枠をタップして「×」と「◎」を切り替えます。<br>※<span class="text-blue-500 text-lg">×</span>（青色）はお客様の予約が入っている枠です。</span>`; updateTetrisMatching(); window.changeStep(2); } else { window.showAlert("認証エラー"); } };
         window.cancelAdmin = () => { document.getElementById('adminToggle').checked = false; document.getElementById('adminAuthModal').style.display = 'none'; };
     </script>
 </body>
