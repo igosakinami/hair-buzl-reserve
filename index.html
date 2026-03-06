@@ -83,6 +83,9 @@
         /* 募集用コピーボタンのアニメーション */
         @keyframes copySuccess { 0% { transform: scale(1); } 50% { transform: scale(1.05); background-color: #10b981; color: white; border-color: #10b981; } 100% { transform: scale(1); } }
         .copy-success { animation: copySuccess 0.5s ease-out forwards; }
+
+        /* ★ カルテ用ノートデザイン ★ */
+        .karte-memo { background-color: #fefce8; background-image: linear-gradient(#fef08a 1px, transparent 1px); background-size: 100% 2rem; line-height: 2rem; border: 1px solid #fde047; }
     </style>
 </head>
 <body>
@@ -337,7 +340,7 @@
                         <thead class="bg-blue-50 text-blue-800 text-[10px] uppercase font-bold">
                             <tr>
                                 <th class="p-4 whitespace-nowrap">日時 / Menu</th>
-                                <th class="p-4 whitespace-nowrap min-w-[250px]">お客様情報 / メモ</th>
+                                <th class="p-4 whitespace-nowrap min-w-[250px]">お客様情報 / 顧客カルテ（永久保存）</th>
                                 <th class="p-4 text-center whitespace-nowrap">操作</th>
                             </tr>
                         </thead>
@@ -441,15 +444,13 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, deleteDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, onSnapshot, setDoc, getDoc, addDoc, deleteDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const NOTIFICATION_CONFIG = {
             emailjs_public_key: "zUdr_cmgl8wIxtNLw",
             emailjs_service_id: "service_tl9llam",
             emailjs_template_id: "template_ih81vlp", // オーナー通知用
             emailjs_review_template_id: "template_bx1t8sa", // 口コミ依頼用
-            
-            // ★ 今回教えていただいた最新のGASのURLをセットしました！
             gas_webapp_url: "https://script.google.com/macros/s/AKfycbysZoUs3vCr7N9k4gdylHLndbwMVzZ6qzGP3H4rrNfBI2cvOWxP60CXEhMF-VdDZasj8g/exec"
         };
 
@@ -467,7 +468,8 @@
         const db = getFirestore(app);
         const appId = "hair-buzl-reserve";
 
-        let fbUser = null, reservationData = {}, bookingsList = [], bookedSlots = new Set();
+        // ★ customersData を追加
+        let fbUser = null, reservationData = {}, bookingsList = [], bookedSlots = new Set(), customersData = {};
         let isAdmin = false, selectedMenu = null, selectedSlot = null, selectedMenus = [];
         let menuChartInstance = null; 
         
@@ -771,13 +773,87 @@
             document.body.removeChild(textArea);
         };
 
+        // ★ リストの描画処理を独立させて、予約やカルテの更新時にすぐ反映できるようにしました ★
+        const renderAdminBookings = () => {
+            const body = document.getElementById('adminBookingBody');
+            if(!body) return; body.innerHTML = '';
+            [...bookingsList].sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0)).forEach(b => {
+                const tr = document.createElement('tr'); 
+                tr.className = "border-b border-gray-50 hover:bg-blue-50/30 transition-colors text-left";
+                
+                // 電話番号をキーにしてカルテデータを取得
+                const customerMemo = customersData[b.customerTel] || ''; 
+                const emailText = b.customerEmail 
+                    ? `<div class="text-gray-500 text-[10px] mb-2 break-all font-mono">✉️ ${b.customerEmail}</div>` 
+                    : `<div class="text-gray-300 text-[10px] mb-2">✉️ メール未登録</div>`;
+                
+                let reviewBtnHtml = '';
+                if (b.reviewEmailSent) {
+                    reviewBtnHtml = `
+                        <button class="bg-gray-100 text-gray-400 px-3 py-2 rounded-lg text-[10px] font-black border border-gray-200 cursor-not-allowed shadow-sm flex items-center justify-center gap-1 w-full" disabled>
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            送信済
+                        </button>
+                    `;
+                } else {
+                    reviewBtnHtml = `
+                        <button id="review-btn-${b.id}" class="bg-purple-50 text-purple-600 px-3 py-2 rounded-lg text-[10px] font-black border border-purple-100 hover:bg-purple-100 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-1 w-full" onclick="window.sendReviewEmail('${b.id}', '${b.customerEmail || ''}', '${b.customerName}')">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z"></path></svg>
+                            サンキュー送信
+                        </button>
+                    `;
+                }
+                
+                tr.innerHTML = `
+                    <td class="p-4 align-top">
+                        <div class="font-black text-gray-800 text-[11px] mb-1">${b.dateTime}</div>
+                        <div class="text-[10px] text-gray-400 font-bold">${b.menu}</div>
+                    </td>
+                    <td class="p-4">
+                        <div class="font-black text-gray-800">${b.customerName} 様</div>
+                        <div class="text-blue-500 font-mono text-[10px] mt-1">${b.customerTel}</div>
+                        ${emailText}
+                        
+                        <!-- ★ 顧客カルテエリア（黄色いノートデザイン） ★ -->
+                        <div class="relative mt-2">
+                            <div class="absolute -top-2 left-2 bg-yellow-400 text-yellow-900 text-[10px] font-bold px-2 py-0.5 rounded shadow-sm z-10">顧客カルテ (自動保存)</div>
+                            <textarea id="memo-${b.id}" oninput="window.markMemoUnsaved('${b.id}')" class="karte-memo w-full rounded-lg p-3 pt-4 text-[10px] text-gray-700 shadow-inner focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-y" rows="3" placeholder="カラーの配合や、接客時の要望などを記録します...">${customerMemo}</textarea>
+                            <div class="text-right mt-1">
+                                <button id="memo-btn-${b.id}" class="text-[9px] bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 px-3 py-1.5 rounded shadow-sm transition" onclick="window.saveCustomerMemo('${b.id}', '${b.customerTel}')">
+                                    保存する
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="p-4 text-center align-middle">
+                        <div class="flex flex-col gap-2">
+                            ${reviewBtnHtml}
+                            <button class="bg-white text-red-400 px-3 py-2 rounded-lg text-[10px] font-black border border-red-100 hover:bg-red-50 active:scale-95 transition-all shadow-sm w-full" onclick="window.deleteBooking('${b.id}')">削除</button>
+                        </div>
+                    </td>
+                `;
+                body.appendChild(tr);
+            });
+        };
+
         const startSync = () => {
+            // スロット監視
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'slots'), (snap) => {
                 reservationData = {}; snap.forEach(d => reservationData[d.id] = d.data().status);
                 renderCalendar();
                 if(isAdmin) updateTetrisMatching(); 
             }, (err) => console.warn("Sync error (slots):", err));
 
+            // ★ 新設：顧客カルテ（永久保存メモ）の監視 ★
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'customers'), (snap) => {
+                customersData = {};
+                snap.forEach(doc => {
+                    customersData[doc.id] = doc.data().memo || "";
+                });
+                if(isAdmin) renderAdminBookings();
+            }, (err) => console.warn("Sync error (customers):", err));
+
+            // 予約データ監視
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), (snap) => {
                 bookingsList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 bookedSlots.clear(); 
@@ -813,57 +889,8 @@
                     }
                 });
                 
-                const body = document.getElementById('adminBookingBody');
-                if(!body) return; body.innerHTML = '';
-                [...bookingsList].sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0)).forEach(b => {
-                    const tr = document.createElement('tr'); 
-                    tr.className = "border-b border-gray-50 hover:bg-blue-50/30 transition-colors text-left";
-                    
-                    const memoText = b.memo || ''; 
-                    const emailText = b.customerEmail 
-                        ? `<div class="text-gray-500 text-[10px] mb-2 break-all font-mono">✉️ ${b.customerEmail}</div>` 
-                        : `<div class="text-gray-300 text-[10px] mb-2">✉️ メール未登録</div>`;
-                    
-                    let reviewBtnHtml = '';
-                    if (b.reviewEmailSent) {
-                        reviewBtnHtml = `
-                            <button class="bg-gray-100 text-gray-400 px-3 py-2 rounded-lg text-[10px] font-black border border-gray-200 cursor-not-allowed shadow-sm flex items-center justify-center gap-1 w-full" disabled>
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                送信済
-                            </button>
-                        `;
-                    } else {
-                        reviewBtnHtml = `
-                            <button id="review-btn-${b.id}" class="bg-purple-50 text-purple-600 px-3 py-2 rounded-lg text-[10px] font-black border border-purple-100 hover:bg-purple-100 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-1 w-full" onclick="window.sendReviewEmail('${b.id}', '${b.customerEmail || ''}', '${b.customerName}')">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z"></path></svg>
-                                サンキュー送信
-                            </button>
-                        `;
-                    }
-                    
-                    tr.innerHTML = `
-                        <td class="p-4 align-top">
-                            <div class="font-black text-gray-800 text-[11px] mb-1">${b.dateTime}</div>
-                            <div class="text-[10px] text-gray-400 font-bold">${b.menu}</div>
-                        </td>
-                        <td class="p-4">
-                            <div class="font-black text-gray-800">${b.customerName} 様</div>
-                            <div class="text-blue-500 font-mono text-[10px] mt-1">${b.customerTel}</div>
-                            ${emailText}
-                            <div class="flex flex-col gap-1 mt-1">
-                                <textarea id="memo-${b.id}" oninput="window.markMemoUnsaved('${b.id}')" class="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-[10px] outline-none focus:ring-1 focus:ring-blue-400 transition-shadow" rows="2" placeholder="お客様メモ（カラーの配合や要望など）">${memoText}</textarea>
-                                <button id="memo-btn-${b.id}" class="self-end ${memoText ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'} px-3 py-1 rounded text-[9px] font-bold transition-colors" onclick="window.saveMemo('${b.id}')">${memoText ? '✓ 保存済' : '保存する'}</button>
-                            </div>
-                        </td>
-                        <td class="p-4 text-center align-middle">
-                            <div class="flex flex-col gap-2">
-                                ${reviewBtnHtml}
-                                <button class="bg-white text-red-400 px-3 py-2 rounded-lg text-[10px] font-black border border-red-100 hover:bg-red-50 active:scale-95 transition-all shadow-sm w-full" onclick="window.deleteBooking('${b.id}')">削除</button>
-                            </div>
-                        </td>
-                    `;
-                    body.appendChild(tr);
-                });
+                // 分離した描画関数を呼び出す
+                renderAdminBookings();
 
                 if (document.getElementById('step2').classList.contains('active') === false) {
                    renderCalendar();
@@ -1107,33 +1134,39 @@
             modal.style.display = 'flex';
         };
 
+        // ★ カルテの保存状態の切り替え ★
         window.markMemoUnsaved = (id) => {
             const btn = document.getElementById(`memo-btn-${id}`);
             if(btn && btn.innerText !== "保存する") {
                 btn.innerText = "保存する";
-                btn.classList.remove('text-green-600', 'bg-green-50');
-                btn.classList.add('text-blue-600', 'bg-blue-50', 'hover:bg-blue-100');
+                btn.classList.remove('bg-green-50', 'text-green-600', 'border-green-200');
+                btn.classList.add('bg-white', 'text-gray-600', 'border-gray-200', 'hover:bg-gray-50');
             }
         };
 
-        window.saveMemo = async (id) => {
-            const memoText = document.getElementById(`memo-${id}`).value;
-            const btn = document.getElementById(`memo-btn-${id}`);
+        // ★ 顧客カルテの保存機能（電話番号をキーにする） ★
+        window.saveCustomerMemo = async (bookingId, tel) => {
+            if(!tel) return window.showAlert("電話番号が登録されていないため、カルテを保存できません。");
+            const memoText = document.getElementById(`memo-${bookingId}`).value;
+            const btn = document.getElementById(`memo-btn-${bookingId}`);
             btn.disabled = true; btn.innerText = "保存中...";
             try {
-                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { memo: memoText });
+                const customerRef = doc(db, 'artifacts', appId, 'public', 'data', 'customers', tel);
+                await setDoc(customerRef, { memo: memoText }, { merge: true });
+                
                 btn.innerText = "✓ 保存完了";
-                btn.classList.remove('text-blue-600', 'bg-blue-50', 'hover:bg-blue-100');
-                btn.classList.add('text-green-600', 'bg-green-50');
+                btn.classList.remove('bg-white', 'text-gray-600', 'border-gray-200', 'hover:bg-gray-50');
+                btn.classList.add('bg-green-50', 'text-green-600', 'border-green-200');
                 setTimeout(() => {
                     btn.innerText = "保存する";
-                    btn.classList.remove('text-green-600', 'bg-green-50');
-                    btn.classList.add('text-blue-600', 'bg-blue-50', 'hover:bg-blue-100');
+                    btn.classList.remove('bg-green-50', 'text-green-600', 'border-green-200');
+                    btn.classList.add('bg-white', 'text-gray-600', 'border-gray-200', 'hover:bg-gray-50');
                     btn.disabled = false;
                 }, 2000);
             } catch(e) { window.showAlert("メモの保存に失敗しました"); btn.disabled = false; btn.innerText = "保存する"; }
         };
 
+        // ★ サンキューメール送信処理（送信履歴をカルテに自動記録） ★
         window.sendReviewEmail = async (id, email, name) => {
             if(!email || email === 'undefined') { return window.showAlert("お客様のメールアドレスが登録されていないため、送信できません。"); }
             window.showConfirmAction(`${name} 様へサンキューメール（口コミ案内）を送信しますか？`, async () => {
@@ -1144,13 +1177,20 @@
                 try {
                     const googleReviewLink = "https://g.page/r/CRSIVTj6bfhuEAE/review"; 
                     await emailjs.send(NOTIFICATION_CONFIG.emailjs_service_id, NOTIFICATION_CONFIG.emailjs_review_template_id, { to_email: email, to_name: name, review_link: googleReviewLink });
+                    
+                    // 予約データのフラグを更新
                     await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { reviewEmailSent: true });
-                    const memoBox = document.getElementById(`memo-${id}`);
-                    const today = new Date();
-                    const dateStr = `${today.getMonth()+1}/${today.getDate()}`;
-                    const log = `[${dateStr} サンキューメール送信済]`;
-                    memoBox.value = memoBox.value ? memoBox.value + `\n${log}` : log;
-                    window.saveMemo(id); 
+                    
+                    // 顧客カルテに「送信履歴」を自動追記して保存
+                    const booking = bookingsList.find(b => b.id === id);
+                    if (booking && booking.customerTel) {
+                        const memoBox = document.getElementById(`memo-${id}`);
+                        const today = new Date();
+                        const dateStr = `${today.getMonth()+1}/${today.getDate()}`;
+                        const log = `[${dateStr} サンキューメール送信済]`;
+                        memoBox.value = memoBox.value ? memoBox.value + `\n${log}` : log;
+                        window.saveCustomerMemo(id, booking.customerTel); 
+                    }
                 } catch(e) { console.error(e); window.showAlert("送信に失敗しました。\n※プレビュー環境の場合は制限がかかっている可能性があります。公開したURLでお試しください。"); btn.disabled = false; btn.innerHTML = originalContent; }
             });
         };
@@ -1178,10 +1218,23 @@
             try {
                 const now = new Date();
                 const visitDateTime = `${selectedSlot.dateLabel} ${selectedSlot.time}`;
+                
+                // 予約データの保存
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), { 
                     customerName: name, customerTel: tel, customerEmail: email, menu: selectedMenu.name, 
                     dateTime: visitDateTime, dateId: selectedSlot.dateId, timeNeeded: selectedMenu.time, timestamp: serverTimestamp() 
                 });
+
+                // ★ 初回ご来店の場合、カルテの枠を自動作成する処理
+                try {
+                    const customerRef = doc(db, 'artifacts', appId, 'public', 'data', 'customers', tel);
+                    getDoc(customerRef).then(docSnap => {
+                        if(!docSnap.exists() || !docSnap.data().memo) {
+                            const initDate = selectedSlot.dateLabel.replace('/', '月') + '日';
+                            setDoc(customerRef, { memo: `[${initDate}] 初回ご予約` }, { merge: true });
+                        }
+                    });
+                } catch(err) { console.warn("Customer init error:", err); }
                 
                 const notificationData = { staff_name: name, visit_date: visitDateTime, menu_name: selectedMenu.name, total_price: selectedMenu.priceStr, booking_date: now.toLocaleString('ja-JP'), customer_tel: tel };
 
@@ -1189,7 +1242,6 @@
                     try { await emailjs.send(NOTIFICATION_CONFIG.emailjs_service_id, NOTIFICATION_CONFIG.emailjs_template_id, notificationData); } catch(emailError) { console.warn("EmailJS Error"); }
                 }
 
-                // ★ ここでGAS経由のLINE通知を実行しています
                 if(NOTIFICATION_CONFIG.gas_webapp_url && NOTIFICATION_CONFIG.gas_webapp_url.startsWith("https://script.google.com/")) {
                     try {
                         await fetch(NOTIFICATION_CONFIG.gas_webapp_url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(notificationData) });
@@ -1199,7 +1251,7 @@
             } catch(e) { window.showAlert(`エラーが発生しました。\n${e.message}`); btn.disabled = false; btnText.innerText = "この内容で予約を確定する"; }
         };
 
-        window.deleteBooking = (id) => window.showConfirmAction("予約を削除しますか？\n(カレンダーのブロックも解除されます)", async () => { try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id)); } catch(e) { window.showAlert("削除失敗"); } });
+        window.deleteBooking = (id) => window.showConfirmAction("予約を削除しますか？\n(カレンダーのブロックも解除されます)\n※顧客カルテのメモは残ります", async () => { try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id)); } catch(e) { window.showAlert("削除失敗"); } });
         window.closeModal = () => document.getElementById('confirmModal').style.display = 'none';
         window.changeStep = (s) => { 
             document.querySelectorAll('.step-content').forEach(c=>c.classList.remove('active'));
