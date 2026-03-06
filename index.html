@@ -242,7 +242,6 @@
                     <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">Phone Number</label>
                     <input type="tel" id="custTel" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="090-0000-0000">
                 </div>
-                <!-- ★ Email入力欄を追加 -->
                 <div class="text-left">
                     <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">Email <span class="text-[9px] font-normal text-gray-400">※ご案内用（任意）</span></label>
                     <input type="email" id="custEmail" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="hello@example.com">
@@ -450,8 +449,8 @@
             emailjs_template_id: "template_ih81vlp", // オーナー通知用
             emailjs_review_template_id: "template_bx1t8sa", // 口コミ依頼用
             
-            // ★ 教えていただいた最新のLINE通知用GASウェブアプリURLを組み込みました
-            gas_webapp_url: "https://script.google.com/macros/s/AKfycbwZDuinYajoAkMkomQxEVZevxWLnr7gAnMc8c6PK5K_FNBr_9xgglQeXL2iFFt97PR9gA/exec"
+            // ★ 今回教えていただいた最新のGASのURLをセットしました！
+            gas_webapp_url: "https://script.google.com/macros/s/AKfycbysZoUs3vCr7N9k4gdylHLndbwMVzZ6qzGP3H4rrNfBI2cvOWxP60CXEhMF-VdDZasj8g/exec"
         };
 
         const firebaseConfig = {
@@ -642,7 +641,6 @@
             const totalPrice = selectedMenus.reduce((sum, m) => sum + Number(m.price), 0);
             const totalPriceStr = hasStartingPrice ? `¥${totalPrice.toLocaleString()}〜` : `¥${totalPrice.toLocaleString()}`;
 
-            // ★ 通知用に priceStr を設定
             selectedMenu = { name: menuNames, time: totalTime, price: totalPrice, priceStr: totalPriceStr };
             
             document.getElementById('selectedMenuDisplay').innerHTML = `<span>${menuNames}</span> <span class="ml-2 text-pink-300 font-normal">所要目安: ${formatTime(totalTime)} / 合計: ${totalPriceStr}</span>`;
@@ -674,9 +672,6 @@
             }
         };
 
-        // ----------------------------------------------------
-        // ★ テトリスマッチング機能
-        // ----------------------------------------------------
         const updateTetrisMatching = () => {
             if (!isAdmin) return;
             
