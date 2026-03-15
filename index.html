@@ -262,6 +262,7 @@
                         <span class="text-sm font-bold text-gray-700 leading-tight">ご来店に際しての<br class="hidden md:block">注意事項</span>
                     </div>
                     <div class="md:w-2/3 text-[11px] text-gray-600 space-y-3">
+                        <p class="leading-relaxed text-red-600 font-bold border-b border-gray-100 pb-3">■ 本ご予約は「仮予約（リクエスト）」です。<br>他サイトとの重複を防ぐため、オーナーが空き状況を確認した後に【確定】となります。確定・あるいはお時間変更のお願いにつきましては、サロンよりご連絡いたします。</p>
                         <p class="leading-relaxed">一人営業の為、ご予約のキャンセルや日時変更につきましては、なるべくお早めに<strong>当店の公式LINE（メッセージ）</strong>にてご連絡をお願いいたします。</p>
                         <p class="leading-relaxed text-gray-500">※現在コロナウイルス対策として、懸念がある方はご連絡・変更は承っております。</p>
                         <label class="flex items-center gap-2 mt-4 cursor-pointer p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors w-fit">
@@ -303,7 +304,7 @@
             </div>
 
             <button id="finalSubmitBtn" disabled onclick="window.submitBooking()" class="w-full py-5 bg-gray-400 text-white font-bold rounded-xl shadow-lg transition-all flex justify-center items-center cursor-not-allowed">
-                <span id="btnText">この内容で予約を確定する</span>
+                <span id="btnText">仮予約（リクエスト）を送信する</span>
             </button>
             <p class="text-[10px] text-gray-400 text-center mt-3">※上の「確認しました」にチェックを入れるとボタンが押せます</p>
             <button onclick="window.changeStep(2)" class="mt-6 w-full py-3 border border-gray-300 text-gray-600 font-bold rounded-xl hover:bg-gray-50 text-sm">日時選択へ戻る</button>
@@ -311,13 +312,15 @@
 
         <!-- STEP4: 完了 -->
         <div id="step4" class="step-content text-center py-16 bg-white rounded-3xl border border-gray-50 shadow-inner">
-            <div class="text-7xl mb-6">🎉</div>
-            <h2 class="text-2xl font-black text-gray-800">ご予約ありがとうございます！</h2>
-            <p class="text-sm text-gray-400 mt-3 px-10 leading-relaxed text-center">
-                お店側で予約内容を確認いたしました。<br>
-                当日のお越しを心よりお待ちしております。<br>
-                <span class="text-xs text-[#ff7283] font-bold mt-3 block">※キャンセルや変更は、公式LINEのメッセージからいつでもお気軽にご連絡ください。</span>
-            </p>
+            <div class="text-7xl mb-6">🔔</div>
+            <h2 class="text-2xl font-black text-gray-800">仮予約を受け付けました</h2>
+            <div class="text-sm text-gray-500 mt-5 px-6 md:px-10 leading-relaxed text-center space-y-3">
+                <p>現在は<strong class="text-[#ff7283]">「仮予約（リクエスト）」</strong>の状態です。</p>
+                <p>お店側でスケジュールの空き状況を確認後、確定のご連絡をいたします。今しばらくお待ちくださいませ。</p>
+                <div class="bg-gray-50 p-4 rounded-xl mt-6 border border-gray-200">
+                    <span class="text-xs text-[#ff7283] font-bold block">※他サイトとの重複により、やむを得ずお時間変更をお願いする場合がございます。あらかじめご了承ください。</span>
+                </div>
+            </div>
             <button onclick="location.reload()" class="mt-12 hpb-pink-btn px-10 py-4 font-bold">予約トップへ戻る</button>
         </div>
 
@@ -342,7 +345,7 @@
                             <tr>
                                 <th class="p-4 whitespace-nowrap">日時 / Menu</th>
                                 <th class="p-4 whitespace-nowrap min-w-[250px]">お客様情報 / 顧客カルテ（永久保存）</th>
-                                <th class="p-4 text-center whitespace-nowrap">操作</th>
+                                <th class="p-4 text-center whitespace-nowrap min-w-[120px]">ステータス操作</th>
                             </tr>
                         </thead>
                         <tbody id="adminBookingBody"></tbody>
@@ -783,35 +786,75 @@
         const renderAdminBookings = () => {
             const body = document.getElementById('adminBookingBody');
             if(!body) return; body.innerHTML = '';
+            
             [...bookingsList].sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0)).forEach(b => {
                 const tr = document.createElement('tr'); 
-                tr.className = "border-b border-gray-50 hover:bg-blue-50/30 transition-colors text-left";
+                
+                const isPending = b.status === 'pending';
+                const isRejected = b.status === 'rejected';
+
+                // 背景色の出し分け
+                if (isRejected) {
+                    tr.className = "border-b border-gray-50 bg-gray-50 opacity-60 transition-colors text-left";
+                } else if (isPending) {
+                    tr.className = "border-b border-yellow-100 bg-yellow-50 hover:bg-yellow-100/50 transition-colors text-left";
+                } else {
+                    tr.className = "border-b border-gray-50 hover:bg-blue-50/30 transition-colors text-left";
+                }
                 
                 const customerMemo = customersData[b.customerTel] || ''; 
                 const emailText = b.customerEmail 
                     ? `<div class="text-gray-500 text-[10px] mb-2 break-all font-mono">✉️ ${b.customerEmail}</div>` 
                     : `<div class="text-gray-300 text-[10px] mb-2">✉️ メール未登録</div>`;
                 
-                let reviewBtnHtml = '';
-                if (b.reviewEmailSent) {
-                    reviewBtnHtml = `
-                        <button class="bg-gray-100 text-gray-400 px-3 py-2 rounded-lg text-[10px] font-black border border-gray-200 cursor-not-allowed shadow-sm flex items-center justify-center gap-1 w-full" disabled>
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            送信済
-                        </button>
+                // バッジの出し分け
+                let statusBadge = '';
+                if (isPending) {
+                    statusBadge = `<span class="bg-yellow-500 text-white text-[9px] px-2 py-0.5 rounded shadow-sm font-bold animate-pulse inline-block mb-1">未承認（要確認）</span>`;
+                } else if (isRejected) {
+                    statusBadge = `<span class="bg-gray-400 text-white text-[9px] px-2 py-0.5 rounded shadow-sm font-bold inline-block mb-1">お断り済</span>`;
+                } else {
+                    statusBadge = `<span class="bg-green-500 text-white text-[9px] px-2 py-0.5 rounded shadow-sm font-bold inline-block mb-1">予約確定</span>`;
+                }
+
+                // 右端アクションボタンの出し分け
+                let actionHtml = '';
+                if (isPending) {
+                    actionHtml = `
+                        <button class="bg-green-500 text-white px-3 py-2 rounded-lg text-[10px] font-black border border-green-600 hover:bg-green-600 active:scale-95 transition-all shadow-sm w-full mb-2" onclick="window.approveBooking('${b.id}', '${b.customerName}')">承認 (確定)</button>
+                        <button class="bg-white text-gray-500 px-3 py-2 rounded-lg text-[10px] font-black border border-gray-300 hover:bg-gray-50 active:scale-95 transition-all shadow-sm w-full" onclick="window.rejectBooking('${b.id}', '${b.customerName}')">否認 (お断り)</button>
+                    `;
+                } else if (isRejected) {
+                    actionHtml = `
+                        <button class="bg-white text-red-400 px-3 py-2 rounded-lg text-[10px] font-black border border-red-100 hover:bg-red-50 active:scale-95 transition-all shadow-sm w-full" onclick="window.deleteBooking('${b.id}')">履歴から削除</button>
                     `;
                 } else {
-                    reviewBtnHtml = `
-                        <button id="review-btn-${b.id}" class="bg-purple-50 text-purple-600 px-3 py-2 rounded-lg text-[10px] font-black border border-purple-100 hover:bg-purple-100 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-1 w-full" onclick="window.sendReviewEmail('${b.id}', '${b.customerEmail || ''}', '${b.customerName}')">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z"></path></svg>
-                            サンキュー送信
-                        </button>
+                    let reviewBtnHtml = '';
+                    if (b.reviewEmailSent) {
+                        reviewBtnHtml = `
+                            <button class="bg-gray-100 text-gray-400 px-3 py-2 rounded-lg text-[10px] font-black border border-gray-200 cursor-not-allowed shadow-sm flex items-center justify-center gap-1 w-full" disabled>
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                送信済
+                            </button>
+                        `;
+                    } else {
+                        reviewBtnHtml = `
+                            <button id="review-btn-${b.id}" class="bg-purple-50 text-purple-600 px-3 py-2 rounded-lg text-[10px] font-black border border-purple-100 hover:bg-purple-100 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-1 w-full" onclick="window.sendReviewEmail('${b.id}', '${b.customerEmail || ''}', '${b.customerName}')">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z"></path></svg>
+                                サンキュー送信
+                            </button>
+                        `;
+                    }
+                    actionHtml = `
+                        ${reviewBtnHtml}
+                        <button class="bg-white text-red-400 px-3 py-2 rounded-lg text-[10px] font-black border border-red-100 hover:bg-red-50 active:scale-95 transition-all shadow-sm w-full mt-2" onclick="window.deleteBooking('${b.id}')">削除</button>
                     `;
                 }
                 
                 tr.innerHTML = `
                     <td class="p-4 align-top">
-                        <div class="font-black text-gray-800 text-[11px] mb-1">${b.dateTime}</div>
+                        ${statusBadge}
+                        <div class="font-black text-gray-800 text-[11px] mb-1 mt-1">${b.dateTime}</div>
                         <div class="text-[10px] text-gray-400 font-bold">${b.menu}</div>
                     </td>
                     <td class="p-4">
@@ -829,9 +872,8 @@
                         </div>
                     </td>
                     <td class="p-4 text-center align-middle">
-                        <div class="flex flex-col gap-2">
-                            ${reviewBtnHtml}
-                            <button class="bg-white text-red-400 px-3 py-2 rounded-lg text-[10px] font-black border border-red-100 hover:bg-red-50 active:scale-95 transition-all shadow-sm w-full" onclick="window.deleteBooking('${b.id}')">削除</button>
+                        <div class="flex flex-col gap-1">
+                            ${actionHtml}
                         </div>
                     </td>
                 `;
@@ -856,6 +898,9 @@
                 bookingsList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 bookedSlots.clear(); 
                 bookingsList.forEach(b => {
+                    // ★ 否認された予約はカレンダーの枠を埋めない
+                    if (b.status === 'rejected') return;
+
                     let time = b.timeNeeded; 
                     if (!time) {
                         let calcTime = 0;
@@ -908,6 +953,9 @@
 
             const menuCounts = {};
             bookingsList.forEach(b => {
+                // 否認された予約はグラフに含めない
+                if (b.status === 'rejected') return;
+
                 if (b.menu) {
                     const menus = b.menu.split(' ＋ ');
                     menus.forEach(m => {
@@ -1094,7 +1142,7 @@
                 const isBooked = bookedSlots.has(`${d.id}_${time}`); 
                 if (isBooked) {
                     document.getElementById('modalTitle').innerText = 'ADMIN INFO';
-                    document.getElementById('modalDescription').innerText = "お客様の予約が入っている枠です。\n削除や変更は下の「管理台帳」リストから行ってください。";
+                    document.getElementById('modalDescription').innerText = "お客様の予約（または仮予約）が入っている枠です。\n承認や削除は下の「管理台帳」リストから行ってください。";
                     document.getElementById('modalConfirmBtn').innerText = "閉じる";
                     document.getElementById('modalConfirmBtn').onclick = () => window.closeModal();
                 } else {
@@ -1187,6 +1235,26 @@
             });
         };
 
+        // ★承認処理
+        window.approveBooking = (id, name) => {
+            window.showConfirmAction(`${name} 様の予約を【承認（確定）】しますか？\n\n※承認後、お客様へLINE等で「確定しました」とご連絡してあげてください。`, async () => {
+                try {
+                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { status: 'approved' });
+                    window.showAlert("予約を確定しました！");
+                } catch(e) { window.showAlert("承認に失敗しました"); }
+            });
+        };
+
+        // ★否認処理
+        window.rejectBooking = (id, name) => {
+            window.showConfirmAction(`${name} 様の予約を【否認（お断り）】しますか？\n\n※カレンダーの枠が再び解放されます。\n※お客様へLINE等でお断りと別日程案内のご連絡をしてあげてください。`, async () => {
+                try {
+                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { status: 'rejected' });
+                    window.showAlert("予約をお断りし、カレンダー枠を解放しました。");
+                } catch(e) { window.showAlert("処理に失敗しました"); }
+            });
+        };
+
         window.submitBooking = async () => {
             const name = document.getElementById('custName').value.trim();
             const tel = document.getElementById('custTel').value.trim();
@@ -1213,7 +1281,9 @@
                 
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), { 
                     customerName: name, customerTel: tel, customerEmail: email, menu: selectedMenu.name, 
-                    dateTime: visitDateTime, dateId: selectedSlot.dateId, timeNeeded: selectedMenu.time, timestamp: serverTimestamp() 
+                    dateTime: visitDateTime, dateId: selectedSlot.dateId, timeNeeded: selectedMenu.time, 
+                    status: "pending", // ★ここを pending にすることで仮予約となる
+                    timestamp: serverTimestamp() 
                 });
 
                 try {
@@ -1238,7 +1308,7 @@
                     } catch(gasError) { console.warn("GAS Error", gasError); }
                 }
                 window.changeStep(4);
-            } catch(e) { window.showAlert(`エラーが発生しました。\n${e.message}`); btn.disabled = false; btnText.innerText = "この内容で予約を確定する"; }
+            } catch(e) { window.showAlert(`エラーが発生しました。\n${e.message}`); btn.disabled = false; btnText.innerText = "仮予約（リクエスト）を送信する"; }
         };
 
         window.deleteBooking = (id) => window.showConfirmAction("予約を削除しますか？\n(カレンダーのブロックも解除されます)\n※顧客カルテのメモは残ります", async () => { try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id)); } catch(e) { window.showAlert("削除失敗"); } });
