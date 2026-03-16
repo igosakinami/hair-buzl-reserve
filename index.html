@@ -82,7 +82,7 @@
         .admin-active { background-color: #fffde7 !important; outline: 1px dashed #ffd600; z-index: 10; }
         .admin-panel { background: #1a1a1a; color: white; position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--admin-blue); }
 
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 1000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
         .step-content { display: none; }
         .step-content.active { display: block; animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -190,7 +190,7 @@
                 <div class="flex justify-between items-end">
                     <div class="text-left">
                         <p class="text-[10px] text-gray-500 font-bold mb-1">選択中のメニュー（目安: <span id="totalTimeDisplay">0分</span>）</p>
-                        <p class="text-xl font-black text-[#ff7283]">合計 ¥<span id="totalPriceDisplay">0</span></p>
+                        <p class="text-xl font-black text-[#ff7283]">合計 <span id="totalPriceDisplay">0</span></p>
                     </div>
                     <button onclick="window.goToStep2()" class="hpb-pink-btn px-6 py-3 text-sm font-bold shadow-md active:scale-95">日時を選択する</button>
                 </div>
@@ -635,7 +635,11 @@
                 // 公開中 または 裏口アクセス中：システムを見せる
                 if(mainContent) mainContent.classList.remove('hidden');
                 if(progressBarContainer) progressBarContainer.classList.remove('hidden');
-                if(adminPanel) adminPanel.classList.remove('hidden');
+                if(isAdmin) {
+                    if(adminPanel) adminPanel.classList.remove('hidden');
+                } else {
+                    if(adminPanel) adminPanel.classList.add('hidden');
+                }
                 if(maintenanceScreen) maintenanceScreen.classList.add('hidden');
             }
         }
@@ -1300,8 +1304,15 @@
                     if(availabilityData.status === "closed") { td.className = 'status-closed'; td.innerText = '定休'; } 
                     else if(availabilityData.status === "out") { td.className = 'text-gray-200 text-[18px]'; td.innerText = '－'; } 
                     else {
-                        td.innerHTML = `<div class="status-mark ${availabilityData.class}">${availabilityData.symbol}</div>`;
-                        td.onclick = function() { window.handleSlotClick(d, t, tIdx, availabilityData.status, availabilityData.canBook, this); };
+                        const div = document.createElement('div');
+                        div.className = `status-mark ${availabilityData.class}`;
+                        div.innerText = availabilityData.symbol;
+                        div.style.cursor = 'pointer';
+                        div.onclick = function(e) {
+                            e.stopPropagation();
+                            window.handleSlotClick(d, t, tIdx, availabilityData.status, availabilityData.canBook, td);
+                        };
+                        td.appendChild(div);
                         if(isAdmin) td.classList.add('admin-active');
                     }
                     tr.appendChild(td);
