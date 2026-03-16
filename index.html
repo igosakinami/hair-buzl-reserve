@@ -479,6 +479,7 @@
         const appId = "hair-buzl-reserve";
 
         let fbUser = null, reservationData = {}, bookingsList = [], bookedSlots = new Set(), customersData = {};
+        let hpbBlockedSlots = new Set(); // ★ これを追加！（HPBの予約を記憶する箱）
         let isAdmin = false, selectedMenu = null, selectedSlot = null, selectedMenus = [];
         let menuChartInstance = null; 
         
@@ -882,6 +883,22 @@
         };
 
         const startSync = () => {
+            // ★ 追加！ HPB・Googleカレンダーからの予約データ（GASが書き込んだreservations）を監視する魔法
+            onSnapshot(collection(db, 'reservations'), (snap) => {
+                hpbBlockedSlots.clear();
+                snap.forEach(doc => {
+                    const dateId = doc.id; // 例: "2026-03-11"
+                    const times = doc.data();
+                    for (const [timeStr, status] of Object.entries(times)) {
+                        if (status === '×' || status === 'x') {
+                            hpbBlockedSlots.add(`${dateId}_${timeStr}`); // "2026-03-11_19:00" として記憶
+                        }
+                    }
+                });
+                if (document.getElementById('step2').classList.contains('active')) renderCalendar();
+                if (isAdmin) updateTetrisMatching();
+            }, (err) => console.warn("Sync error (hpb reservations):", err));
+
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'slots'), (snap) => {
                 reservationData = {}; snap.forEach(d => reservationData[d.id] = d.data().status);
                 renderCalendar();
@@ -1020,8 +1037,11 @@
                 if (dayOfWeek === 1) break; 
                 
                 const slotKey = `${dateId}_${checkTimeStr.replace(':','')}`;
+                
                 if (reservationData[slotKey] === 'ng') break;
                 if (bookedSlots.has(`${dateId}_${checkTimeStr}`)) break;
+                // ★ 追加！ HPB・Googleカレンダーの予約がある場合もブロック！
+                if (hpbBlockedSlots.has(`${dateId}_${checkTimeStr}`)) break;
                 
                 freeCount++;
             }
@@ -1037,8 +1057,9 @@
                 const slotKey = `${dateId}_${timeStr.replace(':','')}`;
                 const isManuallyBlocked = reservationData[slotKey] === 'ng';
                 const isBooked = bookedSlots.has(`${dateId}_${timeStr}`);
+                const isHpbBooked = hpbBlockedSlots.has(`${dateId}_${timeStr}`); // ★ 追加！
 
-                if (isBooked) { return { status: "ng", symbol: "×", class: "text-blue-500 font-black bg-blue-50 text-[20px]", canBook: true }; }
+                if (isBooked || isHpbBooked) { return { status: "ng", symbol: "×", class: "text-blue-500 font-black bg-blue-50 text-[20px]", canBook: true }; }
                 if (isManuallyBlocked) { return { status: "ng", symbol: "×", class: "status-ng", canBook: true }; }
                 return { status: "ok", symbol: "◎", class: "status-ok text-[#e11d48]", canBook: true };
             }
@@ -1140,9 +1161,18 @@
                 document.getElementById('modalEndTimeDisplay').style.display = 'none';
 
                 const isBooked = bookedSlots.has(`${d.id}_${time}`); 
-                if (isBooked) {
+                const isHpbBooked = hpbBlockedSlots.has(`${d.id}_${time}`); // ★ 追加
+                
+                // ★ 変更：HPBからの予約が入っている場合もブロックを解除できないようにする
+                if (isBooked || isHpbBooked) {
                     document.getElementById('modalTitle').innerText = 'ADMIN INFO';
-                    document.getElementById('modalDescription').innerText = "お客様の予約（または仮予約）が入っている枠です。\n承認や削除は下の「管理台帳」リストから行ってください。";
+                    
+                    let msg = "お客様の予約（または仮予約）が入っている枠です。\n承認や削除は下の「管理台帳」リストから行ってください。";
+                    if (isHpbBooked && !isBooked) {
+                        msg = "【HPB または 外部カレンダー】から予約が入っている枠です。\n自動でブロックされています。";
+                    }
+                    
+                    document.getElementById('modalDescription').innerText = msg;
                     document.getElementById('modalConfirmBtn').innerText = "閉じる";
                     document.getElementById('modalConfirmBtn').onclick = () => window.closeModal();
                 } else {
