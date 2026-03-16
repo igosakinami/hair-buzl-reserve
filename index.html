@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <!-- スマホでのピンチズームや意図しない拡大を防ぐ設定 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>hair Buzl 【ヘアーバズール】 | 旭川 東光の美容室</title>
     
@@ -12,12 +13,25 @@
 
     <style>
         :root { --hpb-pink: #ff7283; --hpb-border: #eee; --admin-blue: #3b82f6; --brand-color: #8a7a6b; }
+        
+        /* -webkit-tap-highlight-colorでスマホ特有のグレーのタップ枠を消し、自然な反応にする */
         body { font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; background-color: #fcfcfc; color: #333; -webkit-tap-highlight-color: transparent; scroll-behavior: smooth;}
+        * { -webkit-tap-highlight-color: transparent; }
+        
+        /* ★Android対策1: タップの300ms（0.3秒）待機遅延を強制排除 */
+        button, a, .menu-card, .status-ok, label, input, select {
+            touch-action: manipulation;
+        }
+
+        /* ★Android対策2: 押した瞬間のアニメーション（へこみ）を強制的に爆速（0.05秒）にする */
+        *:active {
+            transition-duration: 0.05s !important;
+        }
         
         .hpb-pink-btn { background: linear-gradient(to bottom, #ff8c99, #ff7283); color: white !important; border-radius: 6px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(255, 114, 131, 0.3); }
-        .hpb-pink-btn:active { transform: translateY(1px); box-shadow: none; filter: brightness(0.95); }
+        .hpb-pink-btn:active { transform: translateY(2px) scale(0.98); box-shadow: none; filter: brightness(0.95); } 
         
-        /* ★ HP用：ヒーローエリア（トップ画像）のスタイル */
+        /* HP用：ヒーローエリア（トップ画像）のスタイル */
         .hero-section {
             background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.95)), url('https://images.unsplash.com/photo-1521590832167-7bfc1748b565?auto=format&fit=crop&q=80&w=1600');
             background-size: cover;
@@ -38,7 +52,8 @@
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
         /* Calendar Table Enhancements */
-        .calendar-outer-wrapper { overflow-x: auto; background: white; border: 1px solid #ddd; border-radius: 12px; position: relative; -webkit-overflow-scrolling: touch; }
+        /* overscroll-behavior-xを追加し、横スワイプ時のブラウザバック誤爆を防止 */
+        .calendar-outer-wrapper { overflow-x: auto; background: white; border: 1px solid #ddd; border-radius: 12px; position: relative; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
         .hpb-table { width: max-content; min-width: 100%; border-collapse: separate; border-spacing: 0; }
         .hpb-table th, .hpb-table td { border: 0.5px solid #f0f0f0; text-align: center; height: 60px; padding: 0; position: relative; min-width: 80px; }
         .time-col { background-color: #f9f9f9 !important; width: 60px !important; min-width: 60px !important; font-weight: bold; font-size: 11px; color: #666;}
@@ -55,7 +70,7 @@
 
         .status-mark { font-size: 24px; font-weight: bold; display: flex; align-items: center; justify-content: center; height: 100%; width: 100%; transition: background 0.1s; }
         .status-ok { color: var(--hpb-pink); cursor: pointer; background: #fff; }
-        .status-ok:hover { background: #fff0f1; }
+        .status-ok:active { background: #fff0f1; transform: scale(0.95); transition: transform 0.1s; } 
         .status-ng { color: #ddd; background-color: #fafafa; cursor: not-allowed; font-size: 20px; }
         .status-closed { background-color: #f1f1f1; color: #999; font-size: 11px; font-weight: bold; }
 
@@ -72,14 +87,15 @@
         .step-content.active { display: block; animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .menu-card { cursor: pointer; border: 1px solid #eee; border-radius: 12px; background: white; transition: all 0.2s; }
-        .menu-card:hover { border-color: var(--hpb-pink); transform: translateX(2px); }
+        .menu-card { cursor: pointer; border: 1px solid #eee; border-radius: 12px; background: white; transition: all 0.2s ease-out; }
+        .menu-card:active { transform: scale(0.96); border-color: var(--hpb-pink); } 
         .karte-memo { background-color: #fefce8; background-image: linear-gradient(#fef08a 1px, transparent 1px); background-size: 100% 2rem; line-height: 2rem; border: 1px solid #fde047; }
     </style>
 </head>
+<!-- ★Android対策3: <body>のontouchstartはAndroidでスクロールを重くする原因になるため削除 -->
 <body>
 
-    <!-- 管理者パネル（★初期は隠しておきます） -->
+    <!-- 管理者パネル（初期は隠しておきます） -->
     <div id="adminPanel" class="hidden admin-panel p-3 flex justify-between items-center text-center md:text-left">
         <div class="flex items-center gap-2 text-[11px] font-black uppercase tracking-tighter">
             <span class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></span>
@@ -93,12 +109,11 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- ★ HP用 ヒーローエリア ★ -->
+    <!-- HP用 ヒーローエリア -->
     <!-- ========================================== -->
     <section class="hero-section">
         <p class="fade-in-up text-[10px] md:text-xs font-bold text-[var(--brand-color)] tracking-[0.3em] uppercase mb-4">Asahikawa Toko Hair Salon</p>
         
-        <!-- ★ 文字の代わりにロゴ画像を配置（SEO対策で文字は非表示にして残す） -->
         <img src="https://lh3.googleusercontent.com/a-/ALV-UjVbHWQd0csOkekj3lV7gy4llZw3My08KAjvNZ1jUMXr4j3TUmQ=s265-w265-h265" alt="hair Buzl" class="fade-in-up delay-100 w-32 h-32 md:w-40 md:h-40 rounded-full shadow-2xl mb-6 object-cover border-4 border-white">
         <h1 class="sr-only">hair Buzl</h1>
         
@@ -109,7 +124,7 @@
             「くせ毛で悩んでいた過去の自分」を救うために。<br>
             こだわりの髪質改善と、乾かすだけで決まる似合わせカットで、あなたの朝の15分を笑顔に変えます。
         </p>
-        <button onclick="document.getElementById('reservation-section').scrollIntoView({behavior: 'smooth'})" class="fade-in-up delay-300 bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 px-10 rounded-full shadow-xl transition transform hover:-translate-y-1 tracking-widest text-sm">
+        <button onclick="document.getElementById('reservation-section').scrollIntoView({behavior: 'smooth'})" class="fade-in-up delay-300 bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 px-10 rounded-full shadow-xl transition transform active:scale-95 tracking-widest text-sm">
             空き状況を見る・予約する
         </button>
     </section>
@@ -131,7 +146,7 @@
     <!-- ========================================== -->
     <div id="reservation-section" class="pt-8"></div>
 
-    <!-- ★ お客様用：工事中（準備中）の画面（初期はこれだけ見えます） -->
+    <!-- お客様用：工事中（準備中）の画面 -->
     <div id="maintenanceScreen" class="max-w-4xl mx-auto p-4 py-16 text-center mt-8">
         <div class="bg-white p-10 rounded-3xl border border-gray-100 shadow-xl relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-pink-300 to-amber-300"></div>
@@ -142,14 +157,14 @@
                 ご不便をおかけいたしますが、ご予約・お問い合わせは、<br>ホットペッパービューティー、または公式LINEにてお願いいたします。
             </p>
             <div class="flex flex-col md:flex-row justify-center gap-4">
-                <a href="https://lin.ee/L8Z2tVsG" target="_blank" class="bg-[#06C755] text-white px-8 py-4 rounded-full font-bold shadow-md flex items-center justify-center gap-2 text-sm hover:scale-105 transition-transform">
+                <a href="https://lin.ee/L8Z2tVsG" target="_blank" class="bg-[#06C755] text-white px-8 py-4 rounded-full font-bold shadow-md flex items-center justify-center gap-2 text-sm active:scale-95 transition-transform">
                     <i class="fab fa-line text-lg"></i> 公式LINEはこちら
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- プログレスバー（★初期は隠しておきます） -->
+    <!-- プログレスバー -->
     <div id="progressBarContainer" class="hidden">
         <div class="flex border-b border-t border-gray-100 bg-white max-w-4xl mx-auto sticky top-0 z-40 shadow-sm">
             <div id="stepHeader1" class="flex-1 py-3 text-center border-b-2 border-[#ff7283] text-[#ff7283] font-bold text-[10px]">STEP1 メニュー</div>
@@ -162,7 +177,7 @@
         </div>
     </div>
 
-    <!-- メインコンテンツ（★初期は隠しておきます） -->
+    <!-- メインコンテンツ -->
     <main id="mainContent" class="hidden max-w-4xl mx-auto p-4 pb-24 text-center md:text-left mt-8">
         
         <!-- STEP1: メニュー選択 -->
@@ -177,7 +192,7 @@
                         <p class="text-[10px] text-gray-500 font-bold mb-1">選択中のメニュー（目安: <span id="totalTimeDisplay">0分</span>）</p>
                         <p class="text-xl font-black text-[#ff7283]">合計 ¥<span id="totalPriceDisplay">0</span></p>
                     </div>
-                    <button onclick="window.goToStep2()" class="hpb-pink-btn px-6 py-3 text-sm font-bold shadow-md">日時を選択する</button>
+                    <button onclick="window.goToStep2()" class="hpb-pink-btn px-6 py-3 text-sm font-bold shadow-md active:scale-95">日時を選択する</button>
                 </div>
             </div>
         </div>
@@ -203,7 +218,7 @@
                 </div>
             </div>
 
-            <!-- お客様用ガイド（〇△復活版） -->
+            <!-- お客様用ガイド -->
             <div id="customerLegend" class="mb-4 bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-left">
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Availability Guide</p>
                 <div class="grid grid-cols-2 gap-2">
@@ -251,7 +266,7 @@
             </div>
             
             <p id="dynamicTimeNotice" class="font-bold text-gray-600 leading-relaxed bg-gray-50 p-2 rounded mt-3 text-[10px] text-left"></p>
-            <button onclick="window.changeStep(1)" class="mt-6 w-full py-3 border border-gray-300 text-gray-600 font-bold rounded-xl hover:bg-gray-50 text-sm">メニュー選択へ戻る</button>
+            <button onclick="window.changeStep(1)" class="mt-6 w-full py-3 border border-gray-300 text-gray-600 font-bold rounded-xl active:bg-gray-100 transition text-sm">メニュー選択へ戻る</button>
         </div>
 
         <!-- STEP3: 情報入力 -->
@@ -259,21 +274,21 @@
             <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4 text-gray-700 text-left">お客様情報の入力</h2>
             
             <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-xl mb-6">
+                <!-- iPhoneでの意図しないズームインを防ぐため、text-base（16px）に変更 -->
                 <div class="mb-5 text-left">
                     <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">Customer Name</label>
-                    <input type="text" id="custName" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="お名前（フルネーム）">
+                    <input type="text" id="custName" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-base focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="お名前（フルネーム）">
                 </div>
                 <div class="mb-5 text-left">
                     <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">Phone Number</label>
-                    <input type="tel" id="custTel" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="090-0000-0000">
+                    <input type="tel" id="custTel" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-base focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="090-0000-0000">
                 </div>
                 <div class="text-left">
                     <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">Email <span class="text-[9px] font-normal text-gray-400">※ご案内用（任意）</span></label>
-                    <input type="email" id="custEmail" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="hello@example.com">
+                    <input type="email" id="custEmail" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-base focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="hello@example.com">
                 </div>
             </div>
 
-            <!-- ★ LINEへの誘導を追加した確認事項エリア ★ -->
             <div class="mb-8 border border-gray-200 rounded-xl overflow-hidden text-left shadow-sm">
                 <div class="bg-gray-400 text-white text-[11px] font-bold p-3 tracking-widest">サロンからお客様への確認事項</div>
                 
@@ -309,7 +324,6 @@
                 </div>
             </div>
 
-            <!-- ★ LINEへの誘導を追加した注意事項エリア ★ -->
             <div class="bg-[#fff8f8] p-5 rounded-xl border border-pink-100 mb-8 text-left shadow-sm">
                 <h4 class="text-xs font-bold text-red-500 mb-3 flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/></svg>
@@ -328,7 +342,7 @@
                 <span id="btnText">仮予約（リクエスト）を送信する</span>
             </button>
             <p class="text-[10px] text-gray-400 text-center mt-3">※上の「確認しました」にチェックを入れるとボタンが押せます</p>
-            <button onclick="window.changeStep(2)" class="mt-6 w-full py-3 border border-gray-300 text-gray-600 font-bold rounded-xl hover:bg-gray-50 text-sm">日時選択へ戻る</button>
+            <button onclick="window.changeStep(2)" class="mt-6 w-full py-3 border border-gray-300 text-gray-600 font-bold rounded-xl active:bg-gray-100 transition text-sm">日時選択へ戻る</button>
         </div>
 
         <!-- STEP4: 完了 -->
@@ -418,7 +432,7 @@
                 <a href="https://www.instagram.com/hair_buzl/" target="_blank" class="w-10 h-10 rounded-full bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888] text-white flex items-center justify-center shadow-md hover:scale-110 transition-transform"><i class="fab fa-instagram text-xl"></i></a>
             </div>
             
-            <!-- ★ 秘密の入り口：ここを5回連続でタップします -->
+            <!-- 秘密の入り口：ここを5回連続でタップします -->
             <p id="secretDevBtn" onclick="window.handleSecretTap()" class="mt-8 text-[9px] font-bold text-gray-300 tracking-widest uppercase select-none cursor-pointer">&copy; 2026 hair Buzl. All Rights Reserved.</p>
         </div>
     </footer>
@@ -472,7 +486,7 @@
         </div>
     </div>
 
-    <!-- ★ 開発者（佐浦さん）パスワード入力画面 -->
+    <!-- 開発者（佐浦さん）パスワード入力画面 -->
     <div id="devAuthModal" class="modal-overlay">
         <div class="bg-gray-900 rounded-3xl w-full max-w-xs p-8 shadow-2xl text-center mx-4 border-t-8 border-pink-500">
             <h3 class="font-black text-white mb-2">Developer Only</h3>
@@ -485,7 +499,7 @@
         </div>
     </div>
 
-    <!-- ★ 開発者用コントロールパネル（9999認証後に表示） -->
+    <!-- 開発者用コントロールパネル（9999認証後に表示） -->
     <div id="devControlPanel" class="modal-overlay">
         <div class="bg-gray-900 rounded-3xl w-full max-w-sm p-8 shadow-2xl mx-4 border-t-8 border-pink-500">
             <h3 class="font-black text-white mb-2 text-center">Developer Control</h3>
@@ -517,6 +531,9 @@
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, onSnapshot, setDoc, getDoc, addDoc, deleteDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // ★Android対策4: iOSのタップエフェクト(:active)を有効にしつつ、Androidのスクロール阻害を防ぐ安全な設定
+        document.addEventListener('touchstart', function() {}, {passive: true});
+
         const NOTIFICATION_CONFIG = {
             emailjs_public_key: "zUdr_cmgl8wIxtNLw",
             emailjs_service_id: "service_tl9llam",
@@ -526,13 +543,13 @@
         };
 
         const firebaseConfig = {
-          apiKey: "AIzaSyDx_-XGUtxQN2Z0RAZ13Hzm5rzIRoTkx_E",
-          authDomain: "hair-buzl-reserve-b9420.firebaseapp.com",
-          projectId: "hair-buzl-reserve-b9420",
-          storageBucket: "hair-buzl-reserve-b9420.firebasestorage.app",
-          messagingSenderId: "947093013586",
-          appId: "1:947093013586:web:4727f3df59726d0b46cb8b",
-          measurementId: "G-0DJX0HY50R"
+            apiKey: "AIzaSyDx_-XGUtxQN2Z0RAZ13Hzm5rzIRoTkx_E",
+            authDomain: "hair-buzl-reserve-b9420.firebaseapp.com",
+            projectId: "hair-buzl-reserve-b9420",
+            storageBucket: "hair-buzl-reserve-b9420.firebasestorage.app",
+            messagingSenderId: "947093013586",
+            appId: "1:947093013586:web:4727f3df59726d0b46cb8b",
+            measurementId: "G-0DJX0HY50R"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -549,7 +566,7 @@
         // メンテナンスモードの状態管理
         let isMaintenance = false;
 
-        // ★ 裏口用のタップカウンター（修正：devAuthModalを呼び出すように変更）
+        // 裏口用のタップカウンター
         let tapCount = 0;
         let tapTimeout = null;
 
@@ -564,7 +581,7 @@
             }
         };
 
-        // ★ 開発者用パスワードの認証
+        // 開発者用パスワードの認証
         window.verifyDev = () => {
             if(document.getElementById('devPass').value === '9999') {
                 document.getElementById('devAuthModal').style.display = 'none';
@@ -574,15 +591,15 @@
             }
         };
 
-        // ★ この端末だけ裏口からシステムに入る処理
+        // この端末だけ裏口からシステムに入る処理
         window.enterBypassMode = () => {
             sessionStorage.setItem('bypassMaintenance', 'true');
             document.getElementById('devControlPanel').style.display = 'none';
             window.showAlert("裏口からシステムにアクセスしました。\n左上の「MODE: OFF」スイッチを押し、「0000」で管理者モードに入ってください。");
-            toggleMaintenanceUI(); // 画面を切り替え
+            toggleMaintenanceUI(); 
         };
 
-        // ★ 全体を「工事中」または「公開」に切り替える処理
+        // 全体を「工事中」または「公開」に切り替える処理
         window.setGlobalMaintenance = async (isMaint) => {
             document.getElementById('devControlPanel').style.display = 'none';
             try {
@@ -595,7 +612,7 @@
             }
         };
 
-        // ★ メンテナンス画面と通常画面を適切に切り替える関数（修正版）
+        // メンテナンス画面と通常画面を適切に切り替える関数
         function toggleMaintenanceUI() {
             const mainContent = document.getElementById('mainContent');
             const progressBarContainer = document.getElementById('progressBarContainer');
@@ -1023,7 +1040,6 @@
         };
 
         const startSync = () => {
-            // ★ 追加！ メンテナンスモードの監視
             onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), (docSnap) => {
                 if (docSnap.exists()) {
                     isMaintenance = docSnap.data().maintenanceMode === true;
@@ -1070,7 +1086,7 @@
                 bookingsList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 bookedSlots.clear(); 
                 bookingsList.forEach(b => {
-                    // ★ 否認された予約はカレンダーの枠を埋めない
+                    // 否認された予約はカレンダーの枠を埋めない
                     if (b.status === 'rejected') return;
 
                     let time = b.timeNeeded; 
@@ -1195,7 +1211,6 @@
                 
                 if (reservationData[slotKey] === 'ng') break;
                 if (bookedSlots.has(`${dateId}_${checkTimeStr}`)) break;
-                // ★ 追加！ HPB・Googleカレンダーの予約がある場合もブロック！
                 if (hpbBlockedSlots.has(`${dateId}_${checkTimeStr}`)) break;
                 
                 freeCount++;
@@ -1329,12 +1344,10 @@
                     document.getElementById('modalConfirmBtn').onclick = () => window.closeModal();
                     modal.style.display = 'flex';
                 } else {
-                    // ★ 管理者の場合は、モーダルを出さずに一瞬で「×」「◎」を切り替える（爆速モード）
                     const slotKey = `${d.id}_${time.replace(':','')}`;
                     const currentStatus = reservationData[slotKey] || 'ok';
                     const newStatus = currentStatus === 'ok' ? 'ng' : 'ok';
                     
-                    // 視覚的にすぐ反応させる
                     if (tdElement) {
                         const mark = tdElement.querySelector('.status-mark');
                         if (mark) {
@@ -1348,7 +1361,6 @@
                         }
                     }
                     
-                    // 裏でFirebaseに保存
                     setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotKey), { status: newStatus }).catch(err => {
                         console.error("保存エラー:", err);
                     });
@@ -1436,7 +1448,6 @@
             });
         };
 
-        // ★承認処理
         window.approveBooking = (id, name) => {
             window.showConfirmAction(`${name} 様の予約を【承認（確定）】しますか？\n\n※承認後、お客様へLINE等で「確定しました」とご連絡してあげてください。`, async () => {
                 try {
@@ -1446,7 +1457,6 @@
             });
         };
 
-        // ★否認処理
         window.rejectBooking = (id, name) => {
             window.showConfirmAction(`${name} 様の予約を【否認（お断り）】しますか？\n\n※カレンダーの枠が再び解放されます。\n※お客様へLINE等でお断りと別日程案内のご連絡をしてあげてください。`, async () => {
                 try {
@@ -1483,7 +1493,7 @@
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), { 
                     customerName: name, customerTel: tel, customerEmail: email, menu: selectedMenu.name, 
                     dateTime: visitDateTime, dateId: selectedSlot.dateId, timeNeeded: selectedMenu.time, 
-                    status: "pending", // ★ここを pending にすることで仮予約となる
+                    status: "pending",
                     timestamp: serverTimestamp() 
                 });
 
@@ -1497,7 +1507,6 @@
                     });
                 } catch(err) { console.warn("Customer init error:", err); }
                 
-                // ★ 変更：GASに所要時間（time_needed）や日付ID（date_id）などの詳細データを送るように追加しました
                 const notificationData = { 
                     staff_name: name, 
                     visit_date: visitDateTime, 
@@ -1539,7 +1548,6 @@
             if(s === 2) renderCalendar();
         };
 
-        // ★ 管理者モードの切り替え
         window.toggleAdminMode = (chk) => { 
             if(chk) { 
                 document.getElementById('adminAuthModal').style.display = 'flex'; 
@@ -1549,21 +1557,18 @@
                 document.getElementById('adminBookingSection').classList.add('hidden'); 
                 document.getElementById('adminTetrisSection').classList.add('hidden'); 
                 
-                // モードをOFFにした時に、UIの表示状態を再計算
                 toggleMaintenanceUI();
                 
                 window.changeStep(1); 
             } 
         };
 
-        // ★ 管理者パスワード入力成功時
         window.verifyAdmin = () => { 
             if(document.getElementById('adminPass').value==='0000'){ 
                 isAdmin=true; 
                 document.getElementById('modeLabel').innerText='ON'; 
                 document.getElementById('adminAuthModal').style.display='none'; 
                 
-                // パスワード成功時もUIの表示状態を再計算（Bypass状態ならシステムが見えるまま）
                 toggleMaintenanceUI();
                 
                 document.getElementById('adminBookingSection').classList.remove('hidden'); 
@@ -1573,7 +1578,6 @@
                 const noticeEl = document.getElementById('dynamicTimeNotice'); 
                 if(noticeEl) noticeEl.innerHTML = `<span class="text-red-600 font-bold text-[12px]">【爆速ブロックモード稼働中】<br>枠をタップした瞬間に「×」「◎」が切り替わります。<br>サロンボードを見ながら、空き枠を素早く一致させてください。</span>`; 
                 
-                // スイッチをONにする
                 document.getElementById('adminToggle').checked = true;
 
                 updateTetrisMatching(); 
