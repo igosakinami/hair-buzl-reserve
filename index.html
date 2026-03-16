@@ -635,11 +635,7 @@
                 // 公開中 または 裏口アクセス中：システムを見せる
                 if(mainContent) mainContent.classList.remove('hidden');
                 if(progressBarContainer) progressBarContainer.classList.remove('hidden');
-                if(isAdmin) {
-                    if(adminPanel) adminPanel.classList.remove('hidden');
-                } else {
-                    if(adminPanel) adminPanel.classList.add('hidden');
-                }
+                if(adminPanel) adminPanel.classList.remove('hidden');
                 if(maintenanceScreen) maintenanceScreen.classList.add('hidden');
             }
         }
