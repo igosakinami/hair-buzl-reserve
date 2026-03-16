@@ -1497,7 +1497,17 @@
                     });
                 } catch(err) { console.warn("Customer init error:", err); }
                 
-                const notificationData = { staff_name: name, visit_date: visitDateTime, menu_name: selectedMenu.name, total_price: selectedMenu.priceStr, booking_date: now.toLocaleString('ja-JP'), customer_tel: tel };
+                // ★ 変更：GASに所要時間（time_needed）や日付ID（date_id）などの詳細データを送るように追加しました
+                const notificationData = { 
+                    staff_name: name, 
+                    visit_date: visitDateTime, 
+                    menu_name: selectedMenu.name, 
+                    total_price: selectedMenu.priceStr, 
+                    booking_date: now.toLocaleString('ja-JP'), 
+                    customer_tel: tel,
+                    time_needed: selectedMenu.time,
+                    date_id: selectedSlot.dateId
+                };
 
                 if(NOTIFICATION_CONFIG.emailjs_service_id) {
                     try { await emailjs.send(NOTIFICATION_CONFIG.emailjs_service_id, NOTIFICATION_CONFIG.emailjs_template_id, notificationData); } catch(emailError) { console.warn("EmailJS Error"); }
