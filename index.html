@@ -1389,6 +1389,9 @@
 
                 document.getElementById('modalConfirmBtn').innerText = "次に進む";
                 document.getElementById('modalConfirmBtn').onclick = () => { window.closeModal(); window.changeStep(3); };
+                
+                // ★ここが抜け落ちていました！確認モーダルを画面に表示する処理を追加
+                modal.style.display = 'flex';
             }
         };
 
