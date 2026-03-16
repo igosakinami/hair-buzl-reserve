@@ -464,19 +464,23 @@
             gas_webapp_url: "https://script.google.com/macros/s/AKfycbysZoUs3vCr7N9k4gdylHLndbwMVzZ6qzGP3H4rrNfBI2cvOWxP60CXEhMF-VdDZasj8g/exec"
         };
 
+        // ★書き換えました：佐浦さんの本物のFirebase設定
         const firebaseConfig = {
-          apiKey: "AIzaSyAZPUpUdLpbKbOJGJ6NhOiCqkqRS-tKwCQ",
-          authDomain: "hair-buzl-reserve.firebaseapp.com",
-          projectId: "hair-buzl-reserve",
-          storageBucket: "hair-buzl-reserve.firebasestorage.app",
-          messagingSenderId: "757183537058",
-          appId: "1:757183537058:web:7aeee2f1fbb4268af29cfb"
+          apiKey: "AIzaSyDx_-XGUtxQN2Z0RAZ13Hzm5rzIRoTkx_E",
+          authDomain: "hair-buzl-reserve-b9420.firebaseapp.com",
+          projectId: "hair-buzl-reserve-b9420",
+          storageBucket: "hair-buzl-reserve-b9420.firebasestorage.app",
+          messagingSenderId: "947093013586",
+          appId: "1:947093013586:web:4727f3df59726d0b46cb8b",
+          measurementId: "G-0DJX0HY50R"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = "hair-buzl-reserve";
+        
+        // ★ここも本物のプロジェクト名に修正しました
+        const appId = "hair-buzl-reserve-b9420";
 
         let fbUser = null, reservationData = {}, bookingsList = [], bookedSlots = new Set(), customersData = {};
         let hpbBlockedSlots = new Set(); // ★ これを追加！（HPBの予約を記憶する箱）
