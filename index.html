@@ -886,18 +886,25 @@
             // ★ 追加！ HPB・Googleカレンダーからの予約データ（GASが書き込んだreservations）を監視する魔法
             onSnapshot(collection(db, 'reservations'), (snap) => {
                 hpbBlockedSlots.clear();
+                let loadedCount = 0;
                 snap.forEach(doc => {
                     const dateId = doc.id; // 例: "2026-03-11"
                     const times = doc.data();
                     for (const [timeStr, status] of Object.entries(times)) {
                         if (status === '×' || status === 'x') {
                             hpbBlockedSlots.add(`${dateId}_${timeStr}`); // "2026-03-11_19:00" として記憶
+                            loadedCount++;
                         }
                     }
                 });
+                console.log(`HPBのブロック枠を ${loadedCount} 件、正常に読み込みました！`);
+                
                 if (document.getElementById('step2').classList.contains('active')) renderCalendar();
                 if (isAdmin) updateTetrisMatching();
-            }, (err) => console.warn("Sync error (hpb reservations):", err));
+            }, (err) => {
+                window.showAlert(`【HPB連携エラー】\nデータの読み取りに失敗しました。\nFirebaseの「ルール」設定が完了していないか、間違っている可能性があります。\n\n詳細: ${err.message}`);
+                console.warn("Sync error (hpb reservations):", err);
+            });
 
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'slots'), (snap) => {
                 reservationData = {}; snap.forEach(d => reservationData[d.id] = d.data().status);
