@@ -79,8 +79,8 @@
 </head>
 <body>
 
-    <!-- 管理者パネル -->
-    <div class="admin-panel p-3 flex justify-between items-center text-center md:text-left">
+    <!-- 管理者パネル（★初期は隠しておきます） -->
+    <div id="adminPanel" class="hidden admin-panel p-3 flex justify-between items-center text-center md:text-left">
         <div class="flex items-center gap-2 text-[11px] font-black uppercase tracking-tighter">
             <span class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></span>
             hair Buzl Admin Professional
@@ -131,18 +131,39 @@
     <!-- ========================================== -->
     <div id="reservation-section" class="pt-8"></div>
 
-    <!-- プログレスバー -->
-    <div class="flex border-b border-t border-gray-100 bg-white max-w-4xl mx-auto sticky top-0 z-40 shadow-sm">
-        <div id="stepHeader1" class="flex-1 py-3 text-center border-b-2 border-[#ff7283] text-[#ff7283] font-bold text-[10px]">STEP1 メニュー</div>
-        <div id="stepHeader2" class="flex-1 py-3 text-center text-gray-300 font-bold text-[10px]">STEP2 日時</div>
-        <div id="stepHeader3" class="flex-1 py-3 text-center text-gray-300 font-bold text-[10px]">STEP3 入力</div>
-        <div id="stepHeader4" class="flex-1 py-3 text-center text-gray-300 font-bold text-[10px]">完了</div>
-    </div>
-    <div class="h-1 w-full max-w-4xl mx-auto bg-gray-50 overflow-hidden">
-        <div id="progressBar" class="h-full bg-[#ff7283] transition-all duration-500" style="width: 25%"></div>
+    <!-- ★ お客様用：工事中（準備中）の画面（初期はこれだけ見えます） -->
+    <div id="maintenanceScreen" class="max-w-4xl mx-auto p-4 py-16 text-center mt-8">
+        <div class="bg-white p-10 rounded-3xl border border-gray-100 shadow-xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-pink-300 to-amber-300"></div>
+            <div class="text-6xl mb-6">🛠️</div>
+            <h2 class="text-xl font-black text-gray-800 mb-4">現在、予約システムを準備中です</h2>
+            <p class="text-sm text-gray-500 leading-relaxed mb-8">
+                より便利にご利用いただけるよう、システムの連携テストを行っております。<br>
+                ご不便をおかけいたしますが、ご予約・お問い合わせは、<br>ホットペッパービューティー、または公式LINEにてお願いいたします。
+            </p>
+            <div class="flex flex-col md:flex-row justify-center gap-4">
+                <a href="https://lin.ee/L8Z2tVsG" target="_blank" class="bg-[#06C755] text-white px-8 py-4 rounded-full font-bold shadow-md flex items-center justify-center gap-2 text-sm hover:scale-105 transition-transform">
+                    <i class="fab fa-line text-lg"></i> 公式LINEはこちら
+                </a>
+            </div>
+        </div>
     </div>
 
-    <main class="max-w-4xl mx-auto p-4 pb-24 text-center md:text-left mt-8">
+    <!-- プログレスバー（★初期は隠しておきます） -->
+    <div id="progressBarContainer" class="hidden">
+        <div class="flex border-b border-t border-gray-100 bg-white max-w-4xl mx-auto sticky top-0 z-40 shadow-sm">
+            <div id="stepHeader1" class="flex-1 py-3 text-center border-b-2 border-[#ff7283] text-[#ff7283] font-bold text-[10px]">STEP1 メニュー</div>
+            <div id="stepHeader2" class="flex-1 py-3 text-center text-gray-300 font-bold text-[10px]">STEP2 日時</div>
+            <div id="stepHeader3" class="flex-1 py-3 text-center text-gray-300 font-bold text-[10px]">STEP3 入力</div>
+            <div id="stepHeader4" class="flex-1 py-3 text-center text-gray-300 font-bold text-[10px]">完了</div>
+        </div>
+        <div class="h-1 w-full max-w-4xl mx-auto bg-gray-50 overflow-hidden">
+            <div id="progressBar" class="h-full bg-[#ff7283] transition-all duration-500" style="width: 25%"></div>
+        </div>
+    </div>
+
+    <!-- メインコンテンツ（★初期は隠しておきます） -->
+    <main id="mainContent" class="hidden max-w-4xl mx-auto p-4 pb-24 text-center md:text-left mt-8">
         
         <!-- STEP1: メニュー選択 -->
         <div id="step1" class="step-content active">
@@ -397,7 +418,8 @@
                 <a href="https://www.instagram.com/hair_buzl/" target="_blank" class="w-10 h-10 rounded-full bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888] text-white flex items-center justify-center shadow-md hover:scale-110 transition-transform"><i class="fab fa-instagram text-xl"></i></a>
             </div>
             
-            <p class="mt-8 text-[9px] font-bold text-gray-300 tracking-widest uppercase">&copy; 2026 hair Buzl. All Rights Reserved.</p>
+            <!-- ★ 秘密の入り口：ここを5回連続でタップします -->
+            <p id="secretDevBtn" onclick="window.handleSecretTap()" class="mt-8 text-[9px] font-bold text-gray-300 tracking-widest uppercase select-none cursor-pointer">&copy; 2026 hair Buzl. All Rights Reserved.</p>
         </div>
     </footer>
 
@@ -436,17 +458,20 @@
             </div>
         </div>
     </div>
+
+    <!-- 管理者（裏口）パスワード入力画面 -->
     <div id="adminAuthModal" class="modal-overlay">
         <div class="bg-white rounded-3xl w-full max-w-xs p-8 shadow-2xl text-center mx-4 border-t-8 border-blue-500">
             <h3 class="font-black text-gray-800 mb-2">Owner Only</h3>
             <p class="text-[10px] text-gray-400 mb-6 font-bold uppercase tracking-widest">Authentication Required</p>
             <input type="password" id="adminPass" class="w-full p-5 bg-gray-50 border-none rounded-2xl mb-6 text-center text-3xl font-black outline-none ring-2 ring-transparent focus:ring-blue-500 transition-all" placeholder="****" inputmode="numeric">
             <div class="flex gap-3">
-                <button onclick="window.cancelAdmin()" class="flex-1 py-4 text-xs font-bold text-gray-400 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">戻る</button>
+                <button onclick="document.getElementById('adminAuthModal').style.display='none'" class="flex-1 py-4 text-xs font-bold text-gray-400 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">戻る</button>
                 <button onclick="window.verifyAdmin()" class="flex-1 py-4 text-xs font-bold bg-blue-500 text-white rounded-xl shadow-lg active:scale-95 transition-all">認証</button>
             </div>
         </div>
     </div>
+    
     <!-- FontAwesome for footer icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -464,7 +489,6 @@
             gas_webapp_url: "https://script.google.com/macros/s/AKfycbysZoUs3vCr7N9k4gdylHLndbwMVzZ6qzGP3H4rrNfBI2cvOWxP60CXEhMF-VdDZasj8g/exec"
         };
 
-        // ★書き換えました：佐浦さんの本物のFirebase設定
         const firebaseConfig = {
           apiKey: "AIzaSyDx_-XGUtxQN2Z0RAZ13Hzm5rzIRoTkx_E",
           authDomain: "hair-buzl-reserve-b9420.firebaseapp.com",
@@ -479,14 +503,28 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         
-        // ★ここも本物のプロジェクト名に修正しました
         const appId = "hair-buzl-reserve-b9420";
 
         let fbUser = null, reservationData = {}, bookingsList = [], bookedSlots = new Set(), customersData = {};
-        let hpbBlockedSlots = new Set(); // ★ これを追加！（HPBの予約を記憶する箱）
+        let hpbBlockedSlots = new Set();
         let isAdmin = false, selectedMenu = null, selectedSlot = null, selectedMenus = [];
         let menuChartInstance = null; 
         
+        // ★ 追加：裏口用のタップカウンター
+        let tapCount = 0;
+        let tapTimeout = null;
+
+        window.handleSecretTap = () => {
+            tapCount++;
+            if (tapTimeout) clearTimeout(tapTimeout);
+            tapTimeout = setTimeout(() => { tapCount = 0; }, 2000); // 2秒以内に5回タップ
+            if (tapCount >= 5) {
+                tapCount = 0;
+                document.getElementById('adminPass').value = '';
+                document.getElementById('adminAuthModal').style.display = 'flex';
+            }
+        };
+
         const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"];
         
         const menuData = [
@@ -887,7 +925,7 @@
         };
 
         const startSync = () => {
-            // ★ 追加！ HPB・Googleカレンダーからの予約データ（GASが書き込んだreservations）を監視する魔法
+            // ★ HPB・Googleカレンダーからの予約データ（GASが書き込んだreservations）を監視
             onSnapshot(collection(db, 'reservations'), (snap) => {
                 hpbBlockedSlots.clear();
                 let loadedCount = 0;
@@ -901,12 +939,10 @@
                         }
                     }
                 });
-                console.log(`HPBのブロック枠を ${loadedCount} 件、正常に読み込みました！`);
                 
                 if (document.getElementById('step2').classList.contains('active')) renderCalendar();
                 if (isAdmin) updateTetrisMatching();
             }, (err) => {
-                window.showAlert(`【HPB連携エラー】\nデータの読み取りに失敗しました。\nFirebaseの「ルール」設定が完了していないか、間違っている可能性があります。\n\n詳細: ${err.message}`);
                 console.warn("Sync error (hpb reservations):", err);
             });
 
@@ -1068,7 +1104,7 @@
                 const slotKey = `${dateId}_${timeStr.replace(':','')}`;
                 const isManuallyBlocked = reservationData[slotKey] === 'ng';
                 const isBooked = bookedSlots.has(`${dateId}_${timeStr}`);
-                const isHpbBooked = hpbBlockedSlots.has(`${dateId}_${timeStr}`); // ★ 追加！
+                const isHpbBooked = hpbBlockedSlots.has(`${dateId}_${timeStr}`);
 
                 if (isBooked || isHpbBooked) { return { status: "ng", symbol: "×", class: "text-blue-500 font-black bg-blue-50 text-[20px]", canBook: true }; }
                 if (isManuallyBlocked) { return { status: "ng", symbol: "×", class: "status-ng", canBook: true }; }
@@ -1142,7 +1178,7 @@
                     else if(availabilityData.status === "out") { td.className = 'text-gray-200 text-[18px]'; td.innerText = '－'; } 
                     else {
                         td.innerHTML = `<div class="status-mark ${availabilityData.class}">${availabilityData.symbol}</div>`;
-                        td.onclick = () => window.handleSlotClick(d, t, tIdx, availabilityData.status, availabilityData.canBook);
+                        td.onclick = function() { window.handleSlotClick(d, t, tIdx, availabilityData.status, availabilityData.canBook, this); };
                         if(isAdmin) td.classList.add('admin-active');
                     }
                     tr.appendChild(td);
@@ -1157,26 +1193,23 @@
             });
         };
 
-        window.handleSlotClick = (d, time, tIdx, status, canBook) => {
+        window.handleSlotClick = (d, time, tIdx, status, canBook, tdElement) => {
             if(!isAdmin && !canBook) return;
 
             selectedSlot = { dateId: d.id, dateLabel: d.label, time, tIdx };
             const modal = document.getElementById('confirmModal');
             
             if(isAdmin) {
-                document.getElementById('selectedDateTimeDisplay').innerText = `${d.label} ${time}〜`;
-                document.getElementById('modalMenuName').innerText = "予約枠の操作";
-                document.getElementById('modalTitle').innerText = 'ADMIN CONTROL';
-                document.getElementById('modalPrice').parentElement.style.display = 'none';
-                document.getElementById('modalTime').parentElement.style.display = 'none';
-                document.getElementById('modalEndTimeDisplay').style.display = 'none';
-
                 const isBooked = bookedSlots.has(`${d.id}_${time}`); 
-                const isHpbBooked = hpbBlockedSlots.has(`${d.id}_${time}`); // ★ 追加
+                const isHpbBooked = hpbBlockedSlots.has(`${d.id}_${time}`);
                 
-                // ★ 変更：HPBからの予約が入っている場合もブロックを解除できないようにする
                 if (isBooked || isHpbBooked) {
+                    document.getElementById('selectedDateTimeDisplay').innerText = `${d.label} ${time}〜`;
+                    document.getElementById('modalMenuName').innerText = "予約枠の操作";
                     document.getElementById('modalTitle').innerText = 'ADMIN INFO';
+                    document.getElementById('modalPrice').parentElement.style.display = 'none';
+                    document.getElementById('modalTime').parentElement.style.display = 'none';
+                    document.getElementById('modalEndTimeDisplay').style.display = 'none';
                     
                     let msg = "お客様の予約（または仮予約）が入っている枠です。\n承認や削除は下の「管理台帳」リストから行ってください。";
                     if (isHpbBooked && !isBooked) {
@@ -1186,11 +1219,31 @@
                     document.getElementById('modalDescription').innerText = msg;
                     document.getElementById('modalConfirmBtn').innerText = "閉じる";
                     document.getElementById('modalConfirmBtn').onclick = () => window.closeModal();
+                    modal.style.display = 'flex';
                 } else {
-                    const slotKey = `${d.id}_${time.replace(':','')}`, currentStatus = reservationData[slotKey] || 'ok';
-                    document.getElementById('modalDescription').innerText = currentStatus === 'ok' ? "この枠を「×（ブロック）」にしますか？\n（お客様から予約できなくなります）" : "この枠のブロックを解除して「◎」に戻しますか？";
-                    document.getElementById('modalConfirmBtn').innerText = currentStatus === 'ok' ? "× にする" : "◎ に戻す";
-                    document.getElementById('modalConfirmBtn').onclick = async () => { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotKey), { status: currentStatus === 'ok' ? 'ng' : 'ok' }); window.closeModal(); };
+                    // ★ 管理者の場合は、モーダルを出さずに一瞬で「×」「◎」を切り替える（爆速モード）
+                    const slotKey = `${d.id}_${time.replace(':','')}`;
+                    const currentStatus = reservationData[slotKey] || 'ok';
+                    const newStatus = currentStatus === 'ok' ? 'ng' : 'ok';
+                    
+                    // 視覚的にすぐ反応させる
+                    if (tdElement) {
+                        const mark = tdElement.querySelector('.status-mark');
+                        if (mark) {
+                            if (newStatus === 'ng') {
+                                mark.className = 'status-mark status-ng';
+                                mark.innerText = '×';
+                            } else {
+                                mark.className = 'status-mark status-ok text-[#e11d48]';
+                                mark.innerText = '◎';
+                            }
+                        }
+                    }
+                    
+                    // 裏でFirebaseに保存
+                    setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotKey), { status: newStatus }).catch(err => {
+                        console.error("保存エラー:", err);
+                    });
                 }
             } else {
                 document.getElementById('modalTitle').innerText = 'CONFIRMATION';
@@ -1217,7 +1270,6 @@
                 document.getElementById('modalConfirmBtn').innerText = "次に進む";
                 document.getElementById('modalConfirmBtn').onclick = () => { window.closeModal(); window.changeStep(3); };
             }
-            modal.style.display = 'flex';
         };
 
         window.markMemoUnsaved = (id) => {
@@ -1354,6 +1406,7 @@
 
         window.deleteBooking = (id) => window.showConfirmAction("予約を削除しますか？\n(カレンダーのブロックも解除されます)\n※顧客カルテのメモは残ります", async () => { try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id)); } catch(e) { window.showAlert("削除失敗"); } });
         window.closeModal = () => document.getElementById('confirmModal').style.display = 'none';
+        
         window.changeStep = (s) => { 
             document.querySelectorAll('.step-content').forEach(c=>c.classList.remove('active'));
             document.getElementById(`step${s}`).classList.add('active'); 
@@ -1368,9 +1421,60 @@
             if(s === 2) renderCalendar();
         };
 
-        window.toggleAdminMode = (chk) => { if(chk) { document.getElementById('adminAuthModal').style.display = 'flex'; } else { isAdmin = false; document.getElementById('modeLabel').innerText='OFF'; document.getElementById('adminBookingSection').classList.add('hidden'); document.getElementById('adminTetrisSection').classList.add('hidden'); const noticeEl = document.getElementById('dynamicTimeNotice'); if (noticeEl) noticeEl.innerHTML = ""; document.getElementById('customerLegend').style.display = 'block'; window.changeStep(1); } };
-        window.verifyAdmin = () => { if(document.getElementById('adminPass').value==='0000'){ isAdmin=true; document.getElementById('modeLabel').innerText='ON'; document.getElementById('adminAuthModal').style.display='none'; document.getElementById('adminBookingSection').classList.remove('hidden'); document.getElementById('adminTetrisSection').classList.remove('hidden'); document.getElementById('selectedMenuDisplay').innerHTML = `<span class="text-blue-600 font-black">【管理者モード】予約枠の操作</span>`; document.getElementById('customerLegend').style.display = 'none'; const noticeEl = document.getElementById('dynamicTimeNotice'); if(noticeEl) noticeEl.innerHTML = `<span class="text-gray-600 font-bold text-[11px]">枠をタップして「×」と「◎」を切り替えます。<br>※<span class="text-blue-500 text-lg">×</span>（青色）はお客様の予約が入っている枠です。</span>`; updateTetrisMatching(); window.changeStep(2); } else { window.showAlert("認証エラー"); } };
-        window.cancelAdmin = () => { document.getElementById('adminToggle').checked = false; document.getElementById('adminAuthModal').style.display = 'none'; };
+        // ★ 管理者モードの切り替え（メンテナンス画面の表示制御）
+        window.toggleAdminMode = (chk) => { 
+            if(chk) { 
+                document.getElementById('adminAuthModal').style.display = 'flex'; 
+            } else { 
+                isAdmin = false; 
+                document.getElementById('modeLabel').innerText='OFF'; 
+                document.getElementById('adminBookingSection').classList.add('hidden'); 
+                document.getElementById('adminTetrisSection').classList.add('hidden'); 
+                
+                // メンテナンス画面に戻す（お客様用画面）
+                document.getElementById('maintenanceScreen').classList.remove('hidden');
+                document.getElementById('progressBarContainer').classList.add('hidden');
+                document.getElementById('mainContent').classList.add('hidden');
+                document.getElementById('adminPanel').classList.add('hidden');
+                
+                window.changeStep(1); 
+            } 
+        };
+
+        // ★ 管理者パスワード入力成功時
+        window.verifyAdmin = () => { 
+            if(document.getElementById('adminPass').value==='0000'){ 
+                isAdmin=true; 
+                document.getElementById('modeLabel').innerText='ON'; 
+                document.getElementById('adminAuthModal').style.display='none'; 
+                
+                // メンテナンス画面を消して、予約システムと管理者パネルを出す
+                document.getElementById('maintenanceScreen').classList.add('hidden');
+                document.getElementById('progressBarContainer').classList.remove('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+                document.getElementById('adminPanel').classList.remove('hidden');
+                
+                document.getElementById('adminBookingSection').classList.remove('hidden'); 
+                document.getElementById('adminTetrisSection').classList.remove('hidden'); 
+                document.getElementById('selectedMenuDisplay').innerHTML = `<span class="text-blue-600 font-black">【管理者モード】予約枠の操作（爆速モード）</span>`; 
+                document.getElementById('customerLegend').style.display = 'none'; 
+                const noticeEl = document.getElementById('dynamicTimeNotice'); 
+                if(noticeEl) noticeEl.innerHTML = `<span class="text-red-600 font-bold text-[12px]">【爆速ブロックモード稼働中】<br>枠をタップした瞬間に「×」「◎」が切り替わります。<br>サロンボードを見ながら、空き枠を素早く一致させてください。</span>`; 
+                
+                // スイッチをONにする
+                document.getElementById('adminToggle').checked = true;
+
+                updateTetrisMatching(); 
+                window.changeStep(2); 
+            } else { 
+                window.showAlert("認証エラー"); 
+            } 
+        };
+
+        window.cancelAdmin = () => { 
+            document.getElementById('adminToggle').checked = false; 
+            document.getElementById('adminAuthModal').style.display = 'none'; 
+        };
     </script>
 </body>
 </html>
