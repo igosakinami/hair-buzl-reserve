@@ -2,1605 +2,468 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <!-- スマホでのピンチズームや意図しない拡大を防ぐ設定 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>hair Buzl 【ヘアーバズール】 | 旭川 東光の美容室</title>
-    
-    <!-- External Libraries -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hair Buzl（ヘアーバズール）| 旭川市の美容室・プライベートサロン</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Noto+Sans+JP:wght@300;400;500&family=Noto+Serif+JP:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        :root { --hpb-pink: #ff7283; --hpb-border: #eee; --admin-blue: #3b82f6; --brand-color: #8a7a6b; }
+        :root {
+            --color-primary: #2c2c2c;
+            --color-secondary: #8c857b;
+            --color-bg: #fcfbf9;
+            --color-surface: #ffffff;
+            --color-accent: #ff7283;
+        }
         
-        /* -webkit-tap-highlight-colorでスマホ特有のグレーのタップ枠を消し、自然な反応にする */
-        body { font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; background-color: #fcfcfc; color: #333; -webkit-tap-highlight-color: transparent; scroll-behavior: smooth;}
-        * { -webkit-tap-highlight-color: transparent; }
-        
-        /* ★Android対策1: タップの300ms（0.3秒）待機遅延を強制排除 */
-        button, a, .menu-card, .status-ok, label, input, select {
-            touch-action: manipulation;
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            color: var(--color-primary);
+            background-color: var(--color-bg);
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* ★Android対策2: 押した瞬間のアニメーション（へこみ）を強制的に爆速（0.05秒）にする */
-        *:active {
-            transition-duration: 0.05s !important;
-        }
-        
-        .hpb-pink-btn { background: linear-gradient(to bottom, #ff8c99, #ff7283); color: white !important; border-radius: 6px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(255, 114, 131, 0.3); }
-        .hpb-pink-btn:active { transform: translateY(2px) scale(0.98); box-shadow: none; filter: brightness(0.95); } 
-        
-        /* HP用：ヒーローエリア（トップ画像）のスタイル */
-        .hero-section {
-            background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.95)), url('https://images.unsplash.com/photo-1521590832167-7bfc1748b565?auto=format&fit=crop&q=80&w=1600');
+        h1, h2, h3, .font-serif-jp { font-family: 'Noto Serif JP', serif; }
+        .font-elegant { font-family: 'Cormorant Garamond', serif; }
+
+        .hero-image {
+            background-image: linear-gradient(rgba(40, 35, 30, 0.4), rgba(40, 35, 30, 0.5)), url('hero.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            min-height: 70vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 2rem;
         }
-        .fade-in-up { animation: fadeInUp 1s ease-out forwards; opacity: 0; transform: translateY(20px); }
-        .delay-100 { animation-delay: 0.2s; }
-        .delay-200 { animation-delay: 0.4s; }
-        .delay-300 { animation-delay: 0.6s; }
-        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
-        /* Calendar Table Enhancements */
-        /* overscroll-behavior-xを追加し、横スワイプ時のブラウザバック誤爆を防止 */
-        .calendar-outer-wrapper { overflow-x: auto; background: white; border: 1px solid #ddd; border-radius: 12px; position: relative; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
-        .hpb-table { width: max-content; min-width: 100%; border-collapse: separate; border-spacing: 0; }
-        .hpb-table th, .hpb-table td { border: 0.5px solid #f0f0f0; text-align: center; height: 60px; padding: 0; position: relative; min-width: 80px; }
-        .time-col { background-color: #f9f9f9 !important; width: 60px !important; min-width: 60px !important; font-weight: bold; font-size: 11px; color: #666;}
-        .sticky-left { position: sticky; left: 0; z-index: 40; border-right: 2px solid #eee !important; box-shadow: 2px 0 5px rgba(0,0,0,0.02); }
-        .sticky-right { position: sticky; right: 0; z-index: 40; border-left: 2px solid #eee !important; box-shadow: -2px 0 5px rgba(0,0,0,0.02); }
-        #dateHeader th.time-col { z-index: 50; top: 0; }
-        #dateHeader th:not(.time-col) { background: #fff; position: sticky; top: 0; z-index: 20; border-bottom: 2px solid #eee; }
-        
-        .day-label { font-size: 10px; font-weight: bold; margin-bottom: 2px; }
-        .date-label { font-weight: 800; line-height: 1; }
-        .weekday-日 { color: #e53e3e; background: #fff5f5; }
-        .weekday-土 { color: #3182ce; background: #ebf8ff; }
-        .weekday-月 { background: #f7fafc; opacity: 0.8; }
+        .vertical-text {
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            letter-spacing: 0.2em;
+        }
 
-        .status-mark { font-size: 24px; font-weight: bold; display: flex; align-items: center; justify-content: center; height: 100%; width: 100%; transition: background 0.1s; }
-        .status-ok { color: var(--hpb-pink); cursor: pointer; background: #fff; }
-        .status-ok:active { background: #fff0f1; transform: scale(0.95); transition: transform 0.1s; } 
-        .status-ng { color: #ddd; background-color: #fafafa; cursor: not-allowed; font-size: 20px; }
-        .status-closed { background-color: #f1f1f1; color: #999; font-size: 11px; font-weight: bold; }
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-        /* お客様用：記号ごとのカラー設定 */
-        .mark-double { color: #e11d48; }
-        .mark-circle { color: #f59e0b; }
-        .mark-triangle { color: #10b981; }
+        .fade-in-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
 
-        .admin-active { background-color: #fffde7 !important; outline: 1px dashed #ffd600; z-index: 10; }
-        .admin-panel { background: #1a1a1a; color: white; position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--admin-blue); }
+        html { scroll-behavior: smooth; }
 
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 1000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
-        .step-content { display: none; }
-        .step-content.active { display: block; animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .deco-line::after {
+            content: '';
+            display: block;
+            width: 1px;
+            height: 60px;
+            background-color: var(--color-secondary);
+            margin: 20px auto 0;
+            opacity: 0.5;
+        }
 
-        .menu-card { cursor: pointer; border: 1px solid #eee; border-radius: 12px; background: white; transition: all 0.2s ease-out; }
-        .menu-card:active { transform: scale(0.96); border-color: var(--hpb-pink); } 
-        .karte-memo { background-color: #fefce8; background-image: linear-gradient(#fef08a 1px, transparent 1px); background-size: 100% 2rem; line-height: 2rem; border: 1px solid #fde047; }
+        .menu-dot {
+            flex-grow: 1;
+            border-bottom: 1px dotted #ccc;
+            margin: 0 10px;
+            opacity: 0.6;
+        }
     </style>
 </head>
-<!-- ★Android対策3: <body>のontouchstartはAndroidでスクロールを重くする原因になるため削除 -->
 <body>
 
-    <!-- 管理者パネル（初期は隠しておきます） -->
-    <div id="adminPanel" class="hidden admin-panel p-3 flex justify-between items-center text-center md:text-left">
-        <div class="flex items-center gap-2 text-[11px] font-black uppercase tracking-tighter">
-            <span class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></span>
-            hair Buzl Admin Professional
-        </div>
-        <label class="relative inline-flex items-center cursor-pointer scale-90">
-            <input type="checkbox" id="adminToggle" class="sr-only peer" onchange="window.toggleAdminMode(this.checked)">
-            <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-            <span class="ml-2 text-[10px] font-bold">MODE: <span id="modeLabel">OFF</span></span>
-        </label>
-    </div>
-
-    <!-- ========================================== -->
-    <!-- HP用 ヒーローエリア -->
-    <!-- ========================================== -->
-    <section class="hero-section">
-        <p class="fade-in-up text-[10px] md:text-xs font-bold text-[var(--brand-color)] tracking-[0.3em] uppercase mb-4">Asahikawa Toko Hair Salon</p>
-        
-        <img src="https://lh3.googleusercontent.com/a-/ALV-UjVbHWQd0csOkekj3lV7gy4llZw3My08KAjvNZ1jUMXr4j3TUmQ=s265-w265-h265" alt="hair Buzl" class="fade-in-up delay-100 w-32 h-32 md:w-40 md:h-40 rounded-full shadow-2xl mb-6 object-cover border-4 border-white">
-        <h1 class="sr-only">hair Buzl</h1>
-        
-        <h2 class="fade-in-up delay-200 text-lg md:text-2xl font-bold text-gray-700 mb-8 leading-relaxed">
-            365日、鏡を見るのが<br class="md:hidden">楽しくなる艶髪へ。
-        </h2>
-        <p class="fade-in-up delay-300 text-xs md:text-sm text-gray-500 mb-10 max-w-lg leading-loose px-4">
-            「くせ毛で悩んでいた過去の自分」を救うために。<br>
-            こだわりの髪質改善と、乾かすだけで決まる似合わせカットで、あなたの朝の15分を笑顔に変えます。
-        </p>
-        <button onclick="document.getElementById('reservation-section').scrollIntoView({behavior: 'smooth'})" class="fade-in-up delay-300 bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 px-10 rounded-full shadow-xl transition transform active:scale-95 tracking-widest text-sm">
-            空き状況を見る・予約する
-        </button>
-    </section>
-
-    <!-- 7周年バナー -->
-    <div class="max-w-4xl mx-auto px-4 mt-12 mb-8">
-        <div class="bg-gradient-to-r from-[#fff5f6] to-[#fff] border border-[#ffe4e6] rounded-xl p-4 flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 text-center shadow-sm">
-            <span class="text-2xl">🎉</span>
-            <div>
-                <p class="text-xs md:text-sm font-black text-[#e11d48] tracking-widest mb-1">【祝】7th Anniversary | 4.15</p>
-                <p class="text-[10px] md:text-xs text-gray-600 font-bold">おかげさまで7周年。感謝を込めて、最高の艶髪をお届けします。</p>
+    <header id="header" class="fixed w-full z-50 transition-all duration-500 bg-transparent py-4">
+        <div class="max-w-7xl mx-auto px-6 lg:px-12">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center h-full">
+                    <a href="#" class="h-12 md:h-16 inline-block">
+                        <img src="logo.png" alt="Hair Buzl" class="h-full object-contain filter invert brightness-0" id="logo-img">
+                    </a>
+                </div>
+                <nav class="hidden md:flex space-x-8 items-center">
+                    <a href="#concept" class="text-sm font-elegant tracking-widest text-white hover:text-stone-300 transition nav-link">Concept</a>
+                    <a href="#menu" class="text-sm font-elegant tracking-widest text-white hover:text-stone-300 transition nav-link">Menu</a>
+                    <a href="#stylist" class="text-sm font-elegant tracking-widest text-white hover:text-stone-300 transition nav-link">Stylist</a>
+                    <a href="#access" class="text-sm font-elegant tracking-widest text-white hover:text-stone-300 transition nav-link">Access</a>
+                    
+                    <!-- 予約ボタンの飛び先をGASのURLに変更 -->
+                    <a href="https://script.google.com/macros/s/AKfycbwheghSBC8E2-B7nW0Zz5AIc1tY9tnspoozjd3DV4RThr3jcdt0lofWQCVaz6ZXW32zlw/exec" class="border border-white text-white px-6 py-2 text-sm hover:bg-white hover:text-stone-900 transition nav-btn font-bold">
+                        Reservation
+                    </a>
+                </nav>
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-white focus:outline-none p-2 transition"><i class="fa-solid fa-bars text-2xl"></i></button>
+                </div>
             </div>
         </div>
-    </div>
+        
+        <div id="mobile-menu" class="fixed inset-0 bg-stone-900/98 backdrop-blur-md z-40 hidden flex-col justify-center items-center opacity-0 transition-opacity duration-300">
+            <button id="mobile-close-btn" class="absolute top-8 right-8 text-white text-3xl"><i class="fa-solid fa-xmark"></i></button>
+            <div class="flex flex-col items-center space-y-8">
+                <a href="#concept" class="text-2xl font-elegant tracking-widest text-stone-300 uppercase">Concept</a>
+                <a href="#menu" class="text-2xl font-elegant tracking-widest text-stone-300 uppercase">Menu</a>
+                <a href="#stylist" class="text-2xl font-elegant tracking-widest text-stone-300 uppercase">Stylist</a>
+                <a href="#access" class="text-2xl font-elegant tracking-widest text-stone-300 uppercase">Access</a>
+                
+                <!-- 予約ボタンの飛び先をGASのURLに変更 -->
+                <a href="https://script.google.com/macros/s/AKfycbwheghSBC8E2-B7nW0Zz5AIc1tY9tnspoozjd3DV4RThr3jcdt0lofWQCVaz6ZXW32zlw/exec" class="mt-8 bg-white text-stone-900 px-10 py-3 text-lg font-bold tracking-wider uppercase">Web Reservation</a>
+            </div>
+        </div>
+    </header>
 
+    <section class="hero-image h-screen flex items-center justify-center px-4 relative">
+        <div class="z-10 text-center">
+            <h1 class="text-4xl md:text-6xl text-white font-serif-jp font-light mb-8 tracking-[0.2em] leading-relaxed">髪と心に、<br class="md:hidden">新しい扉を。</h1>
+            <p class="text-xs md:text-sm text-stone-300 mb-12 font-light tracking-[0.3em] uppercase">Private Hair Salon in Asahikawa</p>
+        </div>
+        <div class="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center">
+            <span class="text-white/60 text-[10px] font-elegant tracking-widest mb-4 uppercase">Scroll</span>
+            <div class="w-[1px] h-12 bg-gradient-to-b from-white/60 to-transparent"></div>
+        </div>
+    </section>
 
-    <!-- ========================================== -->
-    <!-- ここから予約システム -->
-    <!-- ========================================== -->
-    <div id="reservation-section" class="pt-8"></div>
+    <!-- Concept -->
+    <section id="concept" class="py-32 px-6 lg:px-12 bg-white overflow-hidden text-center">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 lg:gap-24 items-center">
+            <div class="hidden lg:block fade-in-up">
+                <h2 class="vertical-text text-2xl font-serif-jp text-stone-800 leading-loose h-[450px]">
+                    お互いに笑顔になれる、<br>そんなお店を作りたい。
+                </h2>
+            </div>
+            <div class="w-full lg:w-5/12 relative fade-in-up">
+                <div class="aspect-[4/5] overflow-hidden shadow-2xl">
+                    <img src="photo21.jpg" alt="Interior" class="w-full h-full object-cover">
+                </div>
+                <div class="absolute -bottom-8 -right-8 w-full h-full border border-stone-200 -z-10"></div>
+            </div>
+            <div class="w-full lg:w-5/12 fade-in-up text-left">
+                <div class="mb-12">
+                    <p class="text-stone-400 font-elegant tracking-[0.3em] uppercase text-xs mb-2">Our Concept</p>
+                    <h2 class="text-5xl font-elegant text-stone-800 tracking-tighter">Hair Buzl</h2>
+                </div>
+                <div class="text-stone-600 leading-[2.4] font-light text-sm md:text-base text-justify space-y-8">
+                    <p>年齢とともに、髪の悩みは尽きないものです。なかなか人に話せなかったり、新しい一歩を踏み出せなかったり。</p>
+                    <p>そんな方々が、周りの目を気にせず、気軽に安心して相談できるプライベートな空間でありたいと強く思っています。</p>
+                    <p>自分らしく、楽しくライフスタイルを過ごしていただけるお手伝いをして、お互いに笑顔になれる。そんなお店を目指しています。</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <!-- お客様用：工事中（準備中）の画面 -->
-    <div id="maintenanceScreen" class="max-w-4xl mx-auto p-4 py-16 text-center mt-8">
-        <div class="bg-white p-10 rounded-3xl border border-gray-100 shadow-xl relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-pink-300 to-amber-300"></div>
-            <div class="text-6xl mb-6">🛠️</div>
-            <h2 class="text-xl font-black text-gray-800 mb-4">現在、予約システムを準備中です</h2>
-            <p class="text-sm text-gray-500 leading-relaxed mb-8">
-                より便利にご利用いただけるよう、システムの連携テストを行っております。<br>
-                ご不便をおかけいたしますが、ご予約・お問い合わせは、<br>ホットペッパービューティー、または公式LINEにてお願いいたします。
-            </p>
-            <div class="flex flex-col md:flex-row justify-center gap-4">
-                <a href="https://lin.ee/L8Z2tVsG" target="_blank" class="bg-[#06C755] text-white px-8 py-4 rounded-full font-bold shadow-md flex items-center justify-center gap-2 text-sm active:scale-95 transition-transform">
-                    <i class="fab fa-line text-lg"></i> 公式LINEはこちら
+    <!-- Menu -->
+    <section id="menu" class="py-32 px-6 lg:px-12 bg-stone-50">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-24 fade-in-up">
+                <p class="text-stone-400 font-elegant tracking-[0.3em] uppercase text-xs mb-2">Service</p>
+                <h2 class="text-5xl font-elegant text-stone-800 tracking-wider deco-line uppercase">Menu</h2>
+                <p class="mt-12 text-[10px] text-stone-500 tracking-widest uppercase">Tax Included / 税込価格</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-x-16 gap-y-24">
+                
+                <!-- 1. Cut -->
+                <div class="fade-in-up">
+                    <h3 class="text-xl font-serif-jp text-stone-800 border-b border-stone-200 pb-5 mb-10 tracking-widest flex items-center italic">
+                        <span class="w-1 h-1 bg-stone-400 rounded-full mr-4"></span>Hair Cut
+                    </h3>
+                    <ul class="space-y-10">
+                        <li>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <span class="text-sm font-medium">スタイリストカット</span><div class="menu-dot"></div><span class="font-serif-jp">¥3,850</span>
+                            </div>
+                            <p class="text-[11px] text-stone-500 leading-relaxed">12年のキャリアを持つオーナーによる似合わせカット。<span class="ml-2 border border-stone-200 px-1 rounded">60分</span></p>
+                        </li>
+                        <li>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <span class="text-sm font-medium">チャイルドカット <small class="text-stone-400 ml-1">(小学生まで)</small></span><div class="menu-dot"></div><span class="font-serif-jp">¥2,300</span>
+                            </div>
+                            <p class="text-[11px] text-stone-500 leading-relaxed">シャンプーは＋500円で追加可能です。<span class="ml-2 border border-stone-200 px-1 rounded">30分</span></p>
+                        </li>
+                        <li>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <span class="text-sm font-medium">スクールカット <small class="text-stone-400 ml-1">(中・高校生)</small></span><div class="menu-dot"></div><span class="font-serif-jp">¥2,950</span>
+                            </div>
+                            <p class="text-[11px] text-stone-500 leading-relaxed">中学生・高校生のヘアカットを提供いたします。<span class="ml-2 border border-stone-200 px-1 rounded">60分</span></p>
+                        </li>
+                        <li>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <span class="text-sm font-medium">U24限定カット <small class="text-stone-400 ml-1">(大学生まで)</small></span><div class="menu-dot"></div><span class="font-serif-jp">¥3,500</span>
+                            </div>
+                            <p class="text-[11px] text-stone-500 leading-relaxed">学生証をご提示ください。<span class="ml-2 border border-stone-200 px-1 rounded">60分</span></p>
+                        </li>
+                        <li>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <span class="text-sm font-medium">前髪カット</span><div class="menu-dot"></div><span class="font-serif-jp">¥1,100</span>
+                            </div>
+                            <p class="text-[11px] text-stone-500 leading-relaxed">1mmで顔の印象を左右する前髪のメンテナンスに。<span class="ml-2 border border-stone-200 px-1 rounded">30分</span></p>
+                        </li>
+                        <li>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <span class="text-sm font-medium">眉カット</span><div class="menu-dot"></div><span class="font-serif-jp">¥1,100</span>
+                            </div>
+                            <p class="text-[11px] text-stone-500 leading-relaxed">表情を明るく見せる重要なパーツケア。プロの手で理想の形に。<span class="ml-2 border border-stone-200 px-1 rounded">30分</span></p>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 2. Color -->
+                <div class="fade-in-up delay-100">
+                    <h3 class="text-xl font-serif-jp text-stone-800 border-b border-stone-200 pb-5 mb-10 tracking-widest flex items-center italic">
+                        <span class="w-1 h-1 bg-stone-400 rounded-full mr-4"></span>Color Design
+                    </h3>
+                    <ul class="space-y-10">
+                        <li>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <span class="text-sm font-medium">フルボ酸配合 艶髪フルカラー</span><div class="menu-dot"></div><span class="font-serif-jp">¥6,600〜</span>
+                            </div>
+                            <p class="text-[11px] text-stone-500 leading-relaxed">独自の「フルボ酸」配合。内側から発光するような深い艶を引き出します。<span class="ml-2 border border-stone-200 px-1 rounded">90分</span></p>
+                        </li>
+                        <li>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <span class="text-sm font-medium">カラーリタッチ <small class="text-stone-400 ml-1">(生え際2cm以内)</small></span><div class="menu-dot"></div><span class="font-serif-jp">¥5,500</span>
+                            </div>
+                            <p class="text-[11px] text-stone-500 leading-relaxed">フルボ酸配合で頭皮に優しく、毛先の色と正確につなげます。<span class="ml-2 border border-stone-200 px-1 rounded">60分</span></p>
+                        </li>
+                        <li>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <span class="text-sm font-medium">ブリーチ</span><div class="menu-dot"></div><span class="font-serif-jp">¥6,600〜</span>
+                            </div>
+                            <p class="text-[11px] text-stone-500 leading-relaxed">透明感・高彩度カラーを楽しむための必須工程。フルボ酸で断毛を防ぎます。<span class="ml-2 border border-stone-200 px-1 rounded">90分</span></p>
+                        </li>
+                        <li>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <span class="text-sm font-medium">ダブルブリーチ</span><div class="menu-dot"></div><span class="font-serif-jp">¥9,900〜</span>
+                            </div>
+                            <p class="text-[11px] text-stone-500 leading-relaxed">圧倒的な透明感や、極限まで明るい色味を希望される方向けの2段階工程。<span class="ml-2 border border-stone-200 px-1 rounded">120分</span></p>
+                        </li>
+                        <li>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <span class="text-sm font-medium">デザインカラー</span><div class="menu-dot"></div><span class="font-serif-jp">¥7,700〜</span>
+                            </div>
+                            <p class="text-[11px] text-stone-500 leading-relaxed">ハイライトやインナーカラーなど、髪に自然な動きと立体感を与えます。<span class="ml-2 border border-stone-200 px-1 rounded">120分</span></p>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 3. Texture -->
+                <div class="fade-in-up">
+                    <h3 class="text-xl font-serif-jp text-stone-800 border-b border-stone-200 pb-5 mb-10 tracking-widest flex items-center italic">
+                        <span class="w-1 h-1 bg-stone-400 rounded-full mr-4"></span>Perm & Straight
+                    </h3>
+                    <ul class="space-y-10">
+                        <li>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <span class="text-sm font-medium text-stone-900">フルボ酸配合 艶髪縮毛矯正 <small class="text-stone-400 font-normal ml-1">(カット込)</small></span><div class="menu-dot"></div><span class="font-serif-jp">¥16,500</span>
+                            </div>
+                            <p class="text-[11px] text-stone-500 leading-relaxed">当店の看板メニュー。シルクのような柔らかい艶感を叶えます。<span class="ml-2 border border-stone-200 px-1 rounded">180分</span></p>
+                        </li>
+                        <li>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <span class="text-sm font-medium">フルボ酸配合 部分矯正</span><div class="menu-dot"></div><span class="font-serif-jp">¥5,500</span>
+                            </div>
+                            <p class="text-[11px] text-stone-500 leading-relaxed">前髪や顔周りなど、特にクセが気になる部分をピンポイントでケア。<span class="ml-2 border border-stone-200 px-1 rounded">90分</span></p>
+                        </li>
+                        <li>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <span class="text-sm font-medium">フルボ酸配合 艶髪パーマ <small class="text-stone-400 font-normal ml-1">(カット込)</small></span><div class="menu-dot"></div><span class="font-serif-jp">¥9,900</span>
+                            </div>
+                            <p class="text-[11px] text-stone-500 leading-relaxed">乾燥やダメージを防ぎ、弾むような柔らかいカールを実現します。<span class="ml-2 border border-stone-200 px-1 rounded">120分</span></p>
+                        </li>
+                        <li>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <span class="text-sm font-medium">セラミックスカール <small class="text-stone-400 font-normal ml-1">(デジパ・カット込)</small></span><div class="menu-dot"></div><span class="font-serif-jp">¥15,000</span>
+                            </div>
+                            <p class="text-[11px] text-stone-500 leading-relaxed">コテで巻いたような立体ウェーブを長期間キープ。極上の手触り。<span class="ml-2 border border-stone-200 px-1 rounded">150分</span></p>
+                        </li>
+                        <li>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <span class="text-sm font-medium">特殊パーマ <small class="text-stone-400 font-normal ml-1">(スパイラル・ツイスト)</small></span><div class="menu-dot"></div><span class="font-serif-jp">¥11,000</span>
+                            </div>
+                            <p class="text-[11px] text-stone-500 leading-relaxed">高度な技術を駆使し、立体的なボリューム感と束感を作り上げます。<span class="ml-2 border border-stone-200 px-1 rounded">150分</span></p>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 4. Care -->
+                <div class="fade-in-up delay-100">
+                    <h3 class="text-xl font-serif-jp text-stone-800 border-b border-stone-200 pb-5 mb-10 tracking-widest flex items-center italic">
+                        <span class="w-1 h-1 bg-stone-400 rounded-full mr-4"></span>Care & Spa
+                    </h3>
+                    <ul class="space-y-10">
+                        <li>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <span class="text-sm font-medium">酸熱トリートメント</span><div class="menu-dot"></div><span class="font-serif-jp">¥7,700</span>
+                            </div>
+                            <p class="text-[11px] text-stone-500 leading-relaxed">熱で髪を内側から補強する最先端ケア。鏡のような艶と滑らかさ。<span class="ml-2 border border-stone-200 px-1 rounded">90分</span></p>
+                        </li>
+                        <li>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <span class="text-sm font-medium">フルボ酸配合 艶髪トリートメント</span><div class="menu-dot"></div><span class="font-serif-jp">¥2,950</span>
+                            </div>
+                            <p class="text-[11px] text-stone-500 leading-relaxed">豊富なミネラルとアミノ酸が深部まで浸透。ダメージを効率よく補給。<span class="ml-2 border border-stone-200 px-1 rounded">30分</span></p>
+                        </li>
+                        <li>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <span class="text-sm font-medium">癒やしのヘッドスパ</span><div class="menu-dot"></div><span class="font-serif-jp">¥3,500</span>
+                            </div>
+                            <p class="text-[11px] text-stone-500 leading-relaxed">溜まった疲れを解きほぐす至福の時間。健やかな頭皮環境を整えます。<span class="ml-2 border border-stone-200 px-1 rounded">30分</span></p>
+                        </li>
+                        <li>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <span class="text-sm font-medium">シャンプー・ブロー</span><div class="menu-dot"></div><span class="font-serif-jp">¥2,200</span>
+                            </div>
+                            <p class="text-[11px] text-stone-500 leading-relaxed">絶妙なボリューム感とツヤを創り上げます。リフレッシュにも最適。<span class="ml-2 border border-stone-200 px-1 rounded">30分</span></p>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+            
+            <div class="mt-24 text-center">
+                <p class="text-[10px] text-stone-400 tracking-[0.1em] mb-12 max-w-lg mx-auto leading-relaxed">※カラー・パーマ・矯正メニューは、髪の長さによりロング料金(¥500〜¥1,000)を頂戴する場合がございます。詳細は予約画面にてご確認ください。</p>
+                
+                <!-- 予約ボタンの飛び先をGASのURLに変更 -->
+                <a href="https://script.google.com/macros/s/AKfycbwheghSBC8E2-B7nW0Zz5AIc1tY9tnspoozjd3DV4RThr3jcdt0lofWQCVaz6ZXW32zlw/exec" class="inline-block bg-stone-800 text-white px-16 py-5 rounded-full font-bold tracking-widest hover:scale-105 transition shadow-2xl text-xs uppercase">
+                    Check Reservation / 空き状況を確認して予約する
                 </a>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- プログレスバー -->
-    <div id="progressBarContainer" class="hidden">
-        <div class="flex border-b border-t border-gray-100 bg-white max-w-4xl mx-auto sticky top-0 z-40 shadow-sm">
-            <div id="stepHeader1" class="flex-1 py-3 text-center border-b-2 border-[#ff7283] text-[#ff7283] font-bold text-[10px]">STEP1 メニュー</div>
-            <div id="stepHeader2" class="flex-1 py-3 text-center text-gray-300 font-bold text-[10px]">STEP2 日時</div>
-            <div id="stepHeader3" class="flex-1 py-3 text-center text-gray-300 font-bold text-[10px]">STEP3 入力</div>
-            <div id="stepHeader4" class="flex-1 py-3 text-center text-gray-300 font-bold text-[10px]">完了</div>
-        </div>
-        <div class="h-1 w-full max-w-4xl mx-auto bg-gray-50 overflow-hidden">
-            <div id="progressBar" class="h-full bg-[#ff7283] transition-all duration-500" style="width: 25%"></div>
-        </div>
-    </div>
-
-    <!-- メインコンテンツ -->
-    <main id="mainContent" class="hidden max-w-4xl mx-auto p-4 pb-24 text-center md:text-left mt-8">
-        
-        <!-- STEP1: メニュー選択 -->
-        <div id="step1" class="step-content active">
-            <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 text-gray-700 mb-1 text-left">メニューを選択</h2>
-            <p class="text-[10px] text-[#ff7283] font-bold mb-4 bg-pink-50 p-2 rounded-lg border border-pink-100 text-left">💡 複数のメニューを組み合わせてご予約いただけます（タップで選択・解除）</p>
-            <div id="menuList" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6"></div>
-            
-            <div id="step1Footer" class="bg-white p-4 rounded-2xl border-2 border-[#ff7283] shadow-lg sticky bottom-4 hidden z-50 transform transition-all">
-                <div class="flex justify-between items-end">
-                    <div class="text-left">
-                        <p class="text-[10px] text-gray-500 font-bold mb-1">選択中のメニュー（目安: <span id="totalTimeDisplay">0分</span>）</p>
-                        <p class="text-xl font-black text-[#ff7283]">合計 <span id="totalPriceDisplay">0</span></p>
-                    </div>
-                    <button onclick="window.goToStep2()" class="hpb-pink-btn px-6 py-3 text-sm font-bold shadow-md active:scale-95">日時を選択する</button>
+    <!-- Stylist Section -->
+    <section id="stylist" class="py-32 px-6 lg:px-12 bg-white">
+        <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-16 lg:gap-24">
+            <div class="relative w-64 h-64 shrink-0 fade-in-up">
+                <!-- 写真の周りの細い円装飾を維持 -->
+                <div class="absolute inset-0 border border-stone-300 rounded-full scale-110 -z-10"></div>
+                <!-- こだわりの道具（ハサミ）のイメージ画像 -->
+                <img src="https://images.unsplash.com/photo-1521590832167-7bfc1748b565?auto=format&fit=crop&q=80&w=800" alt="Professional Tools" class="w-full h-full object-cover rounded-full shadow-2xl">
+            </div>
+            <div class="fade-in-up text-center md:text-left">
+                <p class="text-stone-400 font-elegant tracking-widest text-[11px] mb-3 uppercase">Owner Stylist</p>
+                <h3 class="text-4xl font-serif-jp text-stone-800 mb-8 tracking-widest">谷口 博哉</h3>
+                <div class="text-stone-600 font-light text-sm md:text-base leading-[2.4] space-y-6">
+                    <p>思春期の頃からクセ毛に悩んでいた経験が、美容師を志すきっかけでした。</p>
+                    <p>独自の「フルボ酸」配合技術を駆使し、髪の芯から美しく整える施術にこだわっています。旭川では希少な、ダメージを抑えた縮毛矯正をぜひ体験してください。</p>
                 </div>
             </div>
         </div>
+    </section>
 
-        <!-- STEP2: 日時選択 -->
-        <div id="step2" class="step-content">
-            <div class="mb-4 bg-pink-50 p-3 rounded-lg border border-pink-100 text-left">
-                <p class="text-[10px] text-pink-400 font-bold uppercase leading-none mb-1">Selected Menu</p>
-                <div id="selectedMenuDisplay" class="text-sm font-bold text-gray-800"></div>
+    <!-- Access Section -->
+    <section id="access" class="py-32 px-6 lg:px-12 bg-[#f4f2f0]">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-24 fade-in-up">
+                <p class="text-stone-400 font-elegant tracking-[0.3em] uppercase text-xs mb-2">Location</p>
+                <h2 class="text-5xl font-elegant text-stone-800 tracking-wider deco-line uppercase">Access</h2>
             </div>
 
-            <!-- 管理者用テトリス機能 -->
-            <div id="adminTetrisSection" class="hidden mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 shadow-sm text-left">
-                <div class="flex items-center justify-between mb-3 border-b border-blue-100 pb-2">
-                    <h3 class="text-sm font-black text-blue-800 flex items-center gap-2">
-                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        空き枠テトリスマッチング
-                    </h3>
-                    <span class="text-[9px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">Auto Pick Up</span>
-                </div>
-                <div id="tetrisList" class="space-y-2 max-h-56 overflow-y-auto pr-2">
-                    <div class="text-center py-4 text-xs text-gray-400">隙間時間を検索中...</div>
-                </div>
-            </div>
-
-            <!-- お客様用ガイド -->
-            <div id="customerLegend" class="mb-4 bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-left">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Availability Guide</p>
-                <div class="grid grid-cols-2 gap-2">
-                    <div class="flex items-center gap-2 p-2 bg-rose-50 rounded-lg">
-                        <span class="text-[#e11d48] text-xl font-black">◎</span>
-                        <div>
-                            <p class="text-[10px] font-black text-gray-800 leading-none">余裕あり</p>
-                            <p class="text-[8px] text-gray-400 mt-1">長いメニューもご案内可能</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2 p-2 bg-amber-50 rounded-lg">
-                        <span class="text-[#f59e0b] text-xl font-black">〇</span>
-                        <div>
-                            <p class="text-[10px] font-black text-gray-800 leading-none">やや空き</p>
-                            <p class="text-[8px] text-gray-400 mt-1">カットやカラー等に最適</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2 p-2 bg-emerald-50 rounded-lg">
-                        <span class="text-[#10b981] text-xl font-black">△</span>
-                        <div>
-                            <p class="text-[10px] font-black text-gray-800 leading-none">残りわずか</p>
-                            <p class="text-[8px] text-gray-400 mt-1">前髪カット等短いメニューのみ</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
-                        <span class="text-gray-300 text-xl font-black">×</span>
-                        <div>
-                            <p class="text-[10px] font-black text-gray-800 leading-none">予約不可</p>
-                            <p class="text-[8px] text-gray-400 mt-1">別の時間をご検討ください</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <p class="text-[10px] text-pink-500 font-bold mb-1 flex items-center gap-1 justify-center md:justify-start">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
-                表は横にスワイプできます
-            </p>
-            
-            <div class="calendar-outer-wrapper shadow-lg">
-                <table class="hpb-table" id="calendarTable">
-                    <thead><tr id="dateHeader" class="bg-gray-50 text-gray-600"></tr></thead>
-                    <tbody id="calendarBody"></tbody>
-                </table>
-            </div>
-            
-            <p id="dynamicTimeNotice" class="font-bold text-gray-600 leading-relaxed bg-gray-50 p-2 rounded mt-3 text-[10px] text-left"></p>
-            <button onclick="window.changeStep(1)" class="mt-6 w-full py-3 border border-gray-300 text-gray-600 font-bold rounded-xl active:bg-gray-100 transition text-sm">メニュー選択へ戻る</button>
-        </div>
-
-        <!-- STEP3: 情報入力 -->
-        <div id="step3" class="step-content">
-            <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4 text-gray-700 text-left">お客様情報の入力</h2>
-            
-            <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-xl mb-6">
-                <!-- iPhoneでの意図しないズームインを防ぐため、text-base（16px）に変更 -->
-                <div class="mb-5 text-left">
-                    <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">Customer Name</label>
-                    <input type="text" id="custName" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-base focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="お名前（フルネーム）">
-                </div>
-                <div class="mb-5 text-left">
-                    <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">Phone Number</label>
-                    <input type="tel" id="custTel" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-base focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="090-0000-0000">
-                </div>
+            <div class="grid lg:grid-cols-2 gap-12 items-center bg-white p-8 lg:p-20 shadow-sm rounded-sm fade-in-up">
                 <div class="text-left">
-                    <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">Email <span class="text-[9px] font-normal text-gray-400">※ご案内用（任意）</span></label>
-                    <input type="email" id="custEmail" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-base focus:ring-2 focus:ring-[#ff7283] outline-none transition-all" placeholder="hello@example.com">
+                    <h3 class="text-3xl font-elegant text-stone-800 tracking-wider mb-14">Hair Buzl</h3>
+                    <ul class="space-y-12">
+                        <li class="flex items-start">
+                            <span class="w-24 text-[10px] font-elegant uppercase tracking-widest text-stone-400 pt-1">Address</span>
+                            <div class="text-sm font-light text-stone-600 leading-relaxed flex-1">
+                                〒078-8345<br>北海道旭川市東光5条6丁目3番5号<br>
+                                <small class="text-stone-400">※魚べい旭川東光店様 向かい</small>
+                            </div>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="w-24 text-[10px] font-elegant uppercase tracking-widest text-stone-400">Tel</span>
+                            <a href="tel:0166378631" class="text-lg font-bold text-stone-800 tracking-widest">0166-37-8631</a>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="w-24 text-[10px] font-elegant uppercase tracking-widest text-stone-400 pt-1">Opening</span>
+                            <div class="flex-1 space-y-4 text-sm font-light">
+                                <div class="flex justify-between max-w-xs border-b border-stone-100 pb-2">
+                                    <span>平日・土曜</span><span class="font-bold text-stone-800 uppercase">09:30 - 19:00</span>
+                                </div>
+                                <div class="flex justify-between max-w-xs border-b border-stone-100 pb-2">
+                                    <span>日曜・祝日</span><span class="font-bold text-stone-800 uppercase">09:30 - 18:00</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="w-24 text-[10px] font-elegant uppercase tracking-widest text-stone-400">Closed</span>
+                            <span class="text-sm text-red-500 font-bold tracking-widest">毎週月曜日 <span class="text-stone-400 font-normal text-[10px] ml-2">※その他不定休あり</span></span>
+                        </li>
+                    </ul>
                 </div>
-            </div>
-
-            <div class="mb-8 border border-gray-200 rounded-xl overflow-hidden text-left shadow-sm">
-                <div class="bg-gray-400 text-white text-[11px] font-bold p-3 tracking-widest">サロンからお客様への確認事項</div>
-                
-                <div class="p-4 md:p-6 bg-white flex flex-col md:flex-row gap-4 border-b border-gray-100">
-                    <div class="md:w-1/3 flex items-start gap-2 pt-1">
-                        <span class="bg-red-600 text-white text-[9px] px-2 py-0.5 rounded-sm font-bold shrink-0">必須</span>
-                        <span class="text-sm font-bold text-gray-700 leading-tight">ご来店に際しての<br class="hidden md:block">注意事項</span>
-                    </div>
-                    <div class="md:w-2/3 text-[11px] text-gray-600 space-y-3">
-                        <p class="leading-relaxed text-red-600 font-bold border-b border-gray-100 pb-3">■ 本ご予約は「仮予約（リクエスト）」です。<br>他サイトとの重複を防ぐため、オーナーが空き状況を確認した後に【確定】となります。確定・あるいはお時間変更のお願いにつきましては、サロンよりご連絡いたします。</p>
-                        <p class="leading-relaxed">一人営業の為、ご予約のキャンセルや日時変更につきましては、なるべくお早めに<strong>当店の公式LINE（メッセージ）</strong>にてご連絡をお願いいたします。</p>
-                        <p class="leading-relaxed text-gray-500">※現在コロナウイルス対策として、懸念がある方はご連絡・変更は承っております。</p>
-                        <label class="flex items-center gap-2 mt-4 cursor-pointer p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors w-fit">
-                            <input type="checkbox" id="agreeCheck" class="w-5 h-5 text-[#ff7283] rounded border-gray-300 focus:ring-[#ff7283]" onchange="window.toggleSubmitBtn()">
-                            <span class="text-sm font-black text-gray-800">確認しました</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="p-4 md:p-6 bg-gray-50 flex flex-col md:flex-row gap-4 items-start">
-                    <div class="md:w-1/3">
-                        <p class="text-sm font-bold text-gray-700 mb-1">お支払い予定金額</p>
-                        <p class="text-[10px] text-gray-500">（合計金額）</p>
-                    </div>
-                    <div class="md:w-1/3">
-                        <p class="font-black text-xl text-gray-800" id="step3Price">¥0</p>
-                    </div>
-                    <div class="md:w-1/3 text-[10px] text-gray-500 space-y-2">
-                        <p>※予約時の選択メニューや、来店時のメニュー変更により、実際の支払い金額と異なる場合があります。</p>
-                        <p class="text-pink-600 font-bold">※カラーやパーマ、縮毛矯正などのメニューは、髪の長さによりロング料金（¥500〜¥1,000）が加算される場合がございます。</p>
-                        <p>※サロンのキャンセル規定によりキャンセル料を請求される場合があります。</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-[#fff8f8] p-5 rounded-xl border border-pink-100 mb-8 text-left shadow-sm">
-                <h4 class="text-xs font-bold text-red-500 mb-3 flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/></svg>
-                    ご予約に関する注意事項
-                </h4>
-                <p class="text-[11px] text-gray-700 mb-3 leading-relaxed">
-                    <strong>【キャンセル・日時変更について】</strong><br>
-                    キャンセルや日時変更をご希望の場合は、<strong>前日までに当店の公式LINEのメッセージ</strong>にてご連絡をお願いいたします。当日の無断キャンセル等につきましては、キャンセル料が発生する場合がございます。
-                </p>
-                <p class="text-[10px] text-red-500 font-bold leading-relaxed border-t border-pink-100 pt-3">
-                    ※深夜帯や定休日のご予約につきましては、他サイトとの予約システムの兼ね合いにより、やむを得ず翌営業日にお時間変更のお願い（またはお断り）をご連絡させていただく場合がございます。あらかじめご了承ください。
-                </p>
-            </div>
-
-            <button id="finalSubmitBtn" disabled onclick="window.submitBooking()" class="w-full py-5 bg-gray-400 text-white font-bold rounded-xl shadow-lg transition-all flex justify-center items-center cursor-not-allowed">
-                <span id="btnText">仮予約（リクエスト）を送信する</span>
-            </button>
-            <p class="text-[10px] text-gray-400 text-center mt-3">※上の「確認しました」にチェックを入れるとボタンが押せます</p>
-            <button onclick="window.changeStep(2)" class="mt-6 w-full py-3 border border-gray-300 text-gray-600 font-bold rounded-xl active:bg-gray-100 transition text-sm">日時選択へ戻る</button>
-        </div>
-
-        <!-- STEP4: 完了 -->
-        <div id="step4" class="step-content text-center py-16 bg-white rounded-3xl border border-gray-50 shadow-inner">
-            <div class="text-7xl mb-6">🔔</div>
-            <h2 class="text-2xl font-black text-gray-800">仮予約を受け付けました</h2>
-            <div class="text-sm text-gray-500 mt-5 px-6 md:px-10 leading-relaxed text-center space-y-3">
-                <p>現在は<strong class="text-[#ff7283]">「仮予約（リクエスト）」</strong>の状態です。</p>
-                <p>お店側でスケジュールの空き状況を確認後、確定のご連絡をいたします。今しばらくお待ちくださいませ。</p>
-                <div class="bg-gray-50 p-4 rounded-xl mt-6 border border-gray-200">
-                    <span class="text-xs text-[#ff7283] font-bold block">※他サイトとの重複により、やむを得ずお時間変更をお願いする場合がございます。あらかじめご了承ください。</span>
-                </div>
-            </div>
-            <button onclick="location.reload()" class="mt-12 hpb-pink-btn px-10 py-4 font-bold">予約トップへ戻る</button>
-        </div>
-
-        <!-- 管理台帳 (管理者のみ) -->
-        <div id="adminBookingSection" class="mt-16 hidden text-left text-xs">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-sm font-bold border-l-4 border-blue-500 pl-2 text-blue-600 uppercase">Bookings Management</h2>
-                <span class="text-[9px] bg-blue-50 text-blue-500 px-2 py-1 rounded font-bold uppercase tracking-widest">Live Sync</span>
-            </div>
-
-            <div class="bg-white rounded-2xl border border-blue-100 shadow-xl p-6 mb-6">
-                <h3 class="text-sm font-black text-gray-700 mb-4 text-center">メニュー別 予約割合</h3>
-                <div class="relative w-full max-w-xs mx-auto aspect-square">
-                    <canvas id="menuChart"></canvas>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl border border-blue-100 shadow-xl overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-blue-50 text-blue-800 text-[10px] uppercase font-bold">
-                            <tr>
-                                <th class="p-4 whitespace-nowrap">日時 / Menu</th>
-                                <th class="p-4 whitespace-nowrap min-w-[250px]">お客様情報 / 顧客カルテ（永久保存）</th>
-                                <th class="p-4 text-center whitespace-nowrap min-w-[120px]">ステータス操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminBookingBody"></tbody>
-                    </table>
+                <div class="h-[450px] w-full rounded-sm overflow-hidden shadow-inner grayscale contrast-125 hover:grayscale-0 transition duration-1000">
+                    <iframe src="https://maps.google.co.jp/maps?output=embed&q=北海道旭川市東光5条6丁目3番5号" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
                 </div>
             </div>
         </div>
-    </main>
+    </section>
 
-    <!-- フッター（店舗情報） -->
-    <footer class="salon-footer text-center mt-12 bg-white border-t border-gray-100">
-        <div class="max-w-4xl mx-auto pt-16 pb-12">
-            <h3 class="font-black text-gray-800 text-2xl mb-2 tracking-tighter">hair Buzl</h3>
-            <p class="text-[10px] text-gray-400 tracking-widest uppercase mb-10">official website & reservation</p>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm px-6 text-center md:text-left">
-                <div class="space-y-6">
-                    <div>
-                        <p class="text-[9px] font-bold text-gray-300 uppercase tracking-widest mb-1">Address</p>
-                        <p class="text-gray-600 font-bold leading-relaxed">〒078-8345<br>北海道旭川市東光5条6-3-5</p>
-                        <a href="https://www.google.co.jp/maps/place/hair+Buzl%EF%BC%88%E3%83%98%E3%82%A2%E3%83%BC%E3%83%90%E3%82%BA%E3%83%BC%E3%83%AB%EF%BC%89/@43.7504669,142.4081245,17z/data=!3m1!4b1!4m6!3m5!1s0x5f0ce715a7519c21:0x6ef86dfa38558814!8m2!3d43.7504631!4d142.4107048!16s%2Fg%2F11qntq8d7c?entry=ttu&g_ep=EgoyMDI2MDMwMi4wIKXMDSoASAFQAw%3D%3D" target="_blank" class="inline-block mt-2 text-[10px] text-blue-500 hover:underline">Google Mapで見る ></a>
-                    </div>
-                    <div>
-                        <p class="text-[9px] font-bold text-gray-300 uppercase tracking-widest mb-1">Phone</p>
-                        <a href="tel:0166378631" class="text-xl font-black text-[#ff7283]">0166-37-8631</a>
-                    </div>
-                </div>
-                <div class="bg-gray-50 p-6 rounded-3xl space-y-4 shadow-sm border border-gray-100">
-                    <div class="flex justify-between items-center border-b border-white pb-2">
-                        <span class="text-[10px] font-bold text-gray-400">平日・土曜</span>
-                        <span class="font-black text-gray-700">09:30 - 19:00</span>
-                    </div>
-                    <div class="flex justify-between items-center border-b border-white pb-2">
-                        <span class="text-[10px] font-bold text-gray-400">日曜・祝日</span>
-                        <span class="font-black text-gray-700">09:30 - 18:00</span>
-                    </div>
-                    <div class="flex justify-between items-start">
-                        <span class="text-[10px] font-bold text-gray-400 mt-1">定休日</span>
-                        <div class="text-right">
-                            <span class="font-black text-red-400">毎週月曜日</span>
-                            <span class="block text-[9px] text-gray-500 font-bold mt-1">※その他不定休あり</span>
-                        </div>
-                    </div>
-                </div>
+    <footer class="bg-stone-900 py-20 text-center">
+        <div class="max-w-7xl mx-auto px-6 text-white">
+            <img src="logo.png" alt="Hair Buzl" class="h-10 mx-auto filter invert mb-16 brightness-0" onerror="this.style.display='none'">
+            <div class="flex justify-center space-x-14 mb-16 text-stone-500 text-[10px] tracking-[0.4em] uppercase font-bold">
+                <!-- フッターの予約リンクも変更 -->
+                <a href="https://script.google.com/macros/s/AKfycbwheghSBC8E2-B7nW0Zz5AIc1tY9tnspoozjd3DV4RThr3jcdt0lofWQCVaz6ZXW32zlw/exec" class="hover:text-white transition">Reservation</a>
+                <a href="https://www.instagram.com/hair_buzl/" target="_blank" class="hover:text-white transition">Instagram</a>
             </div>
-            
-            <div class="mt-12 pt-8 border-t border-gray-50 flex justify-center gap-4">
-                <a href="https://lin.ee/L8Z2tVsG" target="_blank" class="w-10 h-10 rounded-full bg-[#06C755] text-white flex items-center justify-center shadow-md hover:scale-110 transition-transform"><i class="fab fa-line text-xl"></i></a>
-                <a href="https://www.instagram.com/hair_buzl/" target="_blank" class="w-10 h-10 rounded-full bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888] text-white flex items-center justify-center shadow-md hover:scale-110 transition-transform"><i class="fab fa-instagram text-xl"></i></a>
-            </div>
-            
-            <!-- 秘密の入り口：ここを5回連続でタップします -->
-            <p id="secretDevBtn" onclick="window.handleSecretTap()" class="mt-8 text-[9px] font-bold text-gray-300 tracking-widest uppercase select-none cursor-pointer">&copy; 2026 hair Buzl. All Rights Reserved.</p>
+            <p class="text-[9px] text-stone-700 tracking-[0.5em] uppercase font-light">&copy; Hair Buzl. All Rights Reserved.</p>
         </div>
     </footer>
 
-    <!-- モーダル群 -->
-    <div id="messageModal" class="modal-overlay">
-        <div class="bg-white rounded-3xl w-full max-w-xs overflow-hidden shadow-2xl mx-4 transform transition-all">
-            <div class="p-8 text-center"><p id="messageModalText" class="text-sm font-bold text-gray-800 whitespace-pre-wrap mt-2"></p></div>
-            <div class="border-t border-gray-100"><button onclick="document.getElementById('messageModal').style.display='none'" class="w-full p-4 text-sm font-black text-[#ff7283] hover:bg-pink-50 transition-colors">OK</button></div>
-        </div>
-    </div>
-    <div id="actionConfirmModal" class="modal-overlay">
-        <div class="bg-white rounded-3xl w-full max-w-xs overflow-hidden shadow-2xl mx-4 transform transition-all">
-            <div class="p-8 text-center"><p id="actionConfirmText" class="text-sm font-bold text-gray-800 whitespace-pre-wrap mt-2"></p></div>
-            <div class="flex border-t border-gray-100">
-                <button onclick="document.getElementById('actionConfirmModal').style.display='none'" class="flex-1 p-4 text-sm font-bold text-gray-400 border-r hover:bg-gray-50 transition-colors">キャンセル</button>
-                <button id="actionConfirmBtn" class="flex-1 p-4 text-sm font-black text-red-500 hover:bg-red-50 transition-colors">実行する</button>
-            </div>
-        </div>
-    </div>
-    <div id="confirmModal" class="modal-overlay">
-        <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl mx-4 transform transition-all">
-            <div class="bg-gray-50 p-4 border-b text-center text-xs font-black text-gray-400 uppercase tracking-widest" id="modalTitle">CONFIRMATION</div>
-            <div class="p-8 text-center">
-                <p class="text-sm font-bold text-[#ff7283] mb-2" id="modalMenuName"></p>
-                <p class="text-3xl font-black text-gray-800 mb-4" id="selectedDateTimeDisplay"></p>
-                <div class="text-[11px] text-gray-500 space-y-1 mb-6">
-                    <p>【お会計予定】 <span id="modalPrice" class="font-bold"></span></p>
-                    <p>【所要目安】 <span id="modalTime"></span></p>
-                    <p class="text-[#10b981] font-bold mt-2" id="modalEndTimeDisplay"></p>
-                </div>
-                <div id="modalDescription" class="text-[10px] text-gray-400 mt-2">お間違いがなければ次に進んでください。</div>
-            </div>
-            <div class="flex border-t border-gray-100">
-                <button onclick="window.closeModal()" class="flex-1 p-5 text-sm font-bold text-gray-400 border-r hover:bg-gray-50 transition-colors">戻る</button>
-                <button id="modalConfirmBtn" class="flex-1 p-5 text-sm font-black text-[#ff7283] hover:bg-pink-50 transition-colors">次に進む</button>
-            </div>
-        </div>
+    <div id="floating-btn" class="fixed bottom-8 right-8 z-40 opacity-0 translate-y-4 transition-all duration-700 pointer-events-none">
+        <!-- 追従ボタンの飛び先も変更 -->
+        <a href="https://script.google.com/macros/s/AKfycbwheghSBC8E2-B7nW0Zz5AIc1tY9tnspoozjd3DV4RThr3jcdt0lofWQCVaz6ZXW32zlw/exec" class="flex items-center justify-center bg-stone-800 text-white px-8 py-5 rounded-full shadow-2xl hover:scale-105 transition tracking-[0.2em] text-[10px] font-bold uppercase">
+            <i class="fa-regular fa-calendar-check mr-4 text-lg"></i> Web Reservation
+        </a>
     </div>
 
-    <!-- 管理者（オーナー）パスワード入力画面 -->
-    <div id="adminAuthModal" class="modal-overlay">
-        <div class="bg-white rounded-3xl w-full max-w-xs p-8 shadow-2xl text-center mx-4 border-t-8 border-blue-500">
-            <h3 class="font-black text-gray-800 mb-2">Owner Only</h3>
-            <p class="text-[10px] text-gray-400 mb-6 font-bold uppercase tracking-widest">Authentication Required</p>
-            <input type="password" id="adminPass" class="w-full p-5 bg-gray-50 border-none rounded-2xl mb-6 text-center text-3xl font-black outline-none ring-2 ring-transparent focus:ring-blue-500 transition-all" placeholder="****" inputmode="numeric">
-            <div class="flex gap-3">
-                <button onclick="window.cancelAdmin()" class="flex-1 py-4 text-xs font-bold text-gray-400 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">戻る</button>
-                <button onclick="window.verifyAdmin()" class="flex-1 py-4 text-xs font-bold bg-blue-500 text-white rounded-xl shadow-lg active:scale-95 transition-all">認証</button>
-            </div>
-        </div>
-    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.fade-in-up').forEach(el => observer.observe(el));
 
-    <!-- 開発者（佐浦さん）パスワード入力画面 -->
-    <div id="devAuthModal" class="modal-overlay">
-        <div class="bg-gray-900 rounded-3xl w-full max-w-xs p-8 shadow-2xl text-center mx-4 border-t-8 border-pink-500">
-            <h3 class="font-black text-white mb-2">Developer Only</h3>
-            <p class="text-[10px] text-gray-400 mb-6 font-bold uppercase tracking-widest">Maintenance Mode</p>
-            <input type="password" id="devPass" class="w-full p-5 bg-gray-800 text-white border-none rounded-2xl mb-6 text-center text-3xl font-black outline-none ring-2 ring-transparent focus:ring-pink-500 transition-all" placeholder="****" inputmode="numeric">
-            <div class="flex gap-3">
-                <button onclick="document.getElementById('devAuthModal').style.display='none'" class="flex-1 py-4 text-xs font-bold text-gray-400 hover:bg-gray-800 rounded-xl transition-colors">戻る</button>
-                <button onclick="window.verifyDev()" class="flex-1 py-4 text-xs font-bold bg-pink-600 text-white rounded-xl shadow-lg active:scale-95 transition-all">認証</button>
-            </div>
-        </div>
-    </div>
+            const header = document.getElementById('header');
+            const logoImg = document.getElementById('logo-img');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const navBtn = document.querySelector('.nav-btn');
+            const floatingBtn = document.getElementById('floating-btn');
 
-    <!-- 開発者用コントロールパネル（9999認証後に表示） -->
-    <div id="devControlPanel" class="modal-overlay">
-        <div class="bg-gray-900 rounded-3xl w-full max-w-sm p-8 shadow-2xl mx-4 border-t-8 border-pink-500">
-            <h3 class="font-black text-white mb-2 text-center">Developer Control</h3>
-            <p class="text-[10px] text-gray-400 mb-6 font-bold uppercase tracking-widest text-center">System Settings</p>
-            
-            <div class="space-y-4">
-                <button onclick="window.enterBypassMode()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-slate-700 transition">
-                    🛠️ この端末だけ裏口から入る
-                </button>
-                <button onclick="window.setGlobalMaintenance(true)" class="w-full bg-red-900/50 text-red-500 border border-red-900 py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-red-900/80 transition">
-                    🔴 全体を「工事中」にする
-                </button>
-                <button onclick="window.setGlobalMaintenance(false)" class="w-full bg-green-900/50 text-green-500 border border-green-900 py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-green-900/80 transition">
-                    🌸 全体を「公開・再開」する
-                </button>
-            </div>
-            <div class="mt-6 pt-6 border-t border-gray-800">
-                <button onclick="document.getElementById('devControlPanel').style.display='none'" class="w-full py-4 text-xs font-bold text-gray-400 hover:bg-gray-800 rounded-xl transition-colors">閉じる</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- FontAwesome for footer icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- メインスクリプト -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, onSnapshot, setDoc, getDoc, addDoc, deleteDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // ★Android対策4: iOSのタップエフェクト(:active)を有効にしつつ、Androidのスクロール阻害を防ぐ安全な設定
-        document.addEventListener('touchstart', function() {}, {passive: true});
-
-        const NOTIFICATION_CONFIG = {
-            emailjs_public_key: "zUdr_cmgl8wIxtNLw",
-            emailjs_service_id: "service_tl9llam",
-            emailjs_template_id: "template_ih81vlp",
-            emailjs_review_template_id: "template_bx1t8sa",
-            gas_webapp_url: "https://script.google.com/macros/s/AKfycbysZoUs3vCr7N9k4gdylHLndbwMVzZ6qzGP3H4rrNfBI2cvOWxP60CXEhMF-VdDZasj8g/exec"
-        };
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDx_-XGUtxQN2Z0RAZ13Hzm5rzIRoTkx_E",
-            authDomain: "hair-buzl-reserve-b9420.firebaseapp.com",
-            projectId: "hair-buzl-reserve-b9420",
-            storageBucket: "hair-buzl-reserve-b9420.firebasestorage.app",
-            messagingSenderId: "947093013586",
-            appId: "1:947093013586:web:4727f3df59726d0b46cb8b",
-            measurementId: "G-0DJX0HY50R"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        
-        const appId = "hair-buzl-reserve-b9420";
-
-        let fbUser = null, reservationData = {}, bookingsList = [], bookedSlots = new Set(), customersData = {};
-        let hpbBlockedSlots = new Set();
-        let isAdmin = false, selectedMenu = null, selectedSlot = null, selectedMenus = [];
-        let menuChartInstance = null; 
-        
-        // メンテナンスモードの状態管理
-        let isMaintenance = false;
-
-        // 裏口用のタップカウンター
-        let tapCount = 0;
-        let tapTimeout = null;
-
-        window.handleSecretTap = () => {
-            tapCount++;
-            if (tapTimeout) clearTimeout(tapTimeout);
-            tapTimeout = setTimeout(() => { tapCount = 0; }, 2000); // 2秒以内に5回タップ
-            if (tapCount >= 5) {
-                tapCount = 0;
-                document.getElementById('devPass').value = '';
-                document.getElementById('devAuthModal').style.display = 'flex';
-            }
-        };
-
-        // 開発者用パスワードの認証
-        window.verifyDev = () => {
-            if(document.getElementById('devPass').value === '9999') {
-                document.getElementById('devAuthModal').style.display = 'none';
-                document.getElementById('devControlPanel').style.display = 'flex';
-            } else {
-                window.showAlert("認証エラー：パスワードが違います");
-            }
-        };
-
-        // この端末だけ裏口からシステムに入る処理
-        window.enterBypassMode = () => {
-            sessionStorage.setItem('bypassMaintenance', 'true');
-            document.getElementById('devControlPanel').style.display = 'none';
-            window.showAlert("裏口からシステムにアクセスしました。\n左上の「MODE: OFF」スイッチを押し、「0000」で管理者モードに入ってください。");
-            toggleMaintenanceUI(); 
-        };
-
-        // 全体を「工事中」または「公開」に切り替える処理
-        window.setGlobalMaintenance = async (isMaint) => {
-            document.getElementById('devControlPanel').style.display = 'none';
-            try {
-                // Firebaseのconfigにフラグを書き込む
-                const configRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config');
-                await setDoc(configRef, { maintenanceMode: isMaint }, { merge: true });
-                window.showAlert(isMaint ? "全体を【工事中】に設定しました。\nお客様からは予約できなくなります。" : "全体を【公開（再開）】に設定しました。\nお客様からの予約受付を再開します！");
-            } catch (e) {
-                window.showAlert("設定の変更に失敗しました。\n" + e.message);
-            }
-        };
-
-        // メンテナンス画面と通常画面を適切に切り替える関数
-        function toggleMaintenanceUI() {
-            const mainContent = document.getElementById('mainContent');
-            const progressBarContainer = document.getElementById('progressBarContainer');
-            const maintenanceScreen = document.getElementById('maintenanceScreen');
-            const adminPanel = document.getElementById('adminPanel');
-            
-            // この端末が裏口から入っているかどうか
-            const isBypass = sessionStorage.getItem('bypassMaintenance') === 'true';
-            
-            // 本当に工事中画面を見せるべきか（全体が工事中で、かつ裏口アクセスしていない場合）
-            const shouldShowMaintenance = isMaintenance && !isBypass;
-
-            if (shouldShowMaintenance) {
-                // お客様用：工事中画面を見せる
-                if(mainContent) mainContent.classList.add('hidden');
-                if(progressBarContainer) progressBarContainer.classList.add('hidden');
-                if(adminPanel) adminPanel.classList.add('hidden');
-                if(maintenanceScreen) maintenanceScreen.classList.remove('hidden');
-            } else {
-                // 公開中 または 裏口アクセス中：システムを見せる
-                if(mainContent) mainContent.classList.remove('hidden');
-                if(progressBarContainer) progressBarContainer.classList.remove('hidden');
-                if(adminPanel) adminPanel.classList.remove('hidden');
-                if(maintenanceScreen) maintenanceScreen.classList.add('hidden');
-            }
-        }
-
-        const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"];
-        
-        const menuData = [
-            { name: "スタイリストカット", time: 60, price: 3850, desc: "オーナーによる似合わせカット。", type: "cut" },
-            { name: "チャイルドカット", time: 30, price: 2300, desc: "小学生まで。", type: "cut" },
-            { name: "スクールカット", time: 60, price: 2950, desc: "中・高生限定。", type: "cut" },
-            { name: "U24限定カット", time: 60, price: 3500, desc: "大学生まで。", type: "cut" },
-            { name: "艶髪フルカラー", time: 90, price: 6600, desc: "■ロング料金 ¥500〜¥1000<br>フルボ酸配合、全体染め。", isStartingPrice: true },
-            { name: "カラーリタッチ", time: 60, price: 5500, desc: "根元2cm以内。" },
-            { name: "ブリーチ", time: 90, price: 6600, desc: "■ロング料金 ¥500〜¥1000<br>透明感カラーの土台。", isStartingPrice: true },
-            { name: "ダブルブリーチ", time: 120, price: 9900, desc: "■ロング料金 ¥500〜¥1000<br>極限の明るさを追求。", isStartingPrice: true },
-            { name: "デザインカラー", time: 120, price: 7700, desc: "■ロング料金 ¥500〜¥1000<br>ハイライト、インナー等。", isStartingPrice: true },
-            { name: "艶髪縮毛矯正", time: 180, price: 16500, desc: "■ロング料金 ¥500〜¥1000<br>看板メニュー。カット込。", includesCut: true, isStartingPrice: true },
-            { name: "艶髪パーマ", time: 120, price: 9900, desc: "■ロング料金 ¥500〜¥1000<br>柔らかい質感。カット込。", includesCut: true, isStartingPrice: true },
-            { name: "セラミックスカール", time: 150, price: 15000, desc: "■ロング料金 ¥500〜¥1000<br>進化系デジパ。カット込。", includesCut: true, isStartingPrice: true },
-            { name: "特殊パーマ", time: 150, price: 11000, desc: "■ロング料金 ¥500〜¥1000<br>ツイスト、スパイラル等。", isStartingPrice: true },
-            { name: "酸熱トリートメント", time: 90, price: 7700, desc: "■ロング料金 ¥500〜¥1000<br>髪質改善集中ケア。", isStartingPrice: true },
-            { name: "艶髪トリートメント", time: 30, price: 2950, desc: "潤いと質感をプラス。" },
-            { name: "前髪カット", time: 30, price: 1100, desc: "印象を変えるメンテナンス。" },
-            { name: "眉カット", time: 30, price: 1100, desc: "プロの手で清潔感を。" },
-            { name: "ヘッドスパ", time: 30, price: 3500, desc: "至福の癒やし。" },
-            { name: "部分矯正", time: 90, price: 5500, desc: "気になる部分のみ。" },
-            { name: "シャンプー・ブロー", time: 30, price: 2200, desc: "プロの仕上げ。" }
-        ];
-
-        const formatTime = (mins) => {
-            if (mins < 60) return `${mins}分`;
-            const h = Math.floor(mins / 60);
-            const m = mins % 60;
-            return m > 0 ? `${h}時間${m}分` : `${h}時間`;
-        };
-
-        window.showAlert = (msg) => {
-            document.getElementById('messageModalText').innerText = msg;
-            document.getElementById('messageModal').style.display = 'flex';
-        };
-
-        window.showConfirmAction = (msg, onConfirm) => {
-            document.getElementById('actionConfirmText').innerText = msg;
-            const btn = document.getElementById('actionConfirmBtn');
-            btn.onclick = () => {
-                document.getElementById('actionConfirmModal').style.display = 'none';
-                onConfirm();
-            };
-            document.getElementById('actionConfirmModal').style.display = 'flex';
-        };
-
-        window.onload = async () => {
-            initMenu();
-            if(NOTIFICATION_CONFIG.emailjs_public_key) emailjs.init(NOTIFICATION_CONFIG.emailjs_public_key);
-            try {
-                await signInAnonymously(auth);
-                onAuthStateChanged(auth, (u) => { 
-                    fbUser = u; 
-                    if(u) { startSync(); }
+            window.addEventListener('scroll', () => {
+                const scrolled = window.scrollY > 100;
+                header.classList.toggle('bg-white/95', scrolled);
+                header.classList.toggle('shadow-sm', scrolled);
+                header.classList.toggle('py-2', scrolled);
+                header.classList.toggle('py-4', !scrolled);
+                logoImg.classList.toggle('invert', !scrolled);
+                logoImg.classList.toggle('brightness-0', !scrolled);
+                navLinks.forEach(link => {
+                    link.classList.toggle('text-stone-600', scrolled);
+                    link.classList.toggle('text-white', !scrolled);
                 });
-            } catch(e) { console.error("Database connection failed", e); }
-        };
-
-        const initMenu = () => {
-            const list = document.getElementById('menuList');
-            if(!list) return;
-            list.innerHTML = "";
-            selectedMenus = []; 
-            window.updateStep1Footer(); 
-            
-            const updateCardUI = (c, isSelected) => {
-                if(!c) return;
-                const btnText = c.querySelector('.select-btn-text');
-                if (isSelected) {
-                    c.classList.remove('border-gray-100', 'bg-white');
-                    c.classList.add('border-[#ff7283]', 'bg-pink-50');
-                    btnText.innerText = '✓ 選択中';
-                    btnText.classList.remove('text-[#ff7283]');
-                    btnText.classList.add('text-white', 'bg-[#ff7283]', 'px-2', 'py-1', 'rounded');
-                } else {
-                    c.classList.remove('border-[#ff7283]', 'bg-pink-50');
-                    c.classList.add('border-gray-100', 'bg-white');
-                    btnText.innerText = 'Select >';
-                    btnText.classList.remove('text-white', 'bg-[#ff7283]', 'px-2', 'py-1', 'rounded');
-                    btnText.classList.add('text-[#ff7283]');
-                }
-            };
-
-            menuData.forEach((m, index) => {
-                const card = document.createElement('div');
-                card.id = `menu-card-${index}`;
-                card.className = "menu-card p-5 flex flex-col justify-between shadow-sm border border-gray-100 bg-white rounded-xl transition-all";
-                
-                card.onclick = () => { 
-                    const idx = selectedMenus.findIndex(sm => sm.name === m.name);
-                    
-                    if (idx > -1) {
-                        selectedMenus.splice(idx, 1);
-                        updateCardUI(card, false);
-                    } else {
-                        if (m.includesCut) {
-                            const cutIndexes = [];
-                            selectedMenus.forEach((sm, i) => { if(sm.type === "cut") cutIndexes.push(i); });
-                            
-                            if (cutIndexes.length > 0) {
-                                let cutNames = [];
-                                for (let i = cutIndexes.length - 1; i >= 0; i--) {
-                                    const cIdx = cutIndexes[i];
-                                    const cutMenu = selectedMenus[cIdx];
-                                    cutNames.push(cutMenu.name);
-                                    selectedMenus.splice(cIdx, 1);
-                                    
-                                    const cutMenuOriginalIndex = menuData.findIndex(md => md.name === cutMenu.name);
-                                    const cutCard = document.getElementById(`menu-card-${cutMenuOriginalIndex}`);
-                                    updateCardUI(cutCard, false);
-                                }
-                                window.showAlert(`💡 アシスト機能\n\n「${m.name}」はカットが含まれているメニューのため、選択されていた「${cutNames.join('、')}」を自動で解除し、料金・時間を調整しました！`);
-                            }
-                        } else if (m.type === "cut") {
-                            const includedMenu = selectedMenus.find(sm => sm.includesCut);
-                            if (includedMenu) {
-                                return window.showAlert(`💡 アシスト機能\n\n選択中の「${includedMenu.name}」には既にカットが含まれているため、追加でのカット選択は不要です！`);
-                            }
-                        }
-                        
-                        selectedMenus.push(m);
-                        updateCardUI(card, true);
-                    }
-                    window.updateStep1Footer();
-                };
-
-                const displayPrice = m.isStartingPrice ? `¥${m.price.toLocaleString()}〜` : `¥${m.price.toLocaleString()}`;
-
-                card.innerHTML = `
-                    <div class="flex justify-between items-start mb-2 text-left">
-                        <h3 class="font-black text-gray-800 text-[14px] leading-tight">${m.name}</h3>
-                        <p class="text-[14px] font-black text-[#ff7283]">${displayPrice}</p>
-                    </div>
-                    <p class="text-[10px] text-gray-400 mb-4 line-clamp-2 text-left">${m.desc}</p>
-                    <div class="flex items-center justify-between mt-auto">
-                        <span class="text-[9px] bg-gray-50 px-2 py-1 rounded text-gray-400 font-bold border border-gray-100">${formatTime(m.time)}</span>
-                        <span class="select-btn-text text-[11px] text-[#ff7283] font-black uppercase tracking-widest transition-colors">Select ></span>
-                    </div>`;
-                list.appendChild(card);
-            });
-        };
-
-        window.updateStep1Footer = () => {
-            const footer = document.getElementById('step1Footer');
-            if (selectedMenus.length > 0) {
-                footer.classList.remove('hidden');
-                
-                const hasStartingPrice = selectedMenus.some(m => m.isStartingPrice);
-                const totalPrice = selectedMenus.reduce((sum, m) => sum + Number(m.price), 0);
-                const totalPriceStr = hasStartingPrice ? `¥${totalPrice.toLocaleString()}〜` : `¥${totalPrice.toLocaleString()}`;
-                
-                const totalTime = selectedMenus.reduce((sum, m) => sum + Number(m.time), 0);
-                
-                document.getElementById('totalPriceDisplay').innerText = totalPriceStr;
-                document.getElementById('totalTimeDisplay').innerText = formatTime(totalTime);
-            } else {
-                footer.classList.add('hidden');
-            }
-        };
-
-        window.goToStep2 = () => {
-            if (selectedMenus.length === 0) return;
-            const menuNames = selectedMenus.map(m => m.name).join(' ＋ ');
-            const totalTime = selectedMenus.reduce((sum, m) => sum + Number(m.time), 0);
-            
-            const hasStartingPrice = selectedMenus.some(m => m.isStartingPrice);
-            const totalPrice = selectedMenus.reduce((sum, m) => sum + Number(m.price), 0);
-            const totalPriceStr = hasStartingPrice ? `¥${totalPrice.toLocaleString()}〜` : `¥${totalPrice.toLocaleString()}`;
-
-            selectedMenu = { name: menuNames, time: totalTime, price: totalPrice, priceStr: totalPriceStr };
-            
-            document.getElementById('selectedMenuDisplay').innerHTML = `<span>${menuNames}</span> <span class="ml-2 text-pink-300 font-normal">所要目安: ${formatTime(totalTime)} / 合計: ${totalPriceStr}</span>`;
-            
-            const noticeEl = document.getElementById('dynamicTimeNotice');
-            if (noticeEl) {
-                noticeEl.innerHTML = `<span class="text-[#ff7283] text-sm tracking-tight">【自動ブロック機能 稼働中】</span><br>選択されたメニューの所要時間（<span class="text-[#ff7283] font-black">${formatTime(totalTime)}</span>）が連続して空いている枠のみ「◎」を表示しています。`;
-            }
-
-            const step3PriceEl = document.getElementById('step3Price');
-            if (step3PriceEl) step3PriceEl.innerText = totalPriceStr;
-            
-            document.getElementById('customerLegend').style.display = 'block';
-
-            window.changeStep(2);
-            document.getElementById('reservation-section').scrollIntoView({behavior: 'smooth'});
-        };
-
-        window.toggleSubmitBtn = () => {
-            const btn = document.getElementById('finalSubmitBtn');
-            const chk = document.getElementById('agreeCheck');
-            if(chk.checked) {
-                btn.classList.remove('bg-gray-400', 'cursor-not-allowed');
-                btn.classList.add('bg-[#1a252f]', 'active:scale-[0.98]');
-                btn.disabled = false;
-            } else {
-                btn.classList.add('bg-gray-400', 'cursor-not-allowed');
-                btn.classList.remove('bg-[#1a252f]', 'active:scale-[0.98]');
-                btn.disabled = true;
-            }
-        };
-
-        const updateTetrisMatching = () => {
-            if (!isAdmin) return;
-            
-            const tetrisList = document.getElementById('tetrisList');
-            tetrisList.innerHTML = '';
-            let gapFound = false;
-            
-            const dates = [];
-            const now = new Date();
-            
-            for (let i = 0; i < 14; i++) {
-                const d = new Date(); d.setDate(now.getDate() + i);
-                const month = d.getMonth() + 1, date = d.getDate();
-                const id = `${d.getFullYear()}-${month.toString().padStart(2,'0')}-${date.toString().padStart(2,'0')}`;
-                const label = `${month}/${date}`;
-                const dayNames = ['日','月','火','水','木','金','土'];
-                dates.push({ id, label, dayName: dayNames[d.getDay()], dayOfWeek: d.getDay(), isToday: i === 0 });
-            }
-
-            dates.forEach(d => {
-                if (d.dayOfWeek === 1) return; // 月曜定休
-                let skipUntilIdx = -1;
-
-                timeSlots.forEach((t, tIdx) => {
-                    if (tIdx < skipUntilIdx) return;
-
-                    const hour = parseInt(t.split(':')[0]);
-                    if (d.dayOfWeek === 0 && hour >= 18) return;
-
-                    const freeSlots = getContinuousFreeSlots(d.id, d.dayOfWeek, tIdx);
-                    const freeMinutes = freeSlots * 30;
-
-                    if (freeMinutes === 60 || freeMinutes === 90) {
-                        if (d.isToday) {
-                             const currentHour = now.getHours();
-                             const currentMin = now.getMinutes();
-                             const slotHour = parseInt(t.split(':')[0]);
-                             const slotMin = parseInt(t.split(':')[1]);
-                             if (slotHour < currentHour || (slotHour === currentHour && slotMin <= currentMin)) return;
-                        }
-
-                        gapFound = true;
-                        const item = document.createElement('div');
-                        item.className = "flex items-center justify-between bg-white p-3 rounded-lg border border-blue-100 mb-2 shadow-sm";
-                        
-                        const timeText = `${d.label}(${d.dayName}) ${t}〜 (${freeMinutes/60}時間)`;
-                        const copyText = `${d.label}(${d.dayName}) ${t}から${freeMinutes/60}時間の空きが出ました！\nショートカットや前髪カットなど、短いメニューならすぐにご案内可能です✂️\n\n▼ご予約はこちらから\nhttps://lin.ee/L8Z2tVsG`;
-
-                        item.innerHTML = `
-                            <div>
-                                <p class="text-xs font-black text-gray-800">${timeText}</p>
-                                <p class="text-[9px] text-gray-500 mt-0.5">ショート・リタッチ等に最適</p>
-                            </div>
-                            <button class="bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-2 rounded text-[10px] font-bold transition-colors shadow-sm flex items-center gap-1" onclick="window.copyToClipboard(this, \`${copyText}\`)">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
-                                募集文をコピー
-                            </button>
-                        `;
-                        tetrisList.appendChild(item);
-                        skipUntilIdx = tIdx + freeSlots;
-                    }
-                });
+                navBtn.classList.toggle('border-stone-800', scrolled);
+                navBtn.classList.toggle('text-stone-800', scrolled);
+                navBtn.classList.toggle('border-white', !scrolled);
+                navBtn.classList.toggle('text-white', !scrolled);
+                floatingBtn.classList.toggle('opacity-0', !scrolled);
+                floatingBtn.classList.toggle('translate-y-4', !scrolled);
+                floatingBtn.classList.toggle('pointer-events-none', !scrolled);
             });
 
-            if (!gapFound) {
-                tetrisList.innerHTML = `<div class="text-center py-4 text-xs text-gray-500">直近14日間に「中途半端な隙間時間」はありません。<br>綺麗に予約が埋まっています！🎉</div>`;
-            }
-        };
+            const mobileBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const closeBtn = document.getElementById('mobile-close-btn');
 
-        window.copyToClipboard = (btnElement, text) => {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            textArea.style.position = "fixed";
-            textArea.style.left = "-999999px";
-            textArea.style.top = "-999999px";
-            document.body.appendChild(textArea);
-            
-            textArea.focus();
-            textArea.select();
-            
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    const originalText = btnElement.innerHTML;
-                    btnElement.innerHTML = `✓ コピー完了`;
-                    btnElement.classList.add('copy-success');
-                    setTimeout(() => {
-                        btnElement.innerHTML = originalText;
-                        btnElement.classList.remove('copy-success');
-                    }, 2000);
-                } else {
-                    window.showAlert("コピーに失敗しました。お手数ですが手動でコピーしてください。");
-                }
-            } catch (err) {
-                window.showAlert("コピーに失敗しました。お手数ですが手動でコピーしてください。");
-            }
-            document.body.removeChild(textArea);
-        };
-
-        const renderAdminBookings = () => {
-            const body = document.getElementById('adminBookingBody');
-            if(!body) return; body.innerHTML = '';
-            
-            [...bookingsList].sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0)).forEach(b => {
-                const tr = document.createElement('tr'); 
-                
-                const isPending = b.status === 'pending';
-                const isRejected = b.status === 'rejected';
-
-                // 背景色の出し分け
-                if (isRejected) {
-                    tr.className = "border-b border-gray-50 bg-gray-50 opacity-60 transition-colors text-left";
-                } else if (isPending) {
-                    tr.className = "border-b border-yellow-100 bg-yellow-50 hover:bg-yellow-100/50 transition-colors text-left";
-                } else {
-                    tr.className = "border-b border-gray-50 hover:bg-blue-50/30 transition-colors text-left";
-                }
-                
-                const customerMemo = customersData[b.customerTel] || ''; 
-                const emailText = b.customerEmail 
-                    ? `<div class="text-gray-500 text-[10px] mb-2 break-all font-mono">✉️ ${b.customerEmail}</div>` 
-                    : `<div class="text-gray-300 text-[10px] mb-2">✉️ メール未登録</div>`;
-                
-                // バッジの出し分け
-                let statusBadge = '';
-                if (isPending) {
-                    statusBadge = `<span class="bg-yellow-500 text-white text-[9px] px-2 py-0.5 rounded shadow-sm font-bold animate-pulse inline-block mb-1">未承認（要確認）</span>`;
-                } else if (isRejected) {
-                    statusBadge = `<span class="bg-gray-400 text-white text-[9px] px-2 py-0.5 rounded shadow-sm font-bold inline-block mb-1">お断り済</span>`;
-                } else {
-                    statusBadge = `<span class="bg-green-500 text-white text-[9px] px-2 py-0.5 rounded shadow-sm font-bold inline-block mb-1">予約確定</span>`;
-                }
-
-                // 右端アクションボタンの出し分け
-                let actionHtml = '';
-                if (isPending) {
-                    actionHtml = `
-                        <button class="bg-green-500 text-white px-3 py-2 rounded-lg text-[10px] font-black border border-green-600 hover:bg-green-600 active:scale-95 transition-all shadow-sm w-full mb-2" onclick="window.approveBooking('${b.id}', '${b.customerName}')">承認 (確定)</button>
-                        <button class="bg-white text-gray-500 px-3 py-2 rounded-lg text-[10px] font-black border border-gray-300 hover:bg-gray-50 active:scale-95 transition-all shadow-sm w-full" onclick="window.rejectBooking('${b.id}', '${b.customerName}')">否認 (お断り)</button>
-                    `;
-                } else if (isRejected) {
-                    actionHtml = `
-                        <button class="bg-white text-red-400 px-3 py-2 rounded-lg text-[10px] font-black border border-red-100 hover:bg-red-50 active:scale-95 transition-all shadow-sm w-full" onclick="window.deleteBooking('${b.id}')">履歴から削除</button>
-                    `;
-                } else {
-                    let reviewBtnHtml = '';
-                    if (b.reviewEmailSent) {
-                        reviewBtnHtml = `
-                            <button class="bg-gray-100 text-gray-400 px-3 py-2 rounded-lg text-[10px] font-black border border-gray-200 cursor-not-allowed shadow-sm flex items-center justify-center gap-1 w-full" disabled>
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                送信済
-                            </button>
-                        `;
-                    } else {
-                        reviewBtnHtml = `
-                            <button id="review-btn-${b.id}" class="bg-purple-50 text-purple-600 px-3 py-2 rounded-lg text-[10px] font-black border border-purple-100 hover:bg-purple-100 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-1 w-full" onclick="window.sendReviewEmail('${b.id}', '${b.customerEmail || ''}', '${b.customerName}')">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z"></path></svg>
-                                サンキュー送信
-                            </button>
-                        `;
-                    }
-                    actionHtml = `
-                        ${reviewBtnHtml}
-                        <button class="bg-white text-red-400 px-3 py-2 rounded-lg text-[10px] font-black border border-red-100 hover:bg-red-50 active:scale-95 transition-all shadow-sm w-full mt-2" onclick="window.deleteBooking('${b.id}')">削除</button>
-                    `;
-                }
-                
-                tr.innerHTML = `
-                    <td class="p-4 align-top">
-                        ${statusBadge}
-                        <div class="font-black text-gray-800 text-[11px] mb-1 mt-1">${b.dateTime}</div>
-                        <div class="text-[10px] text-gray-400 font-bold">${b.menu}</div>
-                    </td>
-                    <td class="p-4">
-                        <div class="font-black text-gray-800">${b.customerName} 様</div>
-                        <div class="text-blue-500 font-mono text-[10px] mt-1">${b.customerTel}</div>
-                        ${emailText}
-                        <div class="relative mt-2">
-                            <div class="absolute -top-2 left-2 bg-yellow-400 text-yellow-900 text-[10px] font-bold px-2 py-0.5 rounded shadow-sm z-10">顧客カルテ (自動保存)</div>
-                            <textarea id="memo-${b.id}" oninput="window.markMemoUnsaved('${b.id}')" class="karte-memo w-full rounded-lg p-3 pt-4 text-[10px] text-gray-700 shadow-inner focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-y" rows="3" placeholder="カラーの配合や、接客時の要望などを記録します...">${customerMemo}</textarea>
-                            <div class="text-right mt-1">
-                                <button id="memo-btn-${b.id}" class="text-[9px] bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 px-3 py-1.5 rounded shadow-sm transition" onclick="window.saveCustomerMemo('${b.id}', '${b.customerTel}')">
-                                    保存する
-                                </button>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="p-4 text-center align-middle">
-                        <div class="flex flex-col gap-1">
-                            ${actionHtml}
-                        </div>
-                    </td>
-                `;
-                body.appendChild(tr);
+            mobileBtn.addEventListener('click', () => {
+                mobileMenu.classList.remove('hidden');
+                setTimeout(() => mobileMenu.classList.remove('opacity-0'), 10);
             });
-        };
-
-        const startSync = () => {
-            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), (docSnap) => {
-                if (docSnap.exists()) {
-                    isMaintenance = docSnap.data().maintenanceMode === true;
-                } else {
-                    isMaintenance = false;
-                }
-                toggleMaintenanceUI();
-            }, (err) => console.warn("Sync error (settings):", err));
-
-            // HPB・Googleカレンダーからの予約データ（GASが書き込んだreservations）を監視
-            onSnapshot(collection(db, 'reservations'), (snap) => {
-                hpbBlockedSlots.clear();
-                let loadedCount = 0;
-                snap.forEach(doc => {
-                    const dateId = doc.id; // 例: "2026-03-11"
-                    const times = doc.data();
-                    for (const [timeStr, status] of Object.entries(times)) {
-                        if (status === '×' || status === 'x') {
-                            hpbBlockedSlots.add(`${dateId}_${timeStr}`); // "2026-03-11_19:00" として記憶
-                            loadedCount++;
-                        }
-                    }
-                });
-                
-                if (document.getElementById('step2').classList.contains('active')) renderCalendar();
-                if (isAdmin) updateTetrisMatching();
-            }, (err) => {
-                console.warn("Sync error (hpb reservations):", err);
+            closeBtn.addEventListener('click', () => {
+                mobileMenu.classList.add('opacity-0');
+                setTimeout(() => mobileMenu.classList.add('hidden'), 300);
             });
-
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'slots'), (snap) => {
-                reservationData = {}; snap.forEach(d => reservationData[d.id] = d.data().status);
-                renderCalendar();
-                if(isAdmin) updateTetrisMatching(); 
-            }, (err) => console.warn("Sync error (slots):", err));
-
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'customers'), (snap) => {
-                customersData = {};
-                snap.forEach(doc => { customersData[doc.id] = doc.data().memo || ""; });
-                if(isAdmin) renderAdminBookings();
-            }, (err) => console.warn("Sync error (customers):", err));
-
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), (snap) => {
-                bookingsList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                bookedSlots.clear(); 
-                bookingsList.forEach(b => {
-                    // 否認された予約はカレンダーの枠を埋めない
-                    if (b.status === 'rejected') return;
-
-                    let time = b.timeNeeded; 
-                    if (!time) {
-                        let calcTime = 0;
-                        const menuNames = b.menu ? b.menu.split(' ＋ ') : [];
-                        menuNames.forEach(mn => {
-                            const found = menuData.find(md => md.name === mn.trim());
-                            if (found) calcTime += found.time;
-                        });
-                        time = calcTime > 0 ? calcTime : 30;
-                    }
-
-                    const slotsCount = Math.ceil(time / 30);
-                    const parts = b.dateTime.split(' ');
-                    if(parts.length === 2) {
-                        const dateLabel = parts[0], startTime = parts[1], startIdx = timeSlots.indexOf(startTime);
-                        let targetDateId = b.dateId;
-                        if (!targetDateId) { 
-                            const [m, d] = dateLabel.split('/');
-                            const year = new Date().getFullYear();
-                            targetDateId = `${year}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
-                        }
-                        if(startIdx !== -1) {
-                            for(let i=0; i<slotsCount; i++) {
-                                if(startIdx + i < timeSlots.length) {
-                                    bookedSlots.add(`${targetDateId}_${timeSlots[startIdx + i]}`);
-                                }
-                            }
-                        }
-                    }
-                });
-                
-                renderAdminBookings();
-
-                if (document.getElementById('step2').classList.contains('active') === false) {
-                   renderCalendar();
-                } else {
-                   renderCalendar(); 
-                }
-                
-                if(isAdmin) updateTetrisMatching(); 
-                updateMenuChart(); 
-            }, (err) => console.warn("Sync error (bookings):", err));
-        };
-
-        const updateMenuChart = () => {
-            if (typeof Chart === 'undefined') return;
-
-            const ctx = document.getElementById('menuChart');
-            if (!ctx) return;
-
-            const menuCounts = {};
-            bookingsList.forEach(b => {
-                // 否認された予約はグラフに含めない
-                if (b.status === 'rejected') return;
-
-                if (b.menu) {
-                    const menus = b.menu.split(' ＋ ');
-                    menus.forEach(m => {
-                        const cleanMenu = m.trim();
-                        menuCounts[cleanMenu] = (menuCounts[cleanMenu] || 0) + 1;
-                    });
-                }
-            });
-
-            const sortedMenus = Object.keys(menuCounts).sort((a, b) => menuCounts[b] - menuCounts[a]);
-            const labels = sortedMenus;
-            const data = sortedMenus.map(m => menuCounts[m]);
-
-            if (menuChartInstance) {
-                menuChartInstance.destroy();
-            }
-
-            if (labels.length === 0) return;
-
-            menuChartInstance = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: [
-                            '#ff7283', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', 
-                            '#ec4899', '#06b6d4', '#14b8a6', '#f97316', '#6366f1'
-                        ],
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10, family: 'sans-serif' } } },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const value = context.raw;
-                                    const total = context.chart._metasets[context.datasetIndex].total;
-                                    const percentage = Math.round((value / total) * 100);
-                                    return ` ${context.label}: ${value}件 (${percentage}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        };
-
-        const getContinuousFreeSlots = (dateId, dayOfWeek, tIdx) => {
-            let freeCount = 0;
-            for (let i = 0; i < timeSlots.length - tIdx; i++) {
-                const targetIdx = tIdx + i;
-                const checkTimeStr = timeSlots[targetIdx];
-                const checkHour = parseInt(checkTimeStr.split(':')[0]);
-                
-                if (dayOfWeek === 0 && checkHour >= 18) break; 
-                if (dayOfWeek === 1) break; 
-                
-                const slotKey = `${dateId}_${checkTimeStr.replace(':','')}`;
-                
-                if (reservationData[slotKey] === 'ng') break;
-                if (bookedSlots.has(`${dateId}_${checkTimeStr}`)) break;
-                if (hpbBlockedSlots.has(`${dateId}_${checkTimeStr}`)) break;
-                
-                freeCount++;
-            }
-            return freeCount;
-        };
-
-        const isSlotAvailable = (dateId, dateLabel, dayOfWeek, timeStr, tIdx, slotsNeeded) => {
-            if (dayOfWeek === 1) return { status: "closed", symbol: "定休", class: "status-closed", canBook: false };
-            const hour = parseInt(timeStr.split(':')[0]);
-            if (dayOfWeek === 0 && hour >= 18) return { status: "out", symbol: "－", class: "text-gray-200 text-[18px]", canBook: false }; 
-            
-            if (isAdmin) {
-                const slotKey = `${dateId}_${timeStr.replace(':','')}`;
-                const isManuallyBlocked = reservationData[slotKey] === 'ng';
-                const isBooked = bookedSlots.has(`${dateId}_${timeStr}`);
-                const isHpbBooked = hpbBlockedSlots.has(`${dateId}_${timeStr}`);
-
-                if (isBooked || isHpbBooked) { return { status: "ng", symbol: "×", class: "text-blue-500 font-black bg-blue-50 text-[20px]", canBook: true }; }
-                if (isManuallyBlocked) { return { status: "ng", symbol: "×", class: "status-ng", canBook: true }; }
-                return { status: "ok", symbol: "◎", class: "status-ok text-[#e11d48]", canBook: true };
-            }
-
-            const freeSlots = getContinuousFreeSlots(dateId, dayOfWeek, tIdx);
-
-            const now = new Date();
-            const isToday = (dateId === `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')}`);
-            if (isToday) {
-                const currentHour = now.getHours();
-                const currentMin = now.getMinutes();
-                const slotMin = parseInt(timeStr.split(':')[1]);
-                if (hour < currentHour || (hour === currentHour && slotMin <= currentMin)) { return { status: "ng", symbol: "×", class: "status-ng", canBook: false }; }
-            }
-
-            if (freeSlots === 0) { return { status: "ng", symbol: "×", class: "status-ng", canBook: false }; }
-
-            if (slotsNeeded === null) {
-                let symbol = '×'; let statusClass = 'status-ok '; 
-                if (freeSlots >= 7) { symbol = '◎'; statusClass += 'mark-double'; } 
-                else if (freeSlots >= 3) { symbol = '〇'; statusClass += 'mark-circle'; } 
-                else { symbol = '△'; statusClass += 'mark-triangle'; }
-                return { status: "ok", symbol: symbol, class: statusClass, canBook: true };
-            } else {
-                if (freeSlots < slotsNeeded) { return { status: "ng", symbol: "×", class: "status-ng", canBook: false }; }
-                return { status: "ok", symbol: "◎", class: "status-ok mark-double", canBook: true };
-            }
-        };
-
-        const renderCalendar = () => {
-            const body = document.getElementById('calendarBody'), head = document.getElementById('dateHeader');
-            if(!body || !head) return;
-            
-            body.innerHTML = '';
-            head.innerHTML = '<th class="time-col sticky-left uppercase tracking-tighter">TIME</th>';
-            
-            const dates = [];
-            const now = new Date();
-            const slotsNeeded = isAdmin ? 1 : (selectedMenu ? Math.ceil(selectedMenu.time / 30) : null);
-            const daysToShow = 60; 
-
-            for (let i = 0; i < daysToShow; i++) {
-                const d = new Date(); d.setDate(now.getDate() + i);
-                const month = d.getMonth() + 1, date = d.getDate(), id = `${d.getFullYear()}-${month.toString().padStart(2,'0')}-${date.toString().padStart(2,'0')}`, label = `${month}/${date}`, dayNames = ['日','月','火','水','木','金','土'], dayOfWeek = d.getDay();
-                dates.push({id, label, dayName: dayNames[dayOfWeek], dayOfWeek});
-                
-                const th = document.createElement('th'); th.className = `weekday-${dayNames[dayOfWeek]} py-3`;
-                th.innerHTML = `<div class="day-label uppercase tracking-widest">${dayNames[dayOfWeek]}</div><div class="date-label text-sm tracking-tighter">${month}/${date}</div>`;
-                head.appendChild(th);
-
-                if (dayOfWeek === 0 && i < daysToShow - 1) {
-                    const thMid = document.createElement('th'); thMid.className = "time-col uppercase tracking-tighter bg-gray-50"; thMid.innerText = "TIME"; head.appendChild(thMid);
-                }
-            }
-            
-            const thRight = document.createElement('th');
-            thRight.className = "time-col sticky-right uppercase tracking-tighter";
-            thRight.innerText = "TIME";
-            head.appendChild(thRight);
-
-            timeSlots.forEach((t, tIdx) => {
-                const tr = document.createElement('tr');
-                const tdLeft = document.createElement('td'); tdLeft.className = "time-col sticky-left font-mono text-[10px]"; tdLeft.innerText = t; tr.appendChild(tdLeft);
-                
-                dates.forEach((d, dIdx) => {
-                    const availabilityData = isSlotAvailable(d.id, d.label, d.dayOfWeek, t, tIdx, slotsNeeded);
-                    const td = document.createElement('td');
-                    if(availabilityData.status === "closed") { td.className = 'status-closed'; td.innerText = '定休'; } 
-                    else if(availabilityData.status === "out") { td.className = 'text-gray-200 text-[18px]'; td.innerText = '－'; } 
-                    else {
-                        const div = document.createElement('div');
-                        div.className = `status-mark ${availabilityData.class}`;
-                        div.innerText = availabilityData.symbol;
-                        div.style.cursor = 'pointer';
-                        div.onclick = function(e) {
-                            e.stopPropagation();
-                            window.handleSlotClick(d, t, tIdx, availabilityData.status, availabilityData.canBook, td);
-                        };
-                        td.appendChild(div);
-                        if(isAdmin) td.classList.add('admin-active');
-                    }
-                    tr.appendChild(td);
-
-                    if (d.dayOfWeek === 0 && dIdx < dates.length - 1) {
-                        const tdMid = document.createElement('td'); tdMid.className = "time-col font-mono text-[10px] bg-gray-50"; tdMid.innerText = t; tr.appendChild(tdMid);
-                    }
-                });
-                
-                const tdRight = document.createElement('td'); tdRight.className = "time-col sticky-right font-mono text-[10px]"; tdRight.innerText = t; tr.appendChild(tdRight);
-                body.appendChild(tr);
-            });
-        };
-
-        window.handleSlotClick = (d, time, tIdx, status, canBook, tdElement) => {
-            if(!isAdmin && !canBook) return;
-
-            selectedSlot = { dateId: d.id, dateLabel: d.label, time, tIdx };
-            const modal = document.getElementById('confirmModal');
-            
-            if(isAdmin) {
-                const isBooked = bookedSlots.has(`${d.id}_${time}`); 
-                const isHpbBooked = hpbBlockedSlots.has(`${d.id}_${time}`);
-                
-                if (isBooked || isHpbBooked) {
-                    document.getElementById('selectedDateTimeDisplay').innerText = `${d.label} ${time}〜`;
-                    document.getElementById('modalMenuName').innerText = "予約枠の操作";
-                    document.getElementById('modalTitle').innerText = 'ADMIN INFO';
-                    document.getElementById('modalPrice').parentElement.style.display = 'none';
-                    document.getElementById('modalTime').parentElement.style.display = 'none';
-                    document.getElementById('modalEndTimeDisplay').style.display = 'none';
-                    
-                    let msg = "お客様の予約（または仮予約）が入っている枠です。\n承認や削除は下の「管理台帳」リストから行ってください。";
-                    if (isHpbBooked && !isBooked) {
-                        msg = "【HPB または 外部カレンダー】から予約が入っている枠です。\n自動でブロックされています。";
-                    }
-                    
-                    document.getElementById('modalDescription').innerText = msg;
-                    document.getElementById('modalConfirmBtn').innerText = "閉じる";
-                    document.getElementById('modalConfirmBtn').onclick = () => window.closeModal();
-                    modal.style.display = 'flex';
-                } else {
-                    const slotKey = `${d.id}_${time.replace(':','')}`;
-                    const currentStatus = reservationData[slotKey] || 'ok';
-                    const newStatus = currentStatus === 'ok' ? 'ng' : 'ok';
-                    
-                    if (tdElement) {
-                        const mark = tdElement.querySelector('.status-mark');
-                        if (mark) {
-                            if (newStatus === 'ng') {
-                                mark.className = 'status-mark status-ng';
-                                mark.innerText = '×';
-                            } else {
-                                mark.className = 'status-mark status-ok text-[#e11d48]';
-                                mark.innerText = '◎';
-                            }
-                        }
-                    }
-                    
-                    setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotKey), { status: newStatus }).catch(err => {
-                        console.error("保存エラー:", err);
-                    });
-                }
-            } else {
-                document.getElementById('modalTitle').innerText = 'CONFIRMATION';
-                document.getElementById('modalMenuName').innerText = selectedMenu.name;
-                document.getElementById('selectedDateTimeDisplay').innerText = `${d.label} ${time}〜`;
-                
-                document.getElementById('modalPrice').innerText = selectedMenu.priceStr;
-                document.getElementById('modalTime').innerText = `約${formatTime(selectedMenu.time)}`;
-                
-                const [startH, startM] = time.split(':').map(Number);
-                const totalMins = startH * 60 + startM + selectedMenu.time;
-                const endH = Math.floor(totalMins / 60);
-                const endM = (totalMins % 60).toString().padStart(2, '0');
-                const endTimeStr = `${endH}:${endM}`;
-                
-                const endTimeDisplay = document.getElementById('modalEndTimeDisplay');
-                endTimeDisplay.innerHTML = `✅ 終了予定：${endTimeStr}<br><span class="text-[9px] text-gray-400 font-normal">※後のご予約に被らず、確実にお時間確保できます。</span>`;
-                endTimeDisplay.style.display = 'block';
-
-                document.getElementById('modalPrice').parentElement.style.display = 'block';
-                document.getElementById('modalTime').parentElement.style.display = 'block';
-                document.getElementById('modalDescription').innerText = "お間違いがなければ次に進んでください。";
-
-                document.getElementById('modalConfirmBtn').innerText = "次に進む";
-                document.getElementById('modalConfirmBtn').onclick = () => { window.closeModal(); window.changeStep(3); };
-                
-                // ★ここが抜け落ちていました！確認モーダルを画面に表示する処理を追加
-                modal.style.display = 'flex';
-            }
-        };
-
-        window.markMemoUnsaved = (id) => {
-            const btn = document.getElementById(`memo-btn-${id}`);
-            if(btn && btn.innerText !== "保存する") {
-                btn.innerText = "保存する";
-                btn.classList.remove('bg-green-50', 'text-green-600', 'border-green-200');
-                btn.classList.add('bg-white', 'text-gray-600', 'border-gray-200', 'hover:bg-gray-50');
-            }
-        };
-
-        window.saveCustomerMemo = async (bookingId, tel) => {
-            if(!tel) return window.showAlert("電話番号が登録されていないため、カルテを保存できません。");
-            const memoText = document.getElementById(`memo-${bookingId}`).value;
-            const btn = document.getElementById(`memo-btn-${bookingId}`);
-            btn.disabled = true; btn.innerText = "保存中...";
-            try {
-                const customerRef = doc(db, 'artifacts', appId, 'public', 'data', 'customers', tel);
-                await setDoc(customerRef, { memo: memoText }, { merge: true });
-                
-                btn.innerText = "✓ 保存完了";
-                btn.classList.remove('bg-white', 'text-gray-600', 'border-gray-200', 'hover:bg-gray-50');
-                btn.classList.add('bg-green-50', 'text-green-600', 'border-green-200');
-                setTimeout(() => {
-                    btn.innerText = "保存する";
-                    btn.classList.remove('bg-green-50', 'text-green-600', 'border-green-200');
-                    btn.classList.add('bg-white', 'text-gray-600', 'border-gray-200', 'hover:bg-gray-50');
-                    btn.disabled = false;
-                }, 2000);
-            } catch(e) { window.showAlert("メモの保存に失敗しました"); btn.disabled = false; btn.innerText = "保存する"; }
-        };
-
-        window.sendReviewEmail = async (id, email, name) => {
-            if(!email || email === 'undefined') { return window.showAlert("お客様のメールアドレスが登録されていないため、送信できません。"); }
-            window.showConfirmAction(`${name} 様へサンキューメール（口コミ案内）を送信しますか？`, async () => {
-                const btn = document.getElementById(`review-btn-${id}`);
-                const originalContent = btn.innerHTML;
-                btn.disabled = true;
-                btn.innerHTML = `<svg class="animate-spin h-3 w-3 mr-1 text-purple-600 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>送信中...`;
-                try {
-                    const googleReviewLink = "https://g.page/r/CRSIVTj6bfhuEAE/review"; 
-                    await emailjs.send(NOTIFICATION_CONFIG.emailjs_service_id, NOTIFICATION_CONFIG.emailjs_review_template_id, { to_email: email, to_name: name, review_link: googleReviewLink });
-                    
-                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { reviewEmailSent: true });
-                    
-                    const booking = bookingsList.find(b => b.id === id);
-                    if (booking && booking.customerTel) {
-                        const memoBox = document.getElementById(`memo-${id}`);
-                        const today = new Date();
-                        const dateStr = `${today.getMonth()+1}/${today.getDate()}`;
-                        const log = `[${dateStr} サンキューメール送信済]`;
-                        memoBox.value = memoBox.value ? memoBox.value + `\n${log}` : log;
-                        window.saveCustomerMemo(id, booking.customerTel); 
-                    }
-                } catch(e) { console.error(e); window.showAlert("送信に失敗しました。\n※プレビュー環境の場合は制限がかかっている可能性があります。公開したURLでお試しください。"); btn.disabled = false; btn.innerHTML = originalContent; }
-            });
-        };
-
-        window.approveBooking = (id, name) => {
-            window.showConfirmAction(`${name} 様の予約を【承認（確定）】しますか？\n\n※承認後、お客様へLINE等で「確定しました」とご連絡してあげてください。`, async () => {
-                try {
-                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { status: 'approved' });
-                    window.showAlert("予約を確定しました！");
-                } catch(e) { window.showAlert("承認に失敗しました"); }
-            });
-        };
-
-        window.rejectBooking = (id, name) => {
-            window.showConfirmAction(`${name} 様の予約を【否認（お断り）】しますか？\n\n※カレンダーの枠が再び解放されます。\n※お客様へLINE等でお断りと別日程案内のご連絡をしてあげてください。`, async () => {
-                try {
-                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { status: 'rejected' });
-                    window.showAlert("予約をお断りし、カレンダー枠を解放しました。");
-                } catch(e) { window.showAlert("処理に失敗しました"); }
-            });
-        };
-
-        window.submitBooking = async () => {
-            const name = document.getElementById('custName').value.trim();
-            const tel = document.getElementById('custTel').value.trim();
-            const email = document.getElementById('custEmail') ? document.getElementById('custEmail').value.trim() : ""; 
-            const agreeCheck = document.getElementById('agreeCheck').checked;
-
-            if(!name || !tel) return window.showAlert("お名前と電話番号を入力してください。");
-            if(!agreeCheck) return window.showAlert("「ご来店に際しての注意事項」をご確認いただき、チェックを入れてください。");
-
-            const slotsNeeded = Math.ceil(selectedMenu.time / 30);
-            const parts = selectedSlot.dateId.split('-');
-            const d = new Date(parts[0], parts[1] - 1, parts[2]);
-            const dayOfWeek = d.getDay();
-            const availabilityData = isSlotAvailable(selectedSlot.dateId, selectedSlot.dateLabel, dayOfWeek, selectedSlot.time, selectedSlot.tIdx, slotsNeeded);
-            
-            if (!availabilityData.canBook) return window.showAlert("申し訳ございません。入力中に他のお客様の予約が入り、必要な時間枠が埋まってしまいました。");
-
-            const btn = document.getElementById('finalSubmitBtn'), btnText = document.getElementById('btnText');
-            btn.disabled = true; btnText.innerHTML = `<span class="loading-spinner"></span>送信中...`;
-            
-            try {
-                const now = new Date();
-                const visitDateTime = `${selectedSlot.dateLabel} ${selectedSlot.time}`;
-                
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), { 
-                    customerName: name, customerTel: tel, customerEmail: email, menu: selectedMenu.name, 
-                    dateTime: visitDateTime, dateId: selectedSlot.dateId, timeNeeded: selectedMenu.time, 
-                    status: "pending",
-                    timestamp: serverTimestamp() 
-                });
-
-                try {
-                    const customerRef = doc(db, 'artifacts', appId, 'public', 'data', 'customers', tel);
-                    getDoc(customerRef).then(docSnap => {
-                        if(!docSnap.exists() || !docSnap.data().memo) {
-                            const initDate = selectedSlot.dateLabel.replace('/', '月') + '日';
-                            setDoc(customerRef, { memo: `[${initDate}] 初回ご予約` }, { merge: true });
-                        }
-                    });
-                } catch(err) { console.warn("Customer init error:", err); }
-                
-                const notificationData = { 
-                    staff_name: name, 
-                    visit_date: visitDateTime, 
-                    menu_name: selectedMenu.name, 
-                    total_price: selectedMenu.priceStr, 
-                    booking_date: now.toLocaleString('ja-JP'), 
-                    customer_tel: tel,
-                    time_needed: selectedMenu.time,
-                    date_id: selectedSlot.dateId
-                };
-
-                if(NOTIFICATION_CONFIG.emailjs_service_id) {
-                    try { await emailjs.send(NOTIFICATION_CONFIG.emailjs_service_id, NOTIFICATION_CONFIG.emailjs_template_id, notificationData); } catch(emailError) { console.warn("EmailJS Error"); }
-                }
-
-                if(NOTIFICATION_CONFIG.gas_webapp_url && NOTIFICATION_CONFIG.gas_webapp_url.startsWith("https://script.google.com/")) {
-                    try {
-                        await fetch(NOTIFICATION_CONFIG.gas_webapp_url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(notificationData) });
-                    } catch(gasError) { console.warn("GAS Error", gasError); }
-                }
-                window.changeStep(4);
-            } catch(e) { window.showAlert(`エラーが発生しました。\n${e.message}`); btn.disabled = false; btnText.innerText = "仮予約（リクエスト）を送信する"; }
-        };
-
-        window.deleteBooking = (id) => window.showConfirmAction("予約を削除しますか？\n(カレンダーのブロックも解除されます)\n※顧客カルテのメモは残ります", async () => { try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id)); } catch(e) { window.showAlert("削除失敗"); } });
-        window.closeModal = () => document.getElementById('confirmModal').style.display = 'none';
-        
-        window.changeStep = (s) => { 
-            document.querySelectorAll('.step-content').forEach(c=>c.classList.remove('active'));
-            document.getElementById(`step${s}`).classList.add('active'); 
-            document.getElementById('progressBar').style.width = `${(s/4)*100}%`;
-            for(let i=1;i<=4;i++){ const h = document.getElementById(`stepHeader${i}`); if(h) h.className = (i === s) ? "flex-1 py-3 text-center border-b-2 border-[#ff7283] text-[#ff7283] font-black text-[10px]" : "flex-1 py-3 text-center text-gray-300 font-bold text-[10px]"; }
-            if(s === 3) { document.getElementById('agreeCheck').checked = false; window.toggleSubmitBtn(); }
-            
-            if (s > 1) {
-                document.getElementById('reservation-section').scrollIntoView({behavior: 'smooth'});
-            }
-            
-            if(s === 2) renderCalendar();
-        };
-
-        window.toggleAdminMode = (chk) => { 
-            if(chk) { 
-                document.getElementById('adminAuthModal').style.display = 'flex'; 
-            } else { 
-                isAdmin = false; 
-                document.getElementById('modeLabel').innerText='OFF'; 
-                document.getElementById('adminBookingSection').classList.add('hidden'); 
-                document.getElementById('adminTetrisSection').classList.add('hidden'); 
-                
-                toggleMaintenanceUI();
-                
-                window.changeStep(1); 
-            } 
-        };
-
-        window.verifyAdmin = () => { 
-            if(document.getElementById('adminPass').value==='0000'){ 
-                isAdmin=true; 
-                document.getElementById('modeLabel').innerText='ON'; 
-                document.getElementById('adminAuthModal').style.display='none'; 
-                
-                toggleMaintenanceUI();
-                
-                document.getElementById('adminBookingSection').classList.remove('hidden'); 
-                document.getElementById('adminTetrisSection').classList.remove('hidden'); 
-                document.getElementById('selectedMenuDisplay').innerHTML = `<span class="text-blue-600 font-black">【管理者モード】予約枠の操作（爆速モード）</span>`; 
-                document.getElementById('customerLegend').style.display = 'none'; 
-                const noticeEl = document.getElementById('dynamicTimeNotice'); 
-                if(noticeEl) noticeEl.innerHTML = `<span class="text-red-600 font-bold text-[12px]">【爆速ブロックモード稼働中】<br>枠をタップした瞬間に「×」「◎」が切り替わります。<br>サロンボードを見ながら、空き枠を素早く一致させてください。</span>`; 
-                
-                document.getElementById('adminToggle').checked = true;
-
-                updateTetrisMatching(); 
-                window.changeStep(2); 
-            } else { 
-                window.showAlert("認証エラー"); 
-            } 
-        };
-
-        window.cancelAdmin = () => { 
-            document.getElementById('adminToggle').checked = false; 
-            document.getElementById('adminAuthModal').style.display = 'none'; 
-        };
+        });
     </script>
 </body>
 </html>
