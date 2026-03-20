@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -9,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root { --hpb-pink: #ff7283; --hpb-border: #eee; --admin-blue: #3b82f6; --brand-color: #8a7a6b; }
@@ -35,34 +35,49 @@
         .status-ng { color: #ddd; background-color: #fafafa; cursor: not-allowed; font-size: 20px; }
         .status-closed { background-color: #f1f1f1; color: #999; font-size: 11px; font-weight: bold; }
 
-        /* stickyを外し、画面に追従しない自然な配置に変更 */
-.admin-panel { background: #1a1a1a; color: white; position: relative; z-index: 1000; border-bottom: 2px solid var(--admin-blue); }
+        .admin-panel { background: #1a1a1a; color: white; position: relative; z-index: 1000; border-bottom: 2px solid var(--admin-blue); }
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 2000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
         .step-content { display: none; }
         .step-content.active { display: block; }
 
-        /* 緊急停止用：メンテナンス画面 */
         #emergencyOverlay { display: none; position: fixed; inset: 0; background: #fff; z-index: 1500; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-align: center; }
     </style>
 </head>
 <body>
 
-    <div class="admin-panel p-2 flex justify-between items-center text-xs">
-    <div class="flex items-center gap-2">
-        <div class="flex items-center gap-1 font-black uppercase tracking-tighter text-blue-400">
-            <span class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></span>
-            ADMIN
+    <div id="emergencyOverlay">
+        <div class="text-6xl mb-6">⚙️</div>
+        <h2 class="text-2xl font-black text-gray-800 mb-4">ただいま予約システム調整中です</h2>
+        <p class="text-sm text-gray-500 leading-relaxed mb-8">
+            ご不便をおかけして申し訳ございません。<br>
+            現在、予約システムのメンテナンス中のため、一時的にネット予約を停止しております。
+        </p>
+        <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200 w-full max-w-sm shadow-inner">
+            <p class="text-xs text-gray-400 font-bold mb-3 uppercase tracking-widest">For Urgent Inquiries</p>
+            <p class="text-[10px] text-gray-500 mb-1">お急ぎの方はお電話にてお問い合わせください</p>
+            <a href="tel:0166378631" class="text-2xl font-black text-[#ff7283]">0166-37-8631</a>
         </div>
-        <button id="emergencyBtn" class="hidden bg-red-600 hover:bg-red-700 text-white text-[10px] font-black px-2 py-1 rounded-md shadow-md active:scale-95 transition-all flex items-center gap-1" onclick="window.toggleEmergencyStop()">
-            稼働中(緊急停止)
-        </button>
+        <p class="mt-12 text-[10px] text-gray-300 font-bold uppercase tracking-[0.3em]">Official hair Buzl</p>
     </div>
-    <label class="relative inline-flex items-center cursor-pointer scale-75 transform origin-right">
-        <input type="checkbox" id="adminToggle" class="sr-only peer" onchange="window.toggleAdminMode(this.checked)">
-        <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-        <span class="ml-2 font-bold text-white">MODE: <span id="modeLabel">OFF</span></span>
-    </label>
-</div>
+
+    <div class="admin-panel p-2 flex justify-between items-center text-xs">
+        <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1 font-black uppercase tracking-tighter text-blue-400">
+                <span class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></span>
+                ADMIN
+            </div>
+            <button id="emergencyBtn" class="hidden bg-red-600 hover:bg-red-700 text-white text-[10px] font-black px-2 py-1 rounded-md shadow-md active:scale-95 transition-all flex items-center gap-1" onclick="window.toggleEmergencyStop()">
+                稼働中(緊急停止)
+            </button>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer scale-75 transform origin-right">
+            <input type="checkbox" id="adminToggle" class="sr-only peer" onchange="window.toggleAdminMode(this.checked)">
+            <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+            <span class="ml-2 font-bold text-white">MODE: <span id="modeLabel">OFF</span></span>
+        </label>
+    </div>
+
+    <section class="hero-section">
         <p class="fade-in-up text-[10px] font-bold text-[var(--brand-color)] tracking-[0.3em] uppercase mb-4">Asahikawa Toko Hair Salon</p>
         <img src="https://lh3.googleusercontent.com/a-/ALV-UjVbHWQd0csOkekj3lV7gy4llZw3My08KAjvNZ1jUMXr4j3TUmQ=s265-w265-h265" alt="hair Buzl" class="fade-in-up w-32 h-32 rounded-full shadow-2xl mb-6 object-cover border-4 border-white">
         <h2 class="fade-in-up text-lg md:text-2xl font-bold text-gray-700 mb-8 leading-relaxed">365日、鏡を見るのが<br>楽しくなる艶髪へ。</h2>
@@ -108,26 +123,26 @@
             </div>
             <button onclick="window.changeStep(1)" class="mt-6 w-full py-3 border border-gray-300 text-gray-600 font-bold rounded-xl text-sm">メニュー選択へ戻る</button>
         </div>
-       <div id="step3" class="step-content">
-    <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4 text-gray-700 text-left">お客様情報の入力</h2>
-    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xl mb-6 text-left">
-        <input type="text" id="custName" 
-               class="w-full p-4 mb-4 bg-gray-50 border border-gray-200 rounded-xl text-base focus:ring-2 focus:ring-[#ff7283] outline-none" 
-               placeholder="お名前" autocomplete="name">
         
-        <input type="tel" id="custTel" 
-               class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-base focus:ring-2 focus:ring-[#ff7283] outline-none" 
-               placeholder="電話番号" inputmode="tel" autocomplete="tel">
-               
-        </div>
-    </div>
+        <div id="step3" class="step-content">
+            <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 mb-4 text-gray-700 text-left">お客様情報の入力</h2>
+            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xl mb-6 text-left">
+                <input type="text" id="custName" 
+                       class="w-full p-4 mb-4 bg-gray-50 border border-gray-200 rounded-xl text-base focus:ring-2 focus:ring-[#ff7283] outline-none" 
+                       placeholder="お名前" autocomplete="name">
+                <input type="tel" id="custTel" 
+                       class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-base focus:ring-2 focus:ring-[#ff7283] outline-none" 
+                       placeholder="電話番号" inputmode="tel" autocomplete="tel">
+            </div>
             <button id="finalSubmitBtn" disabled onclick="window.submitBooking()" class="w-full py-5 bg-gray-400 text-white font-bold rounded-xl shadow-lg">仮予約を送信する</button>
             <label class="flex items-center gap-2 mt-4 cursor-pointer justify-center"><input type="checkbox" id="agreeCheck" onchange="window.toggleSubmitBtn()"><span class="text-[10px] text-gray-500 font-bold underline">注意事項に同意します</span></label>
         </div>
+        
         <div id="step4" class="step-content text-center py-16">
             <h2 class="text-2xl font-black text-gray-800">仮予約を受け付けました</h2>
             <button onclick="location.reload()" class="mt-12 hpb-pink-btn px-10 py-4 font-bold">予約トップへ戻る</button>
         </div>
+        
         <div id="adminBookingSection" class="mt-16 hidden text-left text-xs">
             <h2 class="text-sm font-bold border-l-4 border-blue-500 pl-2 text-blue-600 uppercase mb-4">Bookings Management</h2>
             <div class="bg-white rounded-2xl border border-blue-100 shadow-xl overflow-hidden"><table class="w-full text-left"><tbody id="adminBookingBody"></tbody></table></div>
@@ -159,17 +174,19 @@
     </footer>
 
     <div id="messageModal" class="modal-overlay"><div class="bg-white p-8 rounded-3xl w-80 text-center shadow-2xl"><p id="messageModalText" class="text-sm font-bold"></p><button onclick="document.getElementById('messageModal').style.display='none'" class="mt-4 w-full p-4 text-[#ff7283] font-black">OK</button></div></div>
+    
     <div id="adminAuthModal" class="modal-overlay">
-    <div class="bg-white p-8 rounded-3xl w-80 text-center shadow-2xl border-t-8 border-blue-500">
-        <h3 class="font-black mb-4">Admin Password</h3>
-        <input type="password" id="adminPass" 
-               class="w-full p-4 bg-gray-50 rounded-xl mb-4 text-center text-2xl font-black outline-none" 
-               placeholder="****" inputmode="numeric">
-        <button onclick="window.verifyAdmin()" class="w-full py-4 bg-blue-500 text-white rounded-xl font-bold active:scale-95 transition-transform">
-            認証
-        </button>
+        <div class="bg-white p-8 rounded-3xl w-80 text-center shadow-2xl border-t-8 border-blue-500">
+            <h3 class="font-black mb-4">Admin Password</h3>
+            <input type="password" id="adminPass" 
+                   class="w-full p-4 bg-gray-50 rounded-xl mb-4 text-center text-2xl font-black outline-none" 
+                   placeholder="****" inputmode="numeric">
+            <button onclick="window.verifyAdmin()" class="w-full py-4 bg-blue-500 text-white rounded-xl font-bold active:scale-95 transition-transform">
+                認証
+            </button>
+        </div>
     </div>
-</div>
+    
     <div id="confirmModal" class="modal-overlay"><div class="bg-white p-8 rounded-3xl w-80 text-center shadow-2xl"><p id="selectedDateTimeDisplay" class="text-xl font-black mb-4"></p><button id="modalConfirmBtn" class="w-full p-4 bg-[#ff7283] text-white font-black rounded-xl">次に進む</button></div></div>
 
     <script type="module">
@@ -192,7 +209,6 @@
         window.onload = async () => { initMenu(); signInAnonymously(auth); onAuthStateChanged(auth, u => { if(u) startSync(); }); };
 
         const startSync = () => {
-            // ★緊急停止フラグの同期
             onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'emergency'), (doc) => {
                 isEmergencyStop = doc.exists() ? doc.data().active : false;
                 document.getElementById('emergencyOverlay').style.display = (isEmergencyStop && !isAdmin) ? 'flex' : 'none';
@@ -203,7 +219,6 @@
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), snap => { bookingsList = snap.docs.map(d => ({id:d.id, ...d.data()})); renderAdminBookings(); });
         };
 
-        // ★緊急停止トグル関数
         window.toggleEmergencyStop = async () => {
             const newState = !isEmergencyStop;
             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'emergency'), { active: newState });
@@ -212,8 +227,9 @@
         const initMenu = () => {
             const list = document.getElementById('menuList'); list.innerHTML = "";
             menuData.forEach((m, idx) => {
-                const card = document.createElement('div'); card.className = "p-4 border rounded-xl bg-white text-left cursor-pointer";
-                card.innerHTML = `<h3 class="font-bold text-sm">${m.name}</h3><p class="text-[10px] text-gray-400">${m.desc}</p><p class="text-pink-400 font-black">¥${m.price.toLocaleString()}</p>`;
+                const card = document.createElement('div'); card.className = "p-4 border rounded-xl bg-white text-left cursor-pointer hover:border-[#ff7283] transition-colors";
+                // ★修正：所要時間（m.time）を右上に表示するように復旧しました
+                card.innerHTML = `<div class="flex justify-between items-start"><h3 class="font-bold text-sm">${m.name}</h3><span class="text-[10px] text-gray-400 bg-gray-50 px-2 py-1 rounded-md">${m.time}分</span></div><p class="text-[10px] text-gray-400 mt-1">${m.desc}</p><p class="text-pink-400 font-black mt-2">¥${m.price.toLocaleString()}</p>`;
                 card.onclick = () => { selectedMenus = [m]; window.updateStep1Footer(); };
                 list.appendChild(card);
             });
@@ -229,33 +245,39 @@
         };
 
         window.toggleAdminMode = (chk) => { if(chk) { document.getElementById('adminAuthModal').style.display = 'flex'; } else { isAdmin = false; document.getElementById('modeLabel').innerText='OFF'; document.getElementById('adminBookingSection').classList.add('hidden'); document.getElementById('emergencyBtn').classList.add('hidden'); document.getElementById('emergencyOverlay').style.display = isEmergencyStop ? 'flex' : 'none'; } };
-        // ★修正後のパスワード認証（HTML側には正解を書かない）
-window.verifyAdmin = async () => {
-    const passInput = document.getElementById('adminPass').value;
-    
-    // GASの受付窓口に「このパスワード合ってる？」と聞きに行く
-    const response = await fetch(NOTIFICATION_CONFIG.gas_webapp_url, {
-        method: 'POST',
-        body: JSON.stringify({ type: 'verifyAdmin', password: passInput })
-    });
-    
-    const result = await response.json();
-
-    if(result.success === true){ 
-        // GASが「OK」と言った時だけログイン
-        isAdmin=true; 
-        document.getElementById('modeLabel').innerText='ON'; 
-        document.getElementById('adminAuthModal').style.display='none'; 
-        document.getElementById('adminBookingSection').classList.remove('hidden'); 
-        document.getElementById('emergencyBtn').classList.remove('hidden'); 
-        document.getElementById('emergencyOverlay').style.display = 'none'; 
-        window.changeStep(2);
-    } else { 
-        alert("パスワードが違います"); 
-    } 
-};
         
-        // 簡易版カレンダー
+        // ★GAS問い合わせによる安全なパスワード認証
+        window.verifyAdmin = async () => {
+            const passInput = document.getElementById('adminPass').value;
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = "確認中..."; btn.disabled = true;
+
+            try {
+                const response = await fetch(NOTIFICATION_CONFIG.gas_webapp_url, {
+                    method: 'POST',
+                    body: JSON.stringify({ type: 'verifyAdmin', password: passInput })
+                });
+                const result = await response.json();
+
+                if(result.success === true){ 
+                    isAdmin=true; 
+                    document.getElementById('modeLabel').innerText='ON'; 
+                    document.getElementById('adminAuthModal').style.display='none'; 
+                    document.getElementById('adminBookingSection').classList.remove('hidden'); 
+                    document.getElementById('emergencyBtn').classList.remove('hidden'); 
+                    document.getElementById('emergencyOverlay').style.display = 'none'; 
+                    window.changeStep(2);
+                } else { 
+                    alert("パスワードが違います"); 
+                } 
+            } catch (e) {
+                alert("通信エラーが発生しました。");
+            } finally {
+                btn.innerText = originalText; btn.disabled = false;
+            }
+        };
+        
         const renderCalendar = () => {
             const body = document.getElementById('calendarBody'), head = document.getElementById('dateHeader');
             if(!body || !head) return;
