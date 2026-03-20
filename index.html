@@ -1313,7 +1313,7 @@
         };
 
         window.toggleAdminMode = (chk) => { if(chk) { document.getElementById('adminAuthModal').style.display = 'flex'; } else { isAdmin = false; document.getElementById('modeLabel').innerText='OFF'; document.getElementById('adminBookingSection').classList.add('hidden'); document.getElementById('adminTetrisSection').classList.add('hidden'); const noticeEl = document.getElementById('dynamicTimeNotice'); if (noticeEl) noticeEl.innerHTML = ""; document.getElementById('customerLegend').style.display = 'block'; window.changeStep(1); } };
-        window.verifyAdmin = () => { if(document.getElementById('adminPass').value==='0000'){ isAdmin=true; document.getElementById('modeLabel').innerText='ON'; document.getElementById('adminAuthModal').style.display='none'; document.getElementById('adminBookingSection').classList.remove('hidden'); document.getElementById('adminTetrisSection').classList.remove('hidden'); document.getElementById('selectedMenuDisplay').innerHTML = `<span class="text-blue-600 font-black">【管理者モード】予約枠の操作</span>`; document.getElementById('customerLegend').style.display = 'none'; const noticeEl = document.getElementById('dynamicTimeNotice'); if(noticeEl) noticeEl.innerHTML = `<span class="text-gray-600 font-bold text-[11px]">枠をタップして「×」と「◎」を切り替えます。<br>※<span class="text-blue-500 text-lg">×</span>（青色）はお客様の予約が入っている枠です。</span>`; updateTetrisMatching(); window.changeStep(2); } else { window.showAlert("認証エラー"); } };
+        window.verifyAdmin = () => { if(document.getElementById('adminPass').value==='1031'){ isAdmin=true; ...
         window.cancelAdmin = () => { document.getElementById('adminToggle').checked = false; document.getElementById('adminAuthModal').style.display = 'none'; };
     </script>
 </body>
