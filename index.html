@@ -309,13 +309,63 @@
             const body = document.getElementById('calendarBody'), head = document.getElementById('dateHeader');
             if(!body || !head) return;
             body.innerHTML = ''; head.innerHTML = '<th class="time-col sticky-left">TIME</th>';
-            const d = new Date(); const label = `${d.getMonth()+1}/${d.getDate()}`;
-            head.innerHTML += `<th class="py-3">${label}</th>`;
+            
+            const dates = [];
+            const today = new Date();
+            // ★目標の日付を設定（2026年6月12日 ※プログラム上、月は「5」と書きます）
+            const endDate = new Date(2026, 5, 12); 
+
+            // 今日から目標の日付まで、1日ずつカレンダーの列を作っていく
+            let currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            while (currentDate <= endDate) {
+                dates.push(new Date(currentDate));
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            // ヘッダー（日付と曜日）の作成
+            dates.forEach(d => {
+                const label = `${d.getMonth()+1}/${d.getDate()}`;
+                const dayStr = ['日','月','火','水','木','金','土'][d.getDay()];
+                
+                let colorClass = 'text-gray-600';
+                if(d.getDay() === 0) colorClass = 'text-red-500'; // 日曜
+                if(d.getDay() === 6) colorClass = 'text-blue-500'; // 土曜
+                if(d.getDay() === 1) colorClass = 'text-red-400'; // 月曜定休
+
+                head.innerHTML += `<th class="py-3 min-w-[80px] ${colorClass}"><div class="text-sm font-bold">${label}</div><div class="text-[10px]">(${dayStr})</div></th>`;
+            });
+
+            // 時間帯ごとに各日の枠を作成
             timeSlots.forEach(t => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td class="time-col sticky-left">${t}</td><td class="status-ok">◎</td>`;
+                let rowHtml = `<td class="time-col sticky-left">${t}</td>`;
+                
+                dates.forEach(d => {
+                    // 日付を「2026-06-12」の形式に直す
+                    const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                    const slotId = `${dateStr}_${t}`;
+                    
+                    // ★金庫（Firestore）からデータを引っ張ってくる！塞いだ枠はここで復活します
+                    const status = reservationData[slotId] || 'ok';
+                    const isHoliday = (d.getDay() === 1); 
+                    
+                    if (isHoliday) {
+                        rowHtml += `<td class="status-closed bg-gray-50 text-gray-300 text-xs">休</td>`;
+                    } else if (status === 'ok') {
+                        rowHtml += `<td class="status-ok hover:bg-pink-50 transition-colors" onclick="window.selectSlot('${dateStr}', '${t}')">◎</td>`;
+                    } else {
+                        // オーナーが手動で塞いだ枠、または予約済みの枠
+                        rowHtml += `<td class="status-ng">×</td>`;
+                    }
+                });
+                tr.innerHTML = rowHtml;
                 body.appendChild(tr);
             });
+        };
+
+        // カレンダーの「◎」を押した時の処理
+        window.selectSlot = (dateStr, timeStr) => {
+            window.changeStep(3);
         };
 
         window.changeStep = (s) => { document.querySelectorAll('.step-content').forEach(c=>c.classList.remove('active')); document.getElementById(`step${s}`).classList.add('active'); };
