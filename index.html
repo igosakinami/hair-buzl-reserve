@@ -175,7 +175,17 @@
     </footer>
 
     <div id="messageModal" class="modal-overlay"><div class="bg-white p-8 rounded-3xl w-80 text-center shadow-2xl"><p id="messageModalText" class="text-sm font-bold"></p><button onclick="document.getElementById('messageModal').style.display='none'" class="mt-4 w-full p-4 text-[#ff7283] font-black">OK</button></div></div>
-    <div id="adminAuthModal" class="modal-overlay"><div class="bg-white p-8 rounded-3xl w-80 text-center shadow-2xl border-t-8 border-blue-500"><h3 class="font-black mb-4">Admin Password</h3><input type="password" id="adminPass" class="w-full p-4 bg-gray-50 rounded-xl mb-4 text-center text-2xl font-black" placeholder="****"><button onclick="window.verifyAdmin()" class="w-full py-4 bg-blue-500 text-white rounded-xl font-bold">認証</button></div></div>
+    <div id="adminAuthModal" class="modal-overlay">
+    <div class="bg-white p-8 rounded-3xl w-80 text-center shadow-2xl border-t-8 border-blue-500">
+        <h3 class="font-black mb-4">Admin Password</h3>
+        <input type="password" id="adminPass" 
+               class="w-full p-4 bg-gray-50 rounded-xl mb-4 text-center text-2xl font-black outline-none" 
+               placeholder="****" inputmode="numeric">
+        <button onclick="window.verifyAdmin()" class="w-full py-4 bg-blue-500 text-white rounded-xl font-bold active:scale-95 transition-transform">
+            認証
+        </button>
+    </div>
+</div>
     <div id="confirmModal" class="modal-overlay"><div class="bg-white p-8 rounded-3xl w-80 text-center shadow-2xl"><p id="selectedDateTimeDisplay" class="text-xl font-black mb-4"></p><button id="modalConfirmBtn" class="w-full p-4 bg-[#ff7283] text-white font-black rounded-xl">次に進む</button></div></div>
 
     <script type="module">
