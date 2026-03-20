@@ -228,16 +228,31 @@
         };
 
         window.toggleAdminMode = (chk) => { if(chk) { document.getElementById('adminAuthModal').style.display = 'flex'; } else { isAdmin = false; document.getElementById('modeLabel').innerText='OFF'; document.getElementById('adminBookingSection').classList.add('hidden'); document.getElementById('emergencyBtn').classList.add('hidden'); document.getElementById('emergencyOverlay').style.display = isEmergencyStop ? 'flex' : 'none'; } };
-        window.verifyAdmin = () => { 
-            // ★パスワード 1031 に設定
-            if(document.getElementById('adminPass').value==='1031'){ 
-                isAdmin=true; document.getElementById('modeLabel').innerText='ON'; document.getElementById('adminAuthModal').style.display='none'; 
-                document.getElementById('adminBookingSection').classList.remove('hidden'); 
-                document.getElementById('emergencyBtn').classList.remove('hidden'); // 管理者モード中のみボタン表示
-                document.getElementById('emergencyOverlay').style.display = 'none'; // 管理者は調整中画面を無視できる
-                window.changeStep(2);
-            } else { alert("パスワードが違います"); } 
-        };
+        // ★修正後のパスワード認証（HTML側には正解を書かない）
+window.verifyAdmin = async () => {
+    const passInput = document.getElementById('adminPass').value;
+    
+    // GASの受付窓口に「このパスワード合ってる？」と聞きに行く
+    const response = await fetch(NOTIFICATION_CONFIG.gas_webapp_url, {
+        method: 'POST',
+        body: JSON.stringify({ type: 'verifyAdmin', password: passInput })
+    });
+    
+    const result = await response.json();
+
+    if(result.success === true){ 
+        // GASが「OK」と言った時だけログイン
+        isAdmin=true; 
+        document.getElementById('modeLabel').innerText='ON'; 
+        document.getElementById('adminAuthModal').style.display='none'; 
+        document.getElementById('adminBookingSection').classList.remove('hidden'); 
+        document.getElementById('emergencyBtn').classList.remove('hidden'); 
+        document.getElementById('emergencyOverlay').style.display = 'none'; 
+        window.changeStep(2);
+    } else { 
+        alert("パスワードが違います"); 
+    } 
+};
         
         // 簡易版カレンダー
         const renderCalendar = () => {
