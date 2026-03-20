@@ -35,7 +35,8 @@
         .status-ng { color: #ddd; background-color: #fafafa; cursor: not-allowed; font-size: 20px; }
         .status-closed { background-color: #f1f1f1; color: #999; font-size: 11px; font-weight: bold; }
 
-        .admin-panel { background: #1a1a1a; color: white; position: sticky; top: 0; z-index: 1000; border-bottom: 2px solid var(--admin-blue); }
+        /* stickyを外し、画面に追従しない自然な配置に変更 */
+.admin-panel { background: #1a1a1a; color: white; position: relative; z-index: 1000; border-bottom: 2px solid var(--admin-blue); }
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 2000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
         .step-content { display: none; }
         .step-content.active { display: block; }
@@ -46,39 +47,22 @@
 </head>
 <body>
 
-    <div id="emergencyOverlay">
-        <div class="text-6xl mb-6">⚙️</div>
-        <h2 class="text-2xl font-black text-gray-800 mb-4">ただいま予約システム調整中です</h2>
-        <p class="text-sm text-gray-500 leading-relaxed mb-8">
-            ご不便をおかけして申し訳ございません。<br>
-            現在、予約システムのメンテナンス中のため、一時的にネット予約を停止しております。
-        </p>
-        <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200 w-full max-w-sm shadow-inner">
-            <p class="text-xs text-gray-400 font-bold mb-3 uppercase tracking-widest">For Urgent Inquiries</p>
-            <p class="text-[10px] text-gray-500 mb-1">お急ぎの方はお電話にてお問い合わせください</p>
-            <a href="tel:0166378631" class="text-2xl font-black text-[#ff7283]">0166-37-8631</a>
+    <div class="admin-panel p-2 flex justify-between items-center text-xs">
+    <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1 font-black uppercase tracking-tighter text-blue-400">
+            <span class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></span>
+            ADMIN
         </div>
-        <p class="mt-12 text-[10px] text-gray-300 font-bold uppercase tracking-[0.3em]">Official hair Buzl</p>
+        <button id="emergencyBtn" class="hidden bg-red-600 hover:bg-red-700 text-white text-[10px] font-black px-2 py-1 rounded-md shadow-md active:scale-95 transition-all flex items-center gap-1" onclick="window.toggleEmergencyStop()">
+            稼働中(緊急停止)
+        </button>
     </div>
-
-    <div class="admin-panel p-3 flex justify-between items-center">
-        <div class="flex items-center gap-3">
-            <div class="flex items-center gap-2 text-[11px] font-black uppercase tracking-tighter">
-                <span class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></span>
-                ADMIN
-            </div>
-            <button id="emergencyBtn" class="hidden bg-red-600 hover:bg-red-700 text-white text-[10px] font-black px-3 py-1.5 rounded-lg shadow-lg active:scale-95 transition-all flex items-center gap-1" onclick="window.toggleEmergencyStop()">
-                <i class="fa-solid fa-triangle-exclamation"></i> 緊急停止切替
-            </button>
-        </div>
-        <label class="relative inline-flex items-center cursor-pointer scale-90">
-            <input type="checkbox" id="adminToggle" class="sr-only peer" onchange="window.toggleAdminMode(this.checked)">
-            <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-            <span class="ml-2 text-[10px] font-bold">MODE: <span id="modeLabel">OFF</span></span>
-        </label>
-    </div>
-
-    <section class="hero-section">
+    <label class="relative inline-flex items-center cursor-pointer scale-75 transform origin-right">
+        <input type="checkbox" id="adminToggle" class="sr-only peer" onchange="window.toggleAdminMode(this.checked)">
+        <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+        <span class="ml-2 font-bold text-white">MODE: <span id="modeLabel">OFF</span></span>
+    </label>
+</div>
         <p class="fade-in-up text-[10px] font-bold text-[var(--brand-color)] tracking-[0.3em] uppercase mb-4">Asahikawa Toko Hair Salon</p>
         <img src="https://lh3.googleusercontent.com/a-/ALV-UjVbHWQd0csOkekj3lV7gy4llZw3My08KAjvNZ1jUMXr4j3TUmQ=s265-w265-h265" alt="hair Buzl" class="fade-in-up w-32 h-32 rounded-full shadow-2xl mb-6 object-cover border-4 border-white">
         <h2 class="fade-in-up text-lg md:text-2xl font-bold text-gray-700 mb-8 leading-relaxed">365日、鏡を見るのが<br>楽しくなる艶髪へ。</h2>
