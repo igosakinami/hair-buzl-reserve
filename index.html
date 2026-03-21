@@ -257,14 +257,13 @@
     </footer>
 
     <script type="module">
-        // ★ deleteDocをインポートに追加しました
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         const NOTIFICATION_CONFIG = {
             emailjs_public_key: "zUdr_cmgl8wIxtNLw", emailjs_service_id: "service_tl9llam", emailjs_template_id: "template_ih81vlp",
-            gas_webapp_url: "https://script.google.com/macros/s/AKfycbxz8gWX6s1TAkUfvvOS-Xh7K6Ae1tRIp2OUWRWHWOGikdYknt4PqMhai4QtQmDA5c1rQQ/exec"
+            gas_webapp_url: "https://script.google.com/macros/s/AKfycbxl1N6BFwsI0x5chQglkAUrz_2oHarMDhsA8oD_jTpYPkcdGvg_1dWfdB8uxxT5XlDW/exec"
         };
         const firebaseConfig = { apiKey: "AIzaSyAZPUpUdLpbKbOJGJ6NhOiCqkqRS-tKwCQ", authDomain: "hair-buzl-reserve.firebaseapp.com", projectId: "hair-buzl-reserve", appId: "1:757183537058:web:7aeee2f1fbb4268af29cfb" };
 
@@ -275,17 +274,18 @@
         let selectedDate = ""; 
         let selectedTime = ""; 
 
+        // ★ 単体カット（isCut: true）と、カット込みメニュー（includesCut: true）を定義しました
         const menuData = [
-            { name: "スタイリストカット", time: 60, price: 3850, desc: "12年のキャリアを持つオーナーによる似合わせカット。" },
-            { name: "チャイルドカット（小学生まで）", time: 30, price: 2300, desc: "シャンプーは＋500円で追加可能です。" },
-            { name: "スクールカット（中・高生）", time: 60, price: 2950, desc: "中学生・高校生のヘアカットを提供いたします。" },
-            { name: "U24限定カット（大学生まで）", time: 60, price: 3500, desc: "学生証をご提示ください。" },
+            { name: "スタイリストカット", time: 60, price: 3850, desc: "12年のキャリアを持つオーナーによる似合わせカット。", isCut: true },
+            { name: "チャイルドカット（小学生まで）", time: 30, price: 2300, desc: "シャンプーは＋500円で追加可能です。", isCut: true },
+            { name: "スクールカット（中・高生）", time: 60, price: 2950, desc: "中学生・高校生のヘアカットを提供いたします。", isCut: true },
+            { name: "U24限定カット（大学生まで）", time: 60, price: 3500, desc: "学生証をご提示ください。", isCut: true },
             { name: "ブリーチ", time: 90, price: 6600, desc: "外国人風の透明感カラーや、鮮やかな高彩度カラーを楽しむための必須ステップです。※ロング料金 ¥500〜¥1,000", isStartingPrice: true },
             { name: "デザインカラー", time: 120, price: 7700, desc: "ハイライトやバレイヤージュ、インナーカラーなど、髪に自然な陰影と動きを与えるデザイン性の高いメニューです。" },
             { name: "カラーリタッチ（フルボ酸配合）（生え際2cm以内）", time: 60, price: 5500, desc: "前回のカラーから伸びた根元部分を、毛先の髪色と違和感なく正確につなげます。" },
             { name: "フルボ酸配合 艶髪フルカラー", time: 90, price: 6600, desc: "根元から毛先まで、髪全体をムラなく均一に染め上げるフルカラーメニューです。※ロング料金 ¥500〜¥1,000", isStartingPrice: true },
-            { name: "フルボ酸配合 艶髪縮毛矯正（カット込）", time: 180, price: 16500, desc: "当店が最も自信を持っておすすめする不動の看板メニューです。" },
-            { name: "フルボ酸配合 艶髪パーマ（カット込）", time: 120, price: 9900, desc: "丁寧なカウンセリングに基づく似合わせカットと、髪への負担を最小限に抑えたパーマのセットメニューです。" },
+            { name: "フルボ酸配合 艶髪縮毛矯正（カット込）", time: 180, price: 16500, desc: "当店が最も自信を持っておすすめする不動の看板メニューです。", includesCut: true },
+            { name: "フルボ酸配合 艶髪パーマ（カット込）", time: 120, price: 9900, desc: "丁寧なカウンセリングに基づく似合わせカットと、髪への負担を最小限に抑えたパーマのセットメニューです。", includesCut: true },
             { name: "ダブルブリーチ", time: 120, price: 9900, desc: "1度のブリーチでは到達できない圧倒的な透明感や極限まで明るい色味を希望される方向けです。※ロング料金 ¥500〜¥1,000", isStartingPrice: true },
             { name: "前髪カット", time: 30, price: 1100, desc: "1mmで顔の印象を左右する前髪のメンテナンスや、セルフカットでの失敗を防ぎたい時に。" },
             { name: "眉カット", time: 30, price: 1100, desc: "眉カットは表情を明るく見せる重要なパーツケアです。プロの手で清潔感のある理想の形に整えます。" },
@@ -294,7 +294,7 @@
             { name: "酸熱トリートメント", time: 90, price: 7700, desc: "ダメージで弱くなった髪を内側から補強する最先端のトリートメントです。広がりやうねりを抑え深い艶と滑らかな指通りを実現します。" },
             { name: "フルボ酸配合 艶髪トリートメント", time: 30, price: 2950, desc: "天然由来の「フルボ酸」が持つ豊富なミネラルとアミノ酸を髪の深部まで浸透させ、ダメージで失われた潤いを補給します。" },
             { name: "フルボ酸配合 部分矯正", time: 90, price: 5500, desc: "前髪や顔周り、襟足など、特にクセが気になる部分をピンポイントで整えるメンテナンスメニューです。" },
-            { name: "セラミックスカール（デジタルパーマ・カット込）", time: 150, price: 15000, desc: "特殊なセラミックスロッドを使用し、熱の力を借りてカールの形を記憶させる進化系デジタルパーマです。" },
+            { name: "セラミックスカール（デジタルパーマ・カット込）", time: 150, price: 15000, desc: "特殊なセラミックスロッドを使用し、熱の力を借りてカールの形を記憶させる進化系デジタルパーマです。", includesCut: true },
             { name: "特殊パーマ（スパイラル・ツイスト）", time: 150, price: 11000, desc: "螺旋状のスパイラルや無造作でワイルドな質感が魅力のツイストなど、高度なテクニックを駆使して理想のフォルムを作り上げます。" }
         ];
         
@@ -360,10 +360,28 @@
                     ${isSelected ? '<div class="absolute top-2 right-2 text-[#ff7283] font-black">✓</div>' : ''}
                 `;
                 
+                // ★ クリック時の重複チェックロジックを追加
                 card.onclick = () => { 
                     if (isSelected) {
                         selectedMenus = selectedMenus.filter(sm => sm.name !== m.name); 
                     } else {
+                        // 重複チェック
+                        const hasStandaloneCut = selectedMenus.some(sm => sm.isCut);
+                        const hasCutIncluded = selectedMenus.some(sm => sm.includesCut);
+
+                        if (m.isCut && hasCutIncluded) {
+                            alert("すでに「カット込み」のメニューが選択されています。\n（二重予約になってしまうため選択できません）");
+                            return;
+                        }
+                        if (m.includesCut && hasStandaloneCut) {
+                            alert("カット単体のメニューがすでに選択されています。\n先にカットのチェックを外してからお選びください。");
+                            return;
+                        }
+                        if (m.isCut && hasStandaloneCut) {
+                            alert("カットメニューは複数選択できません。");
+                            return;
+                        }
+
                         selectedMenus.push(m); 
                     }
                     initMenu(); 
@@ -496,7 +514,7 @@
                     price: combinedPrice, 
                     totalTime: totalTime, 
                     status: '未承認', 
-                    thankYouSent: false, // ★サンキューメール送信フラグの初期値
+                    thankYouSent: false, 
                     memo: '',       
                     createdAt: serverTimestamp()
                 });
@@ -632,7 +650,6 @@
                 const emailHtml = b.email ? `<p class="text-xs text-gray-500 mt-1"><i class="fas fa-envelope mr-1"></i><a href="mailto:${b.email}" class="text-blue-500 underline">${b.email}</a></p>` : '';
                 const tTime = b.totalTime || 30;
 
-                // ★ サンキューメール送信済みかどうかの判定
                 const isThankYouSent = b.thankYouSent || false;
                 const thankYouBtnClass = isThankYouSent 
                     ? "w-full py-3 mt-1 bg-gray-300 text-gray-500 font-bold rounded-xl text-xs shadow-inner cursor-not-allowed" 
@@ -644,7 +661,6 @@
                     ? "" 
                     : `onclick="window.sendThankYou('${b.id}', '${b.name}')"`;
 
-                // ★ 否認状態なら「削除ボタン」だけを表示し、それ以外なら操作ボタンを表示
                 let actionButtonsHtml = '';
                 if (statusStr === '否認') {
                     actionButtonsHtml = `
@@ -656,7 +672,7 @@
                     actionButtonsHtml = `
                         <div class="flex flex-wrap gap-2">
                             <button onclick="window.approveBooking('${b.id}')" class="flex-1 py-3 bg-green-500 text-white font-bold rounded-xl text-xs shadow-md hover:bg-green-600 active:scale-95 transition-transform"><i class="fas fa-check mr-1"></i>承認する</button>
-                            <button onclick="window.rejectBooking('${b.id}', '${b.date}', '${b.time}', '${tTime}')" class="flex-1 py-3 bg-gray-400 text-white font-bold rounded-xl text-xs shadow-md hover:bg-gray-500 active:scale-95 transition-transform"><i class="fas fa-times mr-1"></i>否認(枠開放)</button>
+                            <button onclick="window.rejectBooking('${b.id}', '${b.date}', '${b.time}', '${tTime}')" class="flex-1 py-3 bg-gray-400 text-white font-bold rounded-xl text-xs shadow-md hover:bg-gray-50 active:scale-95 transition-transform"><i class="fas fa-times mr-1"></i>否認(枠開放)</button>
                             <button ${thankYouBtnAction} class="${thankYouBtnClass}">${thankYouBtnText}</button>
                         </div>
                     `;
@@ -688,7 +704,7 @@
                     </div>
                 `;
                 
-                if(b.menu && statusStr !== '否認') { // 否認されたメニューはグラフの割合から除外
+                if(b.menu && statusStr !== '否認') { 
                     const menus = b.menu.split(' ＋ ');
                     menus.forEach(m => {
                         menuCounts[m] = (menuCounts[m] || 0) + 1;
@@ -761,7 +777,6 @@
             } catch(e) { alert("通信エラーが発生しました"); }
         };
 
-        // ★ 新機能：否認されたカルテの完全削除機能
         window.deleteBooking = async (id) => {
             if(confirm("このカルテ（予約データ）を完全に削除しますか？\n※この操作は取り消せません。")) {
                 try {
@@ -771,13 +786,11 @@
             }
         };
 
-        // ★ サンキューメール送信後に「送信済みフラグ」を立てる機能
         window.sendThankYou = async (id, name) => {
             const msg = `${name}様、先日はhair Buzlにご来店いただき誠にありがとうございました！\n\nヘアスタイルはいかがでしょうか？気になるところがあればお気軽にご連絡くださいね。\n\nもしよろしければ、今後の励みになりますので、以下のリンクからGoogleの口コミ（ご感想）をいただけると大変嬉しいです！\nhttps://g.page/r/CRSIVTj6bfhuEAE/review\n\nまたのご来店を心よりお待ちしております！`;
 
             if(confirm(`${name}様へ以下の「サンキューメール＆口コミ獲得メッセージ」を送信しますか？\n\n${msg}`)) {
                 try {
-                    // データベースの「送信済み」フラグをオンにする
                     await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { thankYouSent: true });
                     alert(`✨ 送信完了しました！\n\n※実際にお客様のLINEやメールアドレスに送信する場合は、GAS等のバックエンド連携が必要です。（現在は表示テストとステータス更新のみです）`);
                 } catch(e) {
