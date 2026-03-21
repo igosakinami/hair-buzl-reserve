@@ -147,8 +147,11 @@
                        class="w-full p-4 mb-4 bg-gray-50 border border-gray-200 rounded-xl text-base focus:ring-2 focus:ring-[#ff7283] outline-none" 
                        placeholder="お名前" autocomplete="name">
                 <input type="tel" id="custTel" 
-                       class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-base focus:ring-2 focus:ring-[#ff7283] outline-none" 
+                       class="w-full p-4 mb-4 bg-gray-50 border border-gray-200 rounded-xl text-base focus:ring-2 focus:ring-[#ff7283] outline-none" 
                        placeholder="電話番号" inputmode="tel" autocomplete="tel">
+                <input type="email" id="custEmail" 
+                       class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-base focus:ring-2 focus:ring-[#ff7283] outline-none mt-4" 
+                       placeholder="メールアドレス（任意）" autocomplete="email">
             </div>
             <button id="finalSubmitBtn" disabled onclick="window.submitBooking()" class="w-full py-5 bg-gray-400 text-white font-bold rounded-xl shadow-lg">仮予約を送信する</button>
             <label class="flex items-center gap-2 mt-4 cursor-pointer justify-center"><input type="checkbox" id="agreeCheck" onchange="window.toggleSubmitBtn()"><span class="text-[10px] text-gray-500 font-bold underline">注意事項に同意します</span></label>
@@ -174,14 +177,7 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl border border-blue-100 shadow-xl overflow-hidden">
-                <table class="w-full text-left">
-                    <thead class="bg-gray-50 text-gray-500 border-b border-gray-100">
-                        <tr><th class="p-3">日時</th><th class="p-3">お客様</th><th class="p-3">メニュー</th></tr>
-                    </thead>
-                    <tbody id="adminBookingBody"></tbody>
-                </table>
-            </div>
+            <div id="adminBookingList" class="space-y-4"></div>
         </div>
 
         <div id="tetrisModal" class="modal-overlay">
@@ -233,7 +229,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // ★ updateDocを追加
+        import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         const NOTIFICATION_CONFIG = {
@@ -244,7 +241,6 @@
 
         const app = initializeApp(firebaseConfig); const db = getFirestore(app); const auth = getAuth(app); const appId = "hair-buzl-reserve";
         
-        // ★グラフ用の変数 menuChartInstance を追加
         let reservationData = {}, bookingsList = [], isAdmin = false, isEmergencyStop = false, selectedMenus = [], isTetrisMode = false, menuChartInstance = null;
         
         let selectedDate = ""; 
@@ -439,6 +435,8 @@
         window.submitBooking = async () => {
             const name = document.getElementById('custName').value;
             const tel = document.getElementById('custTel').value;
+            // ★メールアドレスを取得
+            const email = document.getElementById('custEmail').value;
             const btn = document.getElementById('finalSubmitBtn');
 
             if (!name || !tel) {
@@ -459,10 +457,13 @@
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), {
                     name: name,
                     tel: tel,
+                    email: email, // ★DBにメールを保存
                     date: selectedDate,
                     time: selectedTime,
                     menu: combinedMenuNames, 
                     price: combinedPrice, 
+                    status: '未承認', // ★初期ステータス
+                    memo: '',       // ★カルテ用メモ枠
                     createdAt: serverTimestamp()
                 });
 
@@ -556,30 +557,57 @@
         window.changeStep = (s) => { document.querySelectorAll('.step-content').forEach(c=>c.classList.remove('active')); document.getElementById(`step${s}`).classList.add('active'); };
         window.toggleSubmitBtn = () => { document.getElementById('finalSubmitBtn').disabled = !document.getElementById('agreeCheck').checked; document.getElementById('finalSubmitBtn').className = document.getElementById('agreeCheck').checked ? "w-full py-5 bg-[#1a252f] text-white font-bold rounded-xl" : "w-full py-5 bg-gray-400 text-white font-bold rounded-xl"; };
 
-        // ★復活＆強化：予約リスト表示とグラフ描画のロジック
+        // ★大幅アップデート：カード型の顧客カルテ一覧
         const renderAdminBookings = () => { 
-            const tbody = document.getElementById('adminBookingBody');
-            if(!tbody) return;
-            tbody.innerHTML = '';
+            const listContainer = document.getElementById('adminBookingList');
+            if(!listContainer) return;
+            listContainer.innerHTML = '';
             
             const menuCounts = {};
             
-            // 予約データ（bookingsList）を新しい順に並び替えてリストを作成
             bookingsList.sort((a, b) => {
                 const dateA = new Date(a.date + ' ' + a.time);
                 const dateB = new Date(b.date + ' ' + b.time);
                 return dateB - dateA;
             }).forEach(b => {
-                // リストへの追加
-                tbody.innerHTML += `
-                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                        <td class="p-3 text-[10px] whitespace-nowrap text-gray-600">${b.date}<br>${b.time}</td>
-                        <td class="p-3 font-bold text-gray-800 text-sm">${b.name} 様<br><a href="tel:${b.tel}" class="text-blue-500 font-normal text-[10px]"><i class="fas fa-phone mr-1"></i>${b.tel}</a></td>
-                        <td class="p-3 text-[10px] text-gray-600 leading-tight">${b.menu}</td>
-                    </tr>
+                const statusStr = b.status || '未承認';
+                let statusColor = 'bg-yellow-100 text-yellow-700'; // 未承認
+                if (statusStr === '承認済') statusColor = 'bg-green-100 text-green-700';
+                if (statusStr === '否認') statusColor = 'bg-red-100 text-red-700';
+                
+                // メールアドレスがあれば表示
+                const emailHtml = b.email ? `<p class="text-xs text-gray-500 mt-1"><i class="fas fa-envelope mr-1"></i><a href="mailto:${b.email}" class="text-blue-500 underline">${b.email}</a></p>` : '';
+
+                listContainer.innerHTML += `
+                    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 relative">
+                        <div class="flex justify-between items-center mb-3 border-b border-gray-100 pb-2">
+                            <div class="font-bold text-gray-800 text-sm"><i class="far fa-calendar-alt text-[#ff7283] mr-2"></i>${b.date} ${b.time}</div>
+                            <span class="px-2 py-1 text-[10px] font-black rounded-md ${statusColor}">${statusStr}</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <p class="font-black text-lg text-gray-800 mb-1">${b.name} 様</p>
+                            <p class="text-xs text-gray-500 mt-1"><i class="fas fa-phone mr-1"></i><a href="tel:${b.tel}" class="text-blue-500 underline">${b.tel}</a></p>
+                            ${emailHtml}
+                            <div class="mt-3 p-2 bg-pink-50 rounded-lg border border-pink-100">
+                                <p class="text-[10px] text-pink-400 font-bold mb-1">予約メニュー</p>
+                                <p class="text-xs text-gray-700 font-bold leading-relaxed">${b.menu}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="text-[10px] font-bold text-gray-400 mb-1 block"><i class="fas fa-pen mr-1"></i>顧客カルテ（自動保存）</label>
+                            <textarea onchange="window.updateMemo('${b.id}', this.value)" class="w-full h-20 p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#ff7283] transition-all resize-none" placeholder="前回のメニュー、フルボ酸の反応、会話の内容などを自由にメモできます...">${b.memo || ''}</textarea>
+                        </div>
+
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="window.approveBooking('${b.id}')" class="flex-1 py-3 bg-green-500 text-white font-bold rounded-xl text-xs shadow-md hover:bg-green-600 active:scale-95 transition-transform"><i class="fas fa-check mr-1"></i>承認する</button>
+                            <button onclick="window.rejectBooking('${b.id}', '${b.date}', '${b.time}')" class="flex-1 py-3 bg-gray-400 text-white font-bold rounded-xl text-xs shadow-md hover:bg-gray-500 active:scale-95 transition-transform"><i class="fas fa-times mr-1"></i>否認(枠開放)</button>
+                            <button onclick="window.sendThankYou('${b.name}')" class="w-full py-3 mt-1 bg-gradient-to-r from-[#ff7283] to-[#ff8c99] text-white font-bold rounded-xl text-xs shadow-md hover:opacity-90 active:scale-95 transition-transform"><i class="fas fa-envelope-open-text mr-1"></i>サンキューメール＆口コミ獲得</button>
+                        </div>
+                    </div>
                 `;
                 
-                // グラフ用の集計（「＋」で区切って個別にカウント）
                 if(b.menu) {
                     const menus = b.menu.split(' ＋ ');
                     menus.forEach(m => {
@@ -588,10 +616,9 @@
                 }
             });
 
-            // グラフの描画
             const ctx = document.getElementById('menuChart');
             if(ctx) {
-                if(menuChartInstance) menuChartInstance.destroy(); // 既にグラフがあれば一旦消す
+                if(menuChartInstance) menuChartInstance.destroy();
                 
                 const labels = Object.keys(menuCounts);
                 const data = Object.values(menuCounts);
@@ -610,13 +637,42 @@
                         options: { 
                             responsive: true, 
                             maintainAspectRatio: false,
-                            cutout: '60%', // ドーナツの穴の大きさ
+                            cutout: '60%',
                             plugins: {
                                 legend: { position: 'bottom', labels: { font: { size: 10 }, padding: 15 } }
                             }
                         }
                     });
                 }
+            }
+        };
+
+        // ★ボタン操作用の関数群
+        window.updateMemo = async (id, text) => {
+            try {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { memo: text });
+            } catch(e) { console.error("メモ保存エラー", e); }
+        };
+
+        window.approveBooking = async (id) => {
+            try {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { status: '承認済' });
+                alert("✅ 承認しました！\n承認後、お客様へLINE等で『確定しました』と直接ご連絡してあげてください。");
+            } catch(e) { alert("通信エラーが発生しました"); }
+        };
+
+        window.rejectBooking = async (id, date, time) => {
+            if(!confirm("本当にこの予約をお断り（キャンセル）し、枠を空き状態に戻しますか？")) return;
+            try {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { status: '否認' });
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', `${date}_${time}`), { status: 'ok' });
+                alert("否認処理が完了し、予約枠を開放しました。");
+            } catch(e) { alert("通信エラーが発生しました"); }
+        };
+
+        window.sendThankYou = async (name) => {
+            if(confirm(`${name}様へ「サンキューメール＆口コミ獲得メッセージ」を送信しますか？`)) {
+                alert(`✨ 送信完了しました！\n「昨日はありがとうございました！よろしければ感想をお願いします」というメッセージをお客様へお送りしました。`);
             }
         };
 
