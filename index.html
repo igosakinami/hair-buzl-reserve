@@ -311,7 +311,28 @@
                 btn.innerText = originalText; btn.disabled = false;
             }
         };
-
+// ★ここから追加：「◎」をクリックした時の動き（お客様の予約 ＆ 管理者のブロック ＆ テトリスモード）
+        window.selectSlot = async (dateStr, timeStr) => {
+            if (isAdmin) {
+                if (isTetrisMode) {
+                    // ① テトリスモードONの時：インスタ募集文を作る
+                    window.openTetrisModal(dateStr, timeStr);
+                } else {
+                    // ② 通常の管理者モードの時：「◎」を「×」にして予約枠をブロック（お休み）する
+                    const slotId = `${dateStr}_${timeStr}`;
+                    try {
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotId), { status: 'ng' });
+                    } catch (error) {
+                        alert("通信エラーが発生しました。");
+                    }
+                }
+            } else {
+                // ③ 一般のお客様の時：STEP3（お客様情報の入力画面）へ進む
+                // ※本来はここで選択した日時を保存する処理などが入ります
+                window.changeStep(3);
+            }
+        };
+        // ★ここまで追加
         // 【追加】★「×」を「◎」に戻す（ブロックを解除する）関数です。selectSlotのすぐ下に貼り付けてください。
 window.unselectSlot = async (dateStr, timeStr) => {
     // 管理者モードの時だけ実行できるようにします
