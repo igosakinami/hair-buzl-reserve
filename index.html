@@ -166,7 +166,22 @@
                     <i class="fab fa-instagram text-sm"></i> テトリスモードをONにする
                 </button>
             </div>
-            <div class="bg-white rounded-2xl border border-blue-100 shadow-xl overflow-hidden"><table class="w-full text-left"><tbody id="adminBookingBody"></tbody></table></div>
+
+            <div class="bg-white rounded-2xl border border-blue-100 shadow-xl p-6 mb-6">
+                <h3 class="font-bold text-gray-700 mb-4 text-center">📊 メニュー別 予約割合</h3>
+                <div class="relative w-full max-w-[250px] mx-auto h-[250px]">
+                    <canvas id="menuChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-blue-100 shadow-xl overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 text-gray-500 border-b border-gray-100">
+                        <tr><th class="p-3">日時</th><th class="p-3">お客様</th><th class="p-3">メニュー</th></tr>
+                    </thead>
+                    <tbody id="adminBookingBody"></tbody>
+                </table>
+            </div>
         </div>
 
         <div id="tetrisModal" class="modal-overlay">
@@ -228,7 +243,9 @@
         const firebaseConfig = { apiKey: "AIzaSyAZPUpUdLpbKbOJGJ6NhOiCqkqRS-tKwCQ", authDomain: "hair-buzl-reserve.firebaseapp.com", projectId: "hair-buzl-reserve", appId: "1:757183537058:web:7aeee2f1fbb4268af29cfb" };
 
         const app = initializeApp(firebaseConfig); const db = getFirestore(app); const auth = getAuth(app); const appId = "hair-buzl-reserve";
-        let reservationData = {}, bookingsList = [], isAdmin = false, isEmergencyStop = false, selectedMenus = [], isTetrisMode = false;
+        
+        // ★グラフ用の変数 menuChartInstance を追加
+        let reservationData = {}, bookingsList = [], isAdmin = false, isEmergencyStop = false, selectedMenus = [], isTetrisMode = false, menuChartInstance = null;
         
         let selectedDate = ""; 
         let selectedTime = ""; 
@@ -240,7 +257,7 @@
             { name: "U24限定カット（大学生まで）", time: 60, price: 3500, desc: "学生証をご提示ください。" },
             { name: "ブリーチ", time: 90, price: 6600, desc: "外国人風の透明感カラーや、鮮やかな高彩度カラーを楽しむための必須ステップです。※ロング料金 ¥500〜¥1,000", isStartingPrice: true },
             { name: "デザインカラー", time: 120, price: 7700, desc: "ハイライトやバレイヤージュ、インナーカラーなど、髪に自然な陰影と動きを与えるデザイン性の高いメニューです。" },
-            { name: "カラーリタッチ（フルボ酸配合）（生え際2cm以内）", time: 60, price: 5500, desc: "前回のカラーから伸びた根元部分を、毛先の髪色と違野感なく正確につなげます。" },
+            { name: "カラーリタッチ（フルボ酸配合）（生え際2cm以内）", time: 60, price: 5500, desc: "前回のカラーから伸びた根元部分を、毛先の髪色と違和感なく正確につなげます。" },
             { name: "フルボ酸配合 艶髪フルカラー", time: 90, price: 6600, desc: "根元から毛先まで、髪全体をムラなく均一に染め上げるフルカラーメニューです。※ロング料金 ¥500〜¥1,000", isStartingPrice: true },
             { name: "フルボ酸配合 艶髪縮毛矯正（カット込）", time: 180, price: 16500, desc: "当店が最も自信を持っておすすめする不動の看板メニューです。" },
             { name: "フルボ酸配合 艶髪パーマ（カット込）", time: 120, price: 9900, desc: "丁寧なカウンセリングに基づく似合わせカットと、髪への負担を最小限に抑えたパーマのセットメニューです。" },
@@ -538,7 +555,70 @@
 
         window.changeStep = (s) => { document.querySelectorAll('.step-content').forEach(c=>c.classList.remove('active')); document.getElementById(`step${s}`).classList.add('active'); };
         window.toggleSubmitBtn = () => { document.getElementById('finalSubmitBtn').disabled = !document.getElementById('agreeCheck').checked; document.getElementById('finalSubmitBtn').className = document.getElementById('agreeCheck').checked ? "w-full py-5 bg-[#1a252f] text-white font-bold rounded-xl" : "w-full py-5 bg-gray-400 text-white font-bold rounded-xl"; };
-        const renderAdminBookings = () => { /* 管理リスト表示ロジック（省略） */ };
+
+        // ★復活＆強化：予約リスト表示とグラフ描画のロジック
+        const renderAdminBookings = () => { 
+            const tbody = document.getElementById('adminBookingBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            
+            const menuCounts = {};
+            
+            // 予約データ（bookingsList）を新しい順に並び替えてリストを作成
+            bookingsList.sort((a, b) => {
+                const dateA = new Date(a.date + ' ' + a.time);
+                const dateB = new Date(b.date + ' ' + b.time);
+                return dateB - dateA;
+            }).forEach(b => {
+                // リストへの追加
+                tbody.innerHTML += `
+                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <td class="p-3 text-[10px] whitespace-nowrap text-gray-600">${b.date}<br>${b.time}</td>
+                        <td class="p-3 font-bold text-gray-800 text-sm">${b.name} 様<br><a href="tel:${b.tel}" class="text-blue-500 font-normal text-[10px]"><i class="fas fa-phone mr-1"></i>${b.tel}</a></td>
+                        <td class="p-3 text-[10px] text-gray-600 leading-tight">${b.menu}</td>
+                    </tr>
+                `;
+                
+                // グラフ用の集計（「＋」で区切って個別にカウント）
+                if(b.menu) {
+                    const menus = b.menu.split(' ＋ ');
+                    menus.forEach(m => {
+                        menuCounts[m] = (menuCounts[m] || 0) + 1;
+                    });
+                }
+            });
+
+            // グラフの描画
+            const ctx = document.getElementById('menuChart');
+            if(ctx) {
+                if(menuChartInstance) menuChartInstance.destroy(); // 既にグラフがあれば一旦消す
+                
+                const labels = Object.keys(menuCounts);
+                const data = Object.values(menuCounts);
+                
+                if(labels.length > 0) {
+                    menuChartInstance = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: data,
+                                backgroundColor: ['#ff7283', '#3b82f6', '#f59e0b', '#10b981', '#8b5cf6', '#ec4899', '#6b7280', '#14b8a6', '#f43f5e', '#8a7a6b'],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: { 
+                            responsive: true, 
+                            maintainAspectRatio: false,
+                            cutout: '60%', // ドーナツの穴の大きさ
+                            plugins: {
+                                legend: { position: 'bottom', labels: { font: { size: 10 }, padding: 15 } }
+                            }
+                        }
+                    });
+                }
+            }
+        };
 
         window.toggleTetrisMode = () => {
             isTetrisMode = !isTetrisMode;
