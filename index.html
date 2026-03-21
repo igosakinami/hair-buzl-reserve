@@ -329,29 +329,25 @@
             }
         };
 
-        window.selectSlot = async (dateStr, timeStr) => {
-            if (isAdmin) {
-                const slotId = `${dateStr}_${timeStr}`;
-                try {
-                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotId), { status: 'ng' });
-                } catch (error) {
-                    alert("通信エラーが発生しました。");
-                }
-            } else {
-                window.changeStep(3);
-            }
-        };
+        // 【変更後】★この関数をまるごと入れ替えてください
+window.selectSlot = async (dateStr, timeStr) => {
+    if (isAdmin) {
+        // ★ここを追加：テトリスモードがONなら、カレンダーを×にせずインスタ文章を作る
+        if (isTetrisMode) {
+            window.openTetrisModal(dateStr, timeStr);
+            return; // ここで処理をストップして下には進まない
+        }
 
-        window.unselectSlot = async (dateStr, timeStr) => {
-            if (isAdmin) {
-                const slotId = `${dateStr}_${timeStr}`;
-                try {
-                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotId), { status: 'ok' });
-                } catch (error) {
-                    alert("通信エラーが発生しました。");
-                }
-            }
-        };
+        const slotId = `${dateStr}_${timeStr}`;
+        try {
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotId), { status: 'ng' });
+        } catch (error) {
+            alert("通信エラーが発生しました。");
+        }
+    } else {
+        window.changeStep(3);
+    }
+};
 
         const renderCalendar = () => {
             const body = document.getElementById('calendarBody'), head = document.getElementById('dateHeader');
