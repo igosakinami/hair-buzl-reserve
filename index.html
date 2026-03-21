@@ -229,14 +229,11 @@
         const app = initializeApp(firebaseConfig); const db = getFirestore(app); const auth = getAuth(app); const appId = "hair-buzl-reserve";
         let reservationData = {}, bookingsList = [], isAdmin = false, isEmergencyStop = false, selectedMenus = [], isTetrisMode = false;
         const menuData = [{ name: "スタイリストカット", time: 60, price: 3850, desc: "似合わせカット。" },{ name: "艶髪フルカラー", time: 90, price: 6600, desc: "全体染め。", isStartingPrice: true },{ name: "艶髪縮毛矯正", time: 180, price: 16500, desc: "看板メニュー。", isStartingPrice: true }];
+        const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00"];
         
-        // ★ 変更点1： "19:00" を削除しました
-        const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"];
-        
-        let autoHolidays = []; // 自動で取得した祝日を一時的に入れておく箱
+        let autoHolidays = [];
 
         window.onload = async () => { 
-            // ① 日本の祝日カレンダーデータを無料で自動取得
             try {
                 const response = await fetch('https://holidays-jp.github.io/api/v1/date.json');
                 const holidayData = await response.json();
@@ -245,7 +242,6 @@
                 console.log('祝日データの取得に失敗しました', error);
             }
 
-            // ② いつも通りの起動処理
             initMenu(); 
             signInAnonymously(auth); 
             onAuthStateChanged(auth, u => { if(u) startSync(); }); 
@@ -400,24 +396,17 @@
                     const slotId = `${dateStr}_${t}`;
                     
                     const status = reservationData[slotId] || 'ok';
-                    const isMonday = (d.getDay() === 1); 
-                    
-                    // 日曜日（0）または自動取得した祝日リストに含まれているか判定
+                    const isHoliday = (d.getDay() === 1); 
                     const isSundayOrHoliday = (d.getDay() === 0) || autoHolidays.includes(dateStr);
-                    // ★ 変更点2：'19:00' のブロック判定を削除しました
-                    const isAfter1800 = (t === '18:00' || t === '18:30');
+                    const isAfter1800 = (t === '18:00' || t === '18:30' || t === '19:00');
 
-                    if (isMonday) {
-                        // 月曜定休
+                    if (isHoliday) {
                         rowHtml += `<td class="status-closed bg-gray-50 text-gray-300 text-xs">休</td>`;
                     } else if (status !== 'ok') {
-                        // 管理者が手動で「×」にした枠
                         rowHtml += `<td class="status-ng" onclick="window.unselectSlot('${dateStr}', '${t}')">×</td>`;
                     } else if (isSundayOrHoliday && isAfter1800) {
-                        // 日曜・祝日の18:00以降を自動ブロック
                         rowHtml += `<td class="status-closed bg-gray-50 text-gray-300 text-xs">ー</td>`;
                     } else {
-                        // それ以外は通常通り「◎」
                         rowHtml += `<td class="status-ok hover:bg-pink-50 transition-colors" onclick="window.selectSlot('${dateStr}', '${t}')">◎</td>`;
                     }
                 });
