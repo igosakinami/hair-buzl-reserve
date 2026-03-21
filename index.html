@@ -377,13 +377,23 @@ const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30"
                     } else if (status === 'ok') {
                         rowHtml += `<td class="status-ok hover:bg-pink-50 transition-colors" onclick="window.selectSlot('${dateStr}', '${t}')">◎</td>`;
                     } else {
-                        // ★ここが修正ポイント！「×」の時も、タップした時の機能（unselectSlot）を仕込みました
-                        rowHtml += `<td class="status-ng" onclick="window.unselectSlot('${dateStr}', '${t}')">×</td>`;
-                    }
-                });
-                tr.innerHTML = rowHtml;
-                body.appendChild(tr);
-            });
+                        // ★ここから追加ペーストしてください（上書き用）
+        // カレンダーの「×」を押した時の処理（間違えて塞いだ枠の復活）
+        window.unselectSlot = async (dateStr, timeStr) => {
+            // 管理者モードの時だけ動くようにします
+            if (isAdmin) {
+                const slotId = `${dateStr}_${timeStr}`;
+                
+                // 【爆速モード】確認メッセージ（confirm）を削除し、直接データを書き換えます
+                // ※誤ってお客様の予約枠を開けてしまわないようご注意ください！
+                try {
+                    // 金庫（Firestore）のデータを「ok」に更新する
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotId), { status: 'ok' });
+                    // ※データが更新されると自動的に「◎」に戻ります
+                } catch (error) {
+                    alert("通信エラーが発生しました。");
+                }
+            }
         };
         // ★ここまで
 
