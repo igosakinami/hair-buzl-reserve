@@ -377,15 +377,15 @@ const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30"
                     } else if (status === 'ok') {
                         rowHtml += `<td class="status-ok hover:bg-pink-50 transition-colors" onclick="window.selectSlot('${dateStr}', '${t}')">◎</td>`;
                     } else {
-                        // オーナーが手動で塞いだ枠、または予約済みの枠
-                        rowHtml += `<td class="status-ng">×</td>`;
+                        // ★ここが修正ポイント！「×」の時も、タップした時の機能（unselectSlot）を仕込みました
+                        rowHtml += `<td class="status-ng" onclick="window.unselectSlot('${dateStr}', '${t}')">×</td>`;
                     }
                 });
                 tr.innerHTML = rowHtml;
                 body.appendChild(tr);
             });
         };
-// ★ここまで
+        // ★ここまで
 
         // ★ここから上書きペーストしてください
         // カレンダーの「◎」を押した時の処理
