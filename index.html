@@ -163,8 +163,9 @@
         <div id="adminBookingSection" class="mt-16 hidden text-left text-xs">
             <div class="flex justify-between items-end mb-4">
                 <h2 class="text-sm font-bold border-l-4 border-blue-500 pl-2 text-blue-600 uppercase">Bookings Management</h2>
-                <button onclick="window.generateTetrisMatch()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-2 px-3 rounded-lg shadow-md hover:scale-105 transition-transform flex items-center gap-1">
-                    <i class="fab fa-instagram text-sm"></i> 空き枠テトリス生成
+                <button id="tetrisModeBtn" onclick="window.toggleTetrisMode()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-2 px-3 rounded-lg shadow-md hover:scale-105 transition-transform flex items-center gap-1">
+    <i class="fab fa-instagram text-sm"></i> テトリスモードをONにする
+</button>
                 </button>
             </div>
             <div class="bg-white rounded-2xl border border-blue-100 shadow-xl overflow-hidden"><table class="w-full text-left"><tbody id="adminBookingBody"></tbody></table></div>
