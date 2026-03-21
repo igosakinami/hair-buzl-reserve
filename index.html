@@ -89,6 +89,12 @@
         <img src="https://lh3.googleusercontent.com/a-/ALV-UjVbHWQd0csOkekj3lV7gy4llZw3My08KAjvNZ1jUMXr4j3TUmQ=s265-w265-h265" alt="hair Buzl" class="fade-in-up w-32 h-32 rounded-full shadow-2xl mb-6 object-cover border-4 border-white">
         <h2 class="fade-in-up text-lg md:text-2xl font-bold text-gray-700 mb-8 leading-relaxed">365日、鏡を見るのが<br>楽しくなる艶髪へ。</h2>
         <button onclick="document.getElementById('reservation-section').scrollIntoView({behavior: 'smooth'})" class="fade-in-up bg-gray-800 text-white font-bold py-4 px-10 rounded-full shadow-xl tracking-widest text-sm">空き状況を見る・予約する</button>
+        
+        <p class="fade-in-up text-xs md:text-sm text-gray-600 mt-10 leading-loose max-w-md mx-auto font-medium tracking-wide">
+            「くせ毛で悩んでいた過去の自分」を救うために。<br>
+            こだわりの髪質改善と、乾かすだけで決まる似合わせカットで、<br>
+            あなたの朝の15分を笑顔に変えます。
+        </p>
     </section>
 
     <div id="reservation-section" class="pt-8"></div>
@@ -234,7 +240,7 @@
             { name: "U24限定カット（大学生まで）", time: 60, price: 3500, desc: "学生証をご提示ください。" },
             { name: "ブリーチ", time: 90, price: 6600, desc: "外国人風の透明感カラーや、鮮やかな高彩度カラーを楽しむための必須ステップです。※ロング料金 ¥500〜¥1,000", isStartingPrice: true },
             { name: "デザインカラー", time: 120, price: 7700, desc: "ハイライトやバレイヤージュ、インナーカラーなど、髪に自然な陰影と動きを与えるデザイン性の高いメニューです。" },
-            { name: "カラーリタッチ（フルボ酸配合）（生え際2cm以内）", time: 60, price: 5500, desc: "前回のカラーから伸びた根元部分を、毛先の髪色と違和感なく正確につなげます。" },
+            { name: "カラーリタッチ（フルボ酸配合）（生え際2cm以内）", time: 60, price: 5500, desc: "前回のカラーから伸びた根元部分を、毛先の髪色と違野感なく正確につなげます。" },
             { name: "フルボ酸配合 艶髪フルカラー", time: 90, price: 6600, desc: "根元から毛先まで、髪全体をムラなく均一に染め上げるフルカラーメニューです。※ロング料金 ¥500〜¥1,000", isStartingPrice: true },
             { name: "フルボ酸配合 艶髪縮毛矯正（カット込）", time: 180, price: 16500, desc: "当店が最も自信を持っておすすめする不動の看板メニューです。" },
             { name: "フルボ酸配合 艶髪パーマ（カット込）", time: 120, price: 9900, desc: "丁寧なカウンセリングに基づく似合わせカットと、髪への負担を最小限に抑えたパーマのセットメニューです。" },
@@ -293,12 +299,10 @@
             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'emergency'), { active: newState });
         };
 
-        // ★ 複数選択・解除ができるようにロジックを修正しました
         const initMenu = () => {
             const list = document.getElementById('menuList'); 
             list.innerHTML = "";
             menuData.forEach((m) => {
-                // 今のメニューがすでに選ばれているかチェック
                 const isSelected = selectedMenus.some(sm => sm.name === m.name);
                 
                 const card = document.createElement('div'); 
@@ -314,21 +318,19 @@
                     ${isSelected ? '<div class="absolute top-2 right-2 text-[#ff7283] font-black">✓</div>' : ''}
                 `;
                 
-                // タップした時の処理（選択されていれば解除、されていなければ追加）
                 card.onclick = () => { 
                     if (isSelected) {
-                        selectedMenus = selectedMenus.filter(sm => sm.name !== m.name); // 解除
+                        selectedMenus = selectedMenus.filter(sm => sm.name !== m.name); 
                     } else {
-                        selectedMenus.push(m); // 追加
+                        selectedMenus.push(m); 
                     }
-                    initMenu(); // 画面を再描画して色を変える
+                    initMenu(); 
                     window.updateStep1Footer(); 
                 };
                 list.appendChild(card);
             });
         };
 
-        // ★ 複数選択されたメニューの「合計金額」と「合計時間」を計算するように修正しました
         window.updateStep1Footer = () => {
             const footer = document.getElementById('step1Footer');
             if(selectedMenus.length > 0) {
@@ -338,7 +340,6 @@
                 let totalTime = 0;
                 let hasStartingPrice = false;
 
-                // 選ばれたメニューを全部足し算する
                 selectedMenus.forEach(m => {
                     totalPrice += m.price;
                     totalTime += m.time;
@@ -348,7 +349,6 @@
                 document.getElementById('totalPriceDisplay').innerText = `¥${totalPrice.toLocaleString()}${hasStartingPrice ? '〜' : ''}`;
                 document.getElementById('totalTimeDisplay').innerText = `${totalTime}分`;
             } else {
-                // 1つも選ばれていない時はボタンを隠す
                 footer.classList.add('hidden');
             }
         };
@@ -432,7 +432,6 @@
             btn.innerText = "送信中...";
             btn.disabled = true;
 
-            // ★ 複数選択されたメニュー名を「＋」で繋ぐように修正しました
             const combinedMenuNames = selectedMenus.map(m => m.name).join(' ＋ ');
             let combinedPrice = 0;
             selectedMenus.forEach(m => combinedPrice += m.price);
@@ -445,8 +444,8 @@
                     tel: tel,
                     date: selectedDate,
                     time: selectedTime,
-                    menu: combinedMenuNames, // まとめたメニュー名
-                    price: combinedPrice, // 合計金額
+                    menu: combinedMenuNames, 
+                    price: combinedPrice, 
                     createdAt: serverTimestamp()
                 });
 
@@ -460,7 +459,7 @@
                         tel: tel,
                         date: selectedDate,
                         time: selectedTime,
-                        menu: combinedMenuNames // GASにもまとめたメニュー名を送る
+                        menu: combinedMenuNames 
                     })
                 });
 
