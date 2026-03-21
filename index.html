@@ -413,9 +413,9 @@ window.unselectSlot = async (dateStr, timeStr) => {
                     const isHoliday = (d.getDay() === 1); 
                     
                     // ★ここから今回追加した判定ロジック★
-                    // 18:00以降かどうかの判定（"18:30" なら 1830 という数字にして判定）
-                    const timeNum = parseInt(t.replace(':', ''), 10);
-                    const isAfter1800 = timeNum >= 1800;
+                    const isSundayOrHoliday = (d.getDay() === 0) || autoHolidays.includes(dateStr);
+
+                    if (isHoliday) {
                     
                     // 日曜日（0）または、先ほど作った祝日リストに含まれているか判定
                     const isSundayOrHoliday = (d.getDay() === 0) || holidays2026.includes(dateStr);
