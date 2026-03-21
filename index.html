@@ -158,7 +158,30 @@
                        class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-base focus:ring-2 focus:ring-[#ff7283] outline-none mt-4" 
                        placeholder="メールアドレス（任意）" autocomplete="email">
             </div>
-            <button id="finalSubmitBtn" disabled onclick="window.submitBooking()" class="w-full py-5 bg-gray-400 text-white font-bold rounded-xl shadow-lg">仮予約を送信する</button>
+
+            <div class="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-xl h-40 overflow-y-auto text-left text-[11px] text-gray-600 leading-relaxed shadow-inner">
+                <h4 class="font-bold text-[#ff7283] mb-1 border-b border-pink-100 pb-1">■ ご来店に際しての注意事項</h4>
+                <ul class="list-disc pl-4 mb-4 space-y-1">
+                    <li>一人営業のため、ご予約のキャンセルや日時変更については、なるべくお早めに<strong>当店の公式LINE（メッセージ）</strong>にてご連絡をお願いいたします。</li>
+                    <li>現在コロナウイルス対策として、懸念がある方のご連絡・変更は承っております。</li>
+                </ul>
+
+                <h4 class="font-bold text-[#ff7283] mb-1 border-b border-pink-100 pb-1">■ ご予約に関する注意事項（キャンセル・日時変更について）</h4>
+                <ul class="list-disc pl-4 mb-4 space-y-1">
+                    <li>キャンセルや日時変更をご希望の場合は、前日までに当店の公式LINEのメッセージにてご連絡をお願いいたします。</li>
+                    <li>当日の無断キャンセル等につきましては、キャンセル料が発生する場合がございます。</li>
+                    <li>深夜帯や定休日のご予約につきましては、他サイトとの予約システムの兼ね合いにより、やむを得ず翌営業日にお時間変更のお願い（またはお断り）をご連絡させていただく場合がございます。</li>
+                </ul>
+
+                <h4 class="font-bold text-[#ff7283] mb-1 border-b border-pink-100 pb-1">■ お支払いに関する注意事項</h4>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>予約時の選択メニューや、来店時のメニュー変更により、実際の支払い金額と異なる場合があります。</li>
+                    <li>カラーやパーマ、縮毛矯正などのメニューは、髪の長さによりロング料金（¥500〜¥1,000）が加算される場合がございます。</li>
+                    <li>サロンのキャンセル規定によりキャンセル料を請求される場合があります。</li>
+                </ul>
+            </div>
+
+            <button id="finalSubmitBtn" disabled onclick="window.submitBooking()" class="w-full py-5 bg-gray-400 text-white font-bold rounded-xl shadow-lg transition-colors">仮予約を送信する</button>
             <label class="flex items-center gap-2 mt-4 cursor-pointer justify-center"><input type="checkbox" id="agreeCheck" onchange="window.toggleSubmitBtn()"><span class="text-[10px] text-gray-500 font-bold underline">注意事項に同意します</span></label>
         </div>
         
@@ -559,7 +582,14 @@
         };
 
         window.changeStep = (s) => { document.querySelectorAll('.step-content').forEach(c=>c.classList.remove('active')); document.getElementById(`step${s}`).classList.add('active'); };
-        window.toggleSubmitBtn = () => { document.getElementById('finalSubmitBtn').disabled = !document.getElementById('agreeCheck').checked; document.getElementById('finalSubmitBtn').className = document.getElementById('agreeCheck').checked ? "w-full py-5 bg-[#1a252f] text-white font-bold rounded-xl" : "w-full py-5 bg-gray-400 text-white font-bold rounded-xl"; };
+        
+        // ★ボタンのスタイルもチェック時はしっかり色が付くように修正しました
+        window.toggleSubmitBtn = () => { 
+            const isChecked = document.getElementById('agreeCheck').checked;
+            const btn = document.getElementById('finalSubmitBtn');
+            btn.disabled = !isChecked; 
+            btn.className = isChecked ? "w-full py-5 hpb-pink-btn text-white font-bold rounded-xl shadow-lg transition-all" : "w-full py-5 bg-gray-300 text-white font-bold rounded-xl shadow-inner transition-all"; 
+        };
 
         const renderAdminBookings = () => { 
             const listContainer = document.getElementById('adminBookingList');
