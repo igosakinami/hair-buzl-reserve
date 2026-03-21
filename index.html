@@ -476,11 +476,14 @@
 
             const combinedMenuNames = selectedMenus.map(m => m.name).join(' ＋ ');
             let combinedPrice = 0;
-            selectedMenus.forEach(m => combinedPrice += m.price);
+            let totalTime = 0;
+            selectedMenus.forEach(m => {
+                combinedPrice += m.price;
+                totalTime += m.time;
+            });
 
             try {
-                const slotId = `${selectedDate}_${selectedTime}`;
-
+                // 1. 予約データをFirestoreに保存 (totalTime も記録する)
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), {
                     name: name,
                     tel: tel,
@@ -489,13 +492,28 @@
                     time: selectedTime,
                     menu: combinedMenuNames, 
                     price: combinedPrice, 
+                    totalTime: totalTime, 
                     status: '未承認', 
                     memo: '',       
                     createdAt: serverTimestamp()
                 });
 
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotId), { status: 'ng' });
+                // 2. 所要時間分のカレンダー枠をすべて「×」で塞ぐ処理
+                const slotsNeeded = Math.ceil(totalTime / 30); // 例: 90分なら 90/30 = 3枠
+                const startIndex = timeSlots.indexOf(selectedTime);
+                
+                if (startIndex !== -1) {
+                    // 選んだ時間から順番に必要な枠数分ループしてブロック
+                    for (let i = 0; i < slotsNeeded; i++) {
+                        // 配列の最後までいったら止める（18:30以降にはみ出さないための安全装置）
+                        if (startIndex + i < timeSlots.length) {
+                            const sId = `${selectedDate}_${timeSlots[startIndex + i]}`;
+                            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', sId), { status: 'ng' });
+                        }
+                    }
+                }
 
+                // 3. GAS（LINEやメール通知用）へデータを送信
                 await fetch(NOTIFICATION_CONFIG.gas_webapp_url, {
                     method: 'POST',
                     body: JSON.stringify({
@@ -614,11 +632,13 @@
                 if (statusStr === '否認') statusColor = 'bg-red-100 text-red-700';
                 
                 const emailHtml = b.email ? `<p class="text-xs text-gray-500 mt-1"><i class="fas fa-envelope mr-1"></i><a href="mailto:${b.email}" class="text-blue-500 underline">${b.email}</a></p>` : '';
+                
+                const tTime = b.totalTime || 30;
 
                 listContainer.innerHTML += `
                     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 relative">
                         <div class="flex justify-between items-center mb-3 border-b border-gray-100 pb-2">
-                            <div class="font-bold text-gray-800 text-sm"><i class="far fa-calendar-alt text-[#ff7283] mr-2"></i>${b.date} ${b.time}</div>
+                            <div class="font-bold text-gray-800 text-sm"><i class="far fa-calendar-alt text-[#ff7283] mr-2"></i>${b.date} ${b.time} 〜 <span class="text-xs text-gray-500 font-normal">(計 ${tTime}分)</span></div>
                             <span class="px-2 py-1 text-[10px] font-black rounded-md ${statusColor}">${statusStr}</span>
                         </div>
                         
@@ -639,7 +659,7 @@
 
                         <div class="flex flex-wrap gap-2">
                             <button onclick="window.approveBooking('${b.id}')" class="flex-1 py-3 bg-green-500 text-white font-bold rounded-xl text-xs shadow-md hover:bg-green-600 active:scale-95 transition-transform"><i class="fas fa-check mr-1"></i>承認する</button>
-                            <button onclick="window.rejectBooking('${b.id}', '${b.date}', '${b.time}')" class="flex-1 py-3 bg-gray-400 text-white font-bold rounded-xl text-xs shadow-md hover:bg-gray-500 active:scale-95 transition-transform"><i class="fas fa-times mr-1"></i>否認(枠開放)</button>
+                            <button onclick="window.rejectBooking('${b.id}', '${b.date}', '${b.time}', '${tTime}')" class="flex-1 py-3 bg-gray-400 text-white font-bold rounded-xl text-xs shadow-md hover:bg-gray-500 active:scale-95 transition-transform"><i class="fas fa-times mr-1"></i>否認(枠開放)</button>
                             <button onclick="window.sendThankYou('${b.name}')" class="w-full py-3 mt-1 bg-gradient-to-r from-[#ff7283] to-[#ff8c99] text-white font-bold rounded-xl text-xs shadow-md hover:opacity-90 active:scale-95 transition-transform"><i class="fas fa-envelope-open-text mr-1"></i>サンキューメール＆口コミ獲得</button>
                         </div>
                     </div>
@@ -697,18 +717,33 @@
             } catch(e) { alert("通信エラーが発生しました"); }
         };
 
-        window.rejectBooking = async (id, date, time) => {
+        window.rejectBooking = async (id, date, time, totalTimeStr) => {
             if(!confirm("本当にこの予約をお断り（キャンセル）し、枠を空き状態に戻しますか？")) return;
             try {
                 await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { status: '否認' });
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', `${date}_${time}`), { status: 'ok' });
+                
+                const tTime = parseInt(totalTimeStr) || 30;
+                const slotsToFree = Math.ceil(tTime / 30);
+                const startIndex = timeSlots.indexOf(time);
+                
+                if (startIndex !== -1) {
+                    for (let i = 0; i < slotsToFree; i++) {
+                        if (startIndex + i < timeSlots.length) {
+                            const sId = `${date}_${timeSlots[startIndex + i]}`;
+                            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', sId), { status: 'ok' });
+                        }
+                    }
+                }
                 alert("否認処理が完了し、予約枠を開放しました。");
             } catch(e) { alert("通信エラーが発生しました"); }
         };
 
+        // ★サンキューメールの文章をバージョンアップしました
         window.sendThankYou = async (name) => {
-            if(confirm(`${name}様へ「サンキューメール＆口コミ獲得メッセージ」を送信しますか？`)) {
-                alert(`✨ 送信完了しました！\n「昨日はありがとうございました！よろしければ感想をお願いします」というメッセージをお客様へお送りしました。`);
+            const msg = `${name}様、先日はhair Buzlにご来店いただき誠にありがとうございました！\n\nヘアスタイルはいかがでしょうか？気になるところがあればお気軽にご連絡くださいね。\n\nもしよろしければ、今後の励みになりますので、以下のリンクからGoogleの口コミ（ご感想）をいただけると大変嬉しいです！\nhttps://g.page/r/CRSIVTj6bfhuEAE/review\n\nまたのご来店を心よりお待ちしております！`;
+
+            if(confirm(`${name}様へ以下の「サンキューメール＆口コミ獲得メッセージ」を送信しますか？\n\n${msg}`)) {
+                alert(`✨ 送信完了しました！\n\n※実際にお客様のLINEやメールアドレスに送信する場合は、GAS等のバックエンド連携が必要です。（現在は表示テストのみです）`);
             }
         };
 
