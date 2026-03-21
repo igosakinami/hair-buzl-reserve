@@ -317,6 +317,7 @@ const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30"
             }
         };
         
+        // ★ここから丸ごと上書きペーストしてください
         const renderCalendar = () => {
             const body = document.getElementById('calendarBody'), head = document.getElementById('dateHeader');
             if(!body || !head) return;
@@ -336,6 +337,11 @@ const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30"
 
             // ヘッダー（日付と曜日）の作成
             dates.forEach(d => {
+                // ★追加：金曜日(5)の列を作る直前に、中間の時間軸（TIME）を挿入する
+                if (d.getDay() === 5) {
+                    head.innerHTML += `<th class="time-col border-l-2 border-r-2 border-gray-200">TIME</th>`;
+                }
+
                 const label = `${d.getMonth()+1}/${d.getDate()}`;
                 const dayStr = ['日','月','火','水','木','金','土'][d.getDay()];
                 
@@ -353,6 +359,11 @@ const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30"
                 let rowHtml = `<td class="time-col sticky-left">${t}</td>`;
                 
                 dates.forEach(d => {
+                    // ★追加：金曜日(5)の枠を作る直前に、中間の時間軸（時刻）を挿入する
+                    if (d.getDay() === 5) {
+                        rowHtml += `<td class="time-col border-l-2 border-r-2 border-gray-200">${t}</td>`;
+                    }
+
                     // 日付を「2026-06-12」の形式に直す
                     const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
                     const slotId = `${dateStr}_${t}`;
@@ -374,6 +385,7 @@ const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30"
                 body.appendChild(tr);
             });
         };
+// ★ここまで
 
         // カレンダーの「◎」を押した時の処理
         window.selectSlot = (dateStr, timeStr) => {
