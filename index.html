@@ -232,9 +232,25 @@
         let reservationData = {}, bookingsList = [], isAdmin = false, isEmergencyStop = false, selectedMenus = [], isTetrisMode = false;
         const menuData = [{ name: "スタイリストカット", time: 60, price: 3850, desc: "似合わせカット。" },{ name: "艶髪フルカラー", time: 90, price: 6600, desc: "全体染め。", isStartingPrice: true },{ name: "艶髪縮毛矯正", time: 180, price: 16500, desc: "看板メニュー。", isStartingPrice: true }];
         const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00"];
-        // ★ここを新しく追加します（2026年3月〜6月の祝日リスト）
-        const holidays2026 = ['2026-03-20', '2026-04-29', '2026-05-03', '2026-05-04', '2026-05-05', '2026-05-06'];
-        
+        // ★ここから下をまるごと上書きします★
+        let autoHolidays = []; // 自動で取得した祝日を一時的に入れておく箱
+
+        window.onload = async () => { 
+            // ① 日本の祝日カレンダーデータを無料で自動取得する（これで来年以降もずっと自動対応！）
+            try {
+                const response = await fetch('https://holidays-jp.github.io/api/v1/date.json');
+                const holidayData = await response.json();
+                autoHolidays = Object.keys(holidayData); // "2026-05-05" のような日付だけを抜き出して箱に入れます
+            } catch (error) {
+                console.log('祝日データの取得に失敗しました', error);
+            }
+
+            // ② いつも通りの起動処理
+            initMenu(); 
+            signInAnonymously(auth); 
+            onAuthStateChanged(auth, u => { if(u) startSync(); }); 
+        };
+        // ★上書きはここまで★
         window.onload = async () => { initMenu(); signInAnonymously(auth); onAuthStateChanged(auth, u => { if(u) startSync(); }); };
         window.onload = async () => { initMenu(); signInAnonymously(auth); onAuthStateChanged(auth, u => { if(u) startSync(); }); };
 
