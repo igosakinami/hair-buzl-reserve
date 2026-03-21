@@ -102,7 +102,7 @@
 
     <main class="max-w-4xl mx-auto p-4 pb-24 text-center md:text-left mt-8">
         <div id="step1" class="step-content active">
-            <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 text-gray-700 mb-4 text-left">メニューを選択</h2>
+            <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 text-gray-700 mb-4 text-left">メニューを選択（複数可）</h2>
             <div id="menuList" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6"></div>
             <div id="step1Footer" class="bg-white p-4 rounded-2xl border-2 border-[#ff7283] shadow-lg sticky bottom-4 hidden z-50">
                 <div class="flex justify-between items-end">
@@ -227,7 +227,6 @@
         let selectedDate = ""; 
         let selectedTime = ""; 
 
-        // 全20メニューのデータを追加（ロング料金があるものは isStartingPrice: true を付与）
         const menuData = [
             { name: "スタイリストカット", time: 60, price: 3850, desc: "12年のキャリアを持つオーナーによる似合わせカット。" },
             { name: "チャイルドカット（小学生まで）", time: 30, price: 2300, desc: "シャンプーは＋500円で追加可能です。" },
@@ -294,26 +293,67 @@
             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'emergency'), { active: newState });
         };
 
+        // ★ 複数選択・解除ができるようにロジックを修正しました
         const initMenu = () => {
-            const list = document.getElementById('menuList'); list.innerHTML = "";
-            menuData.forEach((m, idx) => {
-                const card = document.createElement('div'); card.className = "p-4 border rounded-xl bg-white text-left cursor-pointer hover:border-[#ff7283] transition-colors";
-                // ★isStartingPrice が true の場合は「〜」をつけるように修正
-                card.innerHTML = `<div class="flex justify-between items-start"><h3 class="font-bold text-sm">${m.name}</h3><span class="text-[10px] text-gray-400 bg-gray-50 px-2 py-1 rounded-md">${m.time}分</span></div><p class="text-[10px] text-gray-400 mt-1">${m.desc}</p><p class="text-pink-400 font-black mt-2">¥${m.price.toLocaleString()}${m.isStartingPrice ? '〜' : ''}</p>`;
-                card.onclick = () => { selectedMenus = [m]; window.updateStep1Footer(); };
+            const list = document.getElementById('menuList'); 
+            list.innerHTML = "";
+            menuData.forEach((m) => {
+                // 今のメニューがすでに選ばれているかチェック
+                const isSelected = selectedMenus.some(sm => sm.name === m.name);
+                
+                const card = document.createElement('div'); 
+                card.className = `p-4 border-2 rounded-xl text-left cursor-pointer transition-colors relative ${isSelected ? 'border-[#ff7283] bg-pink-50' : 'border-gray-200 bg-white hover:border-[#ff7283]'}`;
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <h3 class="font-bold text-sm ${isSelected ? 'text-[#ff7283]' : 'text-gray-800'}">${m.name}</h3>
+                        <span class="text-[10px] text-gray-400 bg-gray-50 px-2 py-1 rounded-md ${isSelected ? 'bg-white' : ''}">${m.time}分</span>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-1">${m.desc}</p>
+                    <p class="text-pink-400 font-black mt-2">¥${m.price.toLocaleString()}${m.isStartingPrice ? '〜' : ''}</p>
+                    ${isSelected ? '<div class="absolute top-2 right-2 text-[#ff7283] font-black">✓</div>' : ''}
+                `;
+                
+                // タップした時の処理（選択されていれば解除、されていなければ追加）
+                card.onclick = () => { 
+                    if (isSelected) {
+                        selectedMenus = selectedMenus.filter(sm => sm.name !== m.name); // 解除
+                    } else {
+                        selectedMenus.push(m); // 追加
+                    }
+                    initMenu(); // 画面を再描画して色を変える
+                    window.updateStep1Footer(); 
+                };
                 list.appendChild(card);
             });
         };
 
+        // ★ 複数選択されたメニューの「合計金額」と「合計時間」を計算するように修正しました
         window.updateStep1Footer = () => {
             const footer = document.getElementById('step1Footer');
             if(selectedMenus.length > 0) {
                 footer.classList.remove('hidden');
-                // ★ここでも「〜」を反映
-                document.getElementById('totalPriceDisplay').innerText = `¥${selectedMenus[0].price.toLocaleString()}${selectedMenus[0].isStartingPrice ? '〜' : ''}`;
-                document.getElementById('totalTimeDisplay').innerText = `${selectedMenus[0].time}分`;
+                
+                let totalPrice = 0;
+                let totalTime = 0;
+                let hasStartingPrice = false;
+
+                // 選ばれたメニューを全部足し算する
+                selectedMenus.forEach(m => {
+                    totalPrice += m.price;
+                    totalTime += m.time;
+                    if(m.isStartingPrice) hasStartingPrice = true;
+                });
+
+                document.getElementById('totalPriceDisplay').innerText = `¥${totalPrice.toLocaleString()}${hasStartingPrice ? '〜' : ''}`;
+                document.getElementById('totalTimeDisplay').innerText = `${totalTime}分`;
+            } else {
+                // 1つも選ばれていない時はボタンを隠す
+                footer.classList.add('hidden');
             }
         };
+
+        window.goToStep2 = () => { window.changeStep(2); };
 
         window.toggleAdminMode = (chk) => { if(chk) { document.getElementById('adminAuthModal').style.display = 'flex'; } else { isAdmin = false; document.getElementById('modeLabel').innerText='OFF'; document.getElementById('adminBookingSection').classList.add('hidden'); document.getElementById('emergencyBtn').classList.add('hidden'); document.getElementById('emergencyOverlay').style.display = isEmergencyStop ? 'flex' : 'none'; } };
         
@@ -392,6 +432,11 @@
             btn.innerText = "送信中...";
             btn.disabled = true;
 
+            // ★ 複数選択されたメニュー名を「＋」で繋ぐように修正しました
+            const combinedMenuNames = selectedMenus.map(m => m.name).join(' ＋ ');
+            let combinedPrice = 0;
+            selectedMenus.forEach(m => combinedPrice += m.price);
+
             try {
                 const slotId = `${selectedDate}_${selectedTime}`;
 
@@ -400,8 +445,8 @@
                     tel: tel,
                     date: selectedDate,
                     time: selectedTime,
-                    menu: selectedMenus[0].name,
-                    price: selectedMenus[0].price,
+                    menu: combinedMenuNames, // まとめたメニュー名
+                    price: combinedPrice, // 合計金額
                     createdAt: serverTimestamp()
                 });
 
@@ -415,7 +460,7 @@
                         tel: tel,
                         date: selectedDate,
                         time: selectedTime,
-                        menu: selectedMenus[0].name
+                        menu: combinedMenuNames // GASにもまとめたメニュー名を送る
                     })
                 });
 
