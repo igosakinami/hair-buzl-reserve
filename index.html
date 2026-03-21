@@ -246,8 +246,7 @@
         const firebaseConfig = { apiKey: "AIzaSyAZPUpUdLpbKbOJGJ6NhOiCqkqRS-tKwCQ", authDomain: "hair-buzl-reserve.firebaseapp.com", projectId: "hair-buzl-reserve", appId: "1:757183537058:web:7aeee2f1fbb4268af29cfb" };
 
         const app = initializeApp(firebaseConfig); const db = getFirestore(app); const auth = getAuth(app); const appId = "hair-buzl-reserve";
-        let reservationData = {}, bookingsList = [], isAdmin = false, isEmergencyStop = false, selectedMenus = [];
-
+        let reservationData = {}, bookingsList = [], isAdmin = false, isEmergencyStop = false, selectedMenus = [], isTetrisMode = false;
         const menuData = [{ name: "スタイリストカット", time: 60, price: 3850, desc: "似合わせカット。" },{ name: "艶髪フルカラー", time: 90, price: 6600, desc: "全体染め。", isStartingPrice: true },{ name: "艶髪縮毛矯正", time: 180, price: 16500, desc: "看板メニュー。", isStartingPrice: true }];
         const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00"];
         
