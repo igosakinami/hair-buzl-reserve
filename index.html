@@ -355,7 +355,7 @@
                         <span class="text-[10px] text-gray-400 bg-gray-50 px-2 py-1 rounded-md ${isSelected ? 'bg-white' : ''}">${m.time}分</span>
                     </div>
                     <p class="text-[10px] text-gray-400 mt-1">${m.desc}</p>
-                    <p class="text-pink-400 font-black mt-2">¥${m.price.toLocaleString()}${m.isStartingPrice ? '〜' : ''}</p>
+                    <p class="text-pink-400 font-black mt-2">¥${m.price.toLocaleString()}${m.isStartingPrice ? '〜' : ''} <span class="text-[10px] text-gray-400 font-normal">（税込）</span></p>
                     ${isSelected ? '<div class="absolute top-2 right-2 text-[#ff7283] font-black">✓</div>' : ''}
                 `;
                 
@@ -387,7 +387,7 @@
                     if(m.isStartingPrice) hasStartingPrice = true;
                 });
 
-                document.getElementById('totalPriceDisplay').innerText = `¥${totalPrice.toLocaleString()}${hasStartingPrice ? '〜' : ''}`;
+                document.getElementById('totalPriceDisplay').innerHTML = `¥${totalPrice.toLocaleString()}${hasStartingPrice ? '〜' : ''} <span class="text-xs text-gray-500 font-normal">（税込）</span>`;
                 document.getElementById('totalTimeDisplay').innerText = `${totalTime}分`;
             } else {
                 footer.classList.add('hidden');
@@ -583,7 +583,6 @@
 
         window.changeStep = (s) => { document.querySelectorAll('.step-content').forEach(c=>c.classList.remove('active')); document.getElementById(`step${s}`).classList.add('active'); };
         
-        // ★ボタンのスタイルもチェック時はしっかり色が付くように修正しました
         window.toggleSubmitBtn = () => { 
             const isChecked = document.getElementById('agreeCheck').checked;
             const btn = document.getElementById('finalSubmitBtn');
