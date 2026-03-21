@@ -110,14 +110,19 @@
         <div id="step1" class="step-content active">
             <h2 class="text-sm font-bold border-l-4 border-[#ff7283] pl-2 text-gray-700 mb-4 text-left">メニューを選択（複数可）</h2>
             <div id="menuList" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6"></div>
-            <div id="step1Footer" class="bg-white p-4 rounded-2xl border-2 border-[#ff7283] shadow-lg sticky bottom-4 hidden z-50">
-                <div class="flex justify-between items-end">
-                    <div class="text-left">
-                        <p class="text-[10px] text-gray-500 font-bold mb-1">選択中のメニュー（目安: <span id="totalTimeDisplay">0分</span>）</p>
-                        <p class="text-xl font-black text-[#ff7283]">合計 <span id="totalPriceDisplay">¥0</span></p>
-                    </div>
-                    <button onclick="window.goToStep2()" class="hpb-pink-btn px-6 py-3 text-sm font-bold shadow-md">日時を選択する</button>
+            
+            <div id="step1Footer" class="bg-white p-5 rounded-2xl border-2 border-[#ff7283] shadow-2xl sticky bottom-4 hidden z-50">
+                <h3 class="text-center font-black text-[#ff7283] text-sm tracking-widest mb-3 border-b border-pink-100 pb-2">CONFIRMATION（確認）</h3>
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold text-gray-600">【お会計予定】</span>
+                    <span class="text-xl font-black text-[#ff7283]" id="totalPriceDisplay">¥0</span>
                 </div>
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-xs font-bold text-gray-600">【所要目安】</span>
+                    <span class="text-sm font-bold text-gray-800" id="totalTimeDisplay">0分</span>
+                </div>
+                <p class="text-[10px] text-center text-gray-500 mb-4">お間違いがなければ次に進んでください。</p>
+                <button onclick="window.goToStep2()" class="w-full hpb-pink-btn py-4 text-sm font-bold shadow-md tracking-wider">日時を選択する</button>
             </div>
         </div>
         
@@ -556,20 +561,17 @@
         window.changeStep = (s) => { document.querySelectorAll('.step-content').forEach(c=>c.classList.remove('active')); document.getElementById(`step${s}`).classList.add('active'); };
         window.toggleSubmitBtn = () => { document.getElementById('finalSubmitBtn').disabled = !document.getElementById('agreeCheck').checked; document.getElementById('finalSubmitBtn').className = document.getElementById('agreeCheck').checked ? "w-full py-5 bg-[#1a252f] text-white font-bold rounded-xl" : "w-full py-5 bg-gray-400 text-white font-bold rounded-xl"; };
 
-        // ★エラー防止＆空っぽ時の表示を追加しました
         const renderAdminBookings = () => { 
             const listContainer = document.getElementById('adminBookingList');
             if(!listContainer) return;
             listContainer.innerHTML = '';
             
-            // データが0件の時の案内表示
             if (bookingsList.length === 0) {
                 listContainer.innerHTML = '<div class="text-center text-gray-400 py-10 bg-white rounded-2xl border border-gray-100 shadow-sm">現在、予約データはありません<br><span class="text-[10px]">※テスト予約を入れるとここにカルテが表示されます</span></div>';
             }
             
             const menuCounts = {};
             
-            // 安全装置：もし過去のテスト等で日付が入っていない不正なデータがあってもエラーで止まらないようにする
             const safeBookings = bookingsList.filter(b => b && b.date && b.time);
             
             safeBookings.sort((a, b) => {
