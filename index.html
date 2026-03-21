@@ -312,23 +312,17 @@
             }
         };
 
-        // 【変更後】★この関数をまるごと入れ替えてください
-window.selectSlot = async (dateStr, timeStr) => {
+        // 【追加】★「×」を「◎」に戻す（ブロックを解除する）関数です。selectSlotのすぐ下に貼り付けてください。
+window.unselectSlot = async (dateStr, timeStr) => {
+    // 管理者モードの時だけ実行できるようにします
     if (isAdmin) {
-        // ★ここを追加：テトリスモードがONなら、カレンダーを×にせずインスタ文章を作る
-        if (isTetrisMode) {
-            window.openTetrisModal(dateStr, timeStr);
-            return; // ここで処理をストップして下には進まない
-        }
-
         const slotId = `${dateStr}_${timeStr}`;
         try {
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotId), { status: 'ng' });
+            // データベース（Firestore）のステータスを「ok」に上書きして◎に戻します
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotId), { status: 'ok' });
         } catch (error) {
             alert("通信エラーが発生しました。");
         }
-    } else {
-        window.changeStep(3);
     }
 };
 
