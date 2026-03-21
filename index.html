@@ -412,34 +412,42 @@ window.selectSlot = async (dateStr, timeStr) => {
         window.toggleSubmitBtn = () => { document.getElementById('finalSubmitBtn').disabled = !document.getElementById('agreeCheck').checked; document.getElementById('finalSubmitBtn').className = document.getElementById('agreeCheck').checked ? "w-full py-5 bg-[#1a252f] text-white font-bold rounded-xl" : "w-full py-5 bg-gray-400 text-white font-bold rounded-xl"; };
         const renderAdminBookings = () => { /* 管理リスト表示ロジック（省略） */ };
 
-        // ★今回追加した部分：テトリスマッチング機能の裏側の動き
-        window.generateTetrisMatch = () => {
-            // 明日の日付を取得して空き枠を探すロジック
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            const dateStr = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth()+1).padStart(2,'0')}-${String(tomorrow.getDate()).padStart(2,'0')}`;
-            
-            let availableSlots = [];
-            timeSlots.forEach(t => {
-                const slotId = `${dateStr}_${t}`;
-                // 空いている（ok）、もしくはまだデータがない枠を探す
-                if(reservationData[slotId] === 'ok' || !reservationData[slotId]) { 
-                   availableSlots.push(t);
-                }
-            });
+        // ★今回変更した部分：テトリスモードの切り替えと、カレンダーから直接選ぶ動き
+window.toggleTetrisMode = () => {
+    isTetrisMode = !isTetrisMode;
+    const btn = document.getElementById('tetrisModeBtn');
+    
+    if (isTetrisMode) {
+        // モードON：ボタンを黄色にして目立たせ、カレンダーから選ぶように促す
+        btn.innerHTML = '<i class="fab fa-instagram text-sm"></i> テトリスモード中 (枠をタップ)';
+        btn.classList.replace('from-purple-500', 'from-yellow-400');
+        btn.classList.replace('to-pink-500', 'to-orange-500');
+        alert("カレンダーから、インスタで募集したい「空きの時間枠（◎）」をタップしてください！");
+    } else {
+        // モードOFF：元の紫色に戻す
+        btn.innerHTML = '<i class="fab fa-instagram text-sm"></i> テトリスモードをONにする';
+        btn.classList.replace('from-yellow-400', 'from-purple-500');
+        btn.classList.replace('to-orange-500', 'to-pink-500');
+    }
+};
 
-            // 空き枠があるかどうかで文章を調整
-            let timeText = availableSlots.length > 0 
-                ? `明日 ${tomorrow.getMonth()+1}/${tomorrow.getDate()} ${availableSlots[0]}〜` 
-                : "近日中";
+// カレンダーの「◎」をタップした時に呼ばれて、文章を作る処理
+window.openTetrisModal = (dateStr, timeStr) => {
+    // 日付データ（例: 2026-03-21）から月と日だけを取り出す
+    const parts = dateStr.split('-');
+    const month = parseInt(parts[1], 10);
+    const day = parseInt(parts[2], 10);
 
-            // インスタ用の募集テキストを作成
-            const text = `【急募枠のお知らせ📢】\n\n急なキャンセル等により、ぽっかり空き時間ができました！\n\n✨ ${timeText} ご案内可能です✨\n\n普段なかなか予約が取れない方も、今がチャンスです！\nカットやカラー、日頃の疲れを癒やすトリートメントはいかがですか？\n\nご予約はプロフィールのリンクから1分で完了します🏃‍♀️💨\n\n#旭川美容室 #東光 #hairBuzl`;
+    // インスタ用の募集テキストを作成（タップした日付と時間が自動で入ります）
+    const text = `【急募枠のお知らせ📢】\n\n急なキャンセル等により、ぽっかり空き時間ができました！\n\n✨ ${month}/${day} ${timeStr}〜 ご案内可能です✨\n\n普段なかなか予約が取れない方も、今がチャンスです！\nカットやカラー、日頃の疲れを癒やすトリートメントはいかがですか？\n\nご予約はプロフィールのリンクから1分で完了します🏃‍♀️💨\n\n#旭川美容室 #東光 #hairBuzl`;
 
-            // モーダル画面のテキストエリアに文章をセットして表示する
-            document.getElementById('tetrisText').value = text;
-            document.getElementById('tetrisModal').style.display = 'flex';
-        };
+    // モーダル画面に文章をセットして表示する
+    document.getElementById('tetrisText').value = text;
+    document.getElementById('tetrisModal').style.display = 'flex';
+    
+    // 生成が終わったら、間違えて他の枠を押し続けないようにモードをOFFに戻す
+    window.toggleTetrisMode(); 
+};
 
         // ★今回追加した部分：コピーボタンを押した時の動き
         window.copyTetrisText = () => {
