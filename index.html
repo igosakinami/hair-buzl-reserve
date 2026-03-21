@@ -227,9 +227,30 @@
         let selectedDate = ""; 
         let selectedTime = ""; 
 
-        const menuData = [{ name: "スタイリストカット", time: 60, price: 3850, desc: "似合わせカット。" },{ name: "艶髪フルカラー", time: 90, price: 6600, desc: "全体染め。", isStartingPrice: true },{ name: "艶髪縮毛矯正", time: 180, price: 16500, desc: "看板メニュー。", isStartingPrice: true }];
+        // 全20メニューのデータを追加（ロング料金があるものは isStartingPrice: true を付与）
+        const menuData = [
+            { name: "スタイリストカット", time: 60, price: 3850, desc: "12年のキャリアを持つオーナーによる似合わせカット。" },
+            { name: "チャイルドカット（小学生まで）", time: 30, price: 2300, desc: "シャンプーは＋500円で追加可能です。" },
+            { name: "スクールカット（中・高生）", time: 60, price: 2950, desc: "中学生・高校生のヘアカットを提供いたします。" },
+            { name: "U24限定カット（大学生まで）", time: 60, price: 3500, desc: "学生証をご提示ください。" },
+            { name: "ブリーチ", time: 90, price: 6600, desc: "外国人風の透明感カラーや、鮮やかな高彩度カラーを楽しむための必須ステップです。※ロング料金 ¥500〜¥1,000", isStartingPrice: true },
+            { name: "デザインカラー", time: 120, price: 7700, desc: "ハイライトやバレイヤージュ、インナーカラーなど、髪に自然な陰影と動きを与えるデザイン性の高いメニューです。" },
+            { name: "カラーリタッチ（フルボ酸配合）（生え際2cm以内）", time: 60, price: 5500, desc: "前回のカラーから伸びた根元部分を、毛先の髪色と違和感なく正確につなげます。" },
+            { name: "フルボ酸配合 艶髪フルカラー", time: 90, price: 6600, desc: "根元から毛先まで、髪全体をムラなく均一に染め上げるフルカラーメニューです。※ロング料金 ¥500〜¥1,000", isStartingPrice: true },
+            { name: "フルボ酸配合 艶髪縮毛矯正（カット込）", time: 180, price: 16500, desc: "当店が最も自信を持っておすすめする不動の看板メニューです。" },
+            { name: "フルボ酸配合 艶髪パーマ（カット込）", time: 120, price: 9900, desc: "丁寧なカウンセリングに基づく似合わせカットと、髪への負担を最小限に抑えたパーマのセットメニューです。" },
+            { name: "ダブルブリーチ", time: 120, price: 9900, desc: "1度のブリーチでは到達できない圧倒的な透明感や極限まで明るい色味を希望される方向けです。※ロング料金 ¥500〜¥1,000", isStartingPrice: true },
+            { name: "前髪カット", time: 30, price: 1100, desc: "1mmで顔の印象を左右する前髪のメンテナンスや、セルフカットでの失敗を防ぎたい時に。" },
+            { name: "眉カット", time: 30, price: 1100, desc: "眉カットは表情を明るく見せる重要なパーツケアです。プロの手で清潔感のある理想の形に整えます。" },
+            { name: "シャンプー・ブロー", time: 30, price: 2200, desc: "プロのハンドテクニックによる心地よいプレシャンプーで、頭皮と髪の汚れを丁寧に洗い流し清潔な状態へ導きます。" },
+            { name: "ヘッドスパ", time: 30, price: 3500, desc: "日々のシャンプーでは落としきれない毛穴の奥の皮脂汚れや蓄積したスタイリング剤を専用クレンジングでしっかりオフします。" },
+            { name: "酸熱トリートメント", time: 90, price: 7700, desc: "ダメージで弱くなった髪を内側から補強する最先端のトリートメントです。広がりやうねりを抑え深い艶と滑らかな指通りを実現します。" },
+            { name: "フルボ酸配合 艶髪トリートメント", time: 30, price: 2950, desc: "天然由来の「フルボ酸」が持つ豊富なミネラルとアミノ酸を髪の深部まで浸透させ、ダメージで失われた潤いを補給します。" },
+            { name: "フルボ酸配合 部分矯正", time: 90, price: 5500, desc: "前髪や顔周り、襟足など、特にクセが気になる部分をピンポイントで整えるメンテナンスメニューです。" },
+            { name: "セラミックスカール（デジタルパーマ・カット込）", time: 150, price: 15000, desc: "特殊なセラミックスロッドを使用し、熱の力を借りてカールの形を記憶させる進化系デジタルパーマです。" },
+            { name: "特殊パーマ（スパイラル・ツイスト）", time: 150, price: 11000, desc: "螺旋状のスパイラルや無造作でワイルドな質感が魅力のツイストなど、高度なテクニックを駆使して理想のフォルムを作り上げます。" }
+        ];
         
-        // ★ここを修正しました！末尾の "19:00" を削除し、18:30が最終枠になっています。
         const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"];
         
         let autoHolidays = [];
@@ -277,7 +298,8 @@
             const list = document.getElementById('menuList'); list.innerHTML = "";
             menuData.forEach((m, idx) => {
                 const card = document.createElement('div'); card.className = "p-4 border rounded-xl bg-white text-left cursor-pointer hover:border-[#ff7283] transition-colors";
-                card.innerHTML = `<div class="flex justify-between items-start"><h3 class="font-bold text-sm">${m.name}</h3><span class="text-[10px] text-gray-400 bg-gray-50 px-2 py-1 rounded-md">${m.time}分</span></div><p class="text-[10px] text-gray-400 mt-1">${m.desc}</p><p class="text-pink-400 font-black mt-2">¥${m.price.toLocaleString()}</p>`;
+                // ★isStartingPrice が true の場合は「〜」をつけるように修正
+                card.innerHTML = `<div class="flex justify-between items-start"><h3 class="font-bold text-sm">${m.name}</h3><span class="text-[10px] text-gray-400 bg-gray-50 px-2 py-1 rounded-md">${m.time}分</span></div><p class="text-[10px] text-gray-400 mt-1">${m.desc}</p><p class="text-pink-400 font-black mt-2">¥${m.price.toLocaleString()}${m.isStartingPrice ? '〜' : ''}</p>`;
                 card.onclick = () => { selectedMenus = [m]; window.updateStep1Footer(); };
                 list.appendChild(card);
             });
@@ -287,7 +309,8 @@
             const footer = document.getElementById('step1Footer');
             if(selectedMenus.length > 0) {
                 footer.classList.remove('hidden');
-                document.getElementById('totalPriceDisplay').innerText = `¥${selectedMenus[0].price.toLocaleString()}`;
+                // ★ここでも「〜」を反映
+                document.getElementById('totalPriceDisplay').innerText = `¥${selectedMenus[0].price.toLocaleString()}${selectedMenus[0].isStartingPrice ? '〜' : ''}`;
                 document.getElementById('totalTimeDisplay').innerText = `${selectedMenus[0].time}分`;
             }
         };
@@ -452,7 +475,7 @@
                     const status = reservationData[slotId] || 'ok';
                     const isHoliday = (d.getDay() === 1); 
                     const isSundayOrHoliday = (d.getDay() === 0) || autoHolidays.includes(dateStr);
-                    const isAfter1800 = (t === '18:00' || t === '18:30'); // 19:00を消したのでここも少し整えました
+                    const isAfter1800 = (t === '18:00' || t === '18:30'); 
 
                     if (isHoliday) {
                         rowHtml += `<td class="status-closed bg-gray-50 text-gray-300 text-xs">休</td>`;
