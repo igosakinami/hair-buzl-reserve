@@ -58,6 +58,15 @@
         <p class="mt-12 text-[10px] text-gray-300 font-bold uppercase tracking-[0.3em]">Official hair Buzl</p>
     </div>
 
+    <div id="adminAuthModal" class="modal-overlay">
+        <div class="bg-white p-6 rounded-2xl w-80 max-w-[90%] text-center shadow-2xl">
+            <h3 class="font-black text-gray-800 mb-4">管理者パスワード</h3>
+            <input type="password" id="adminPass" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl mb-4 text-center tracking-widest" placeholder="PASSWORD">
+            <button onclick="window.verifyAdmin()" class="w-full py-3 bg-blue-600 text-white font-bold rounded-xl mb-2 shadow-md">認証する</button>
+            <button onclick="document.getElementById('adminToggle').click(); document.getElementById('adminAuthModal').style.display='none'" class="w-full py-3 bg-gray-100 text-gray-600 font-bold rounded-xl">キャンセル</button>
+        </div>
+    </div>
+
     <div class="admin-panel p-2 flex justify-between items-center text-xs">
         <div class="flex items-center gap-2">
             <div class="flex items-center gap-1 font-black uppercase tracking-tighter text-blue-400">
