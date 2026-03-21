@@ -103,7 +103,7 @@
 
     <div id="reservation-section" class="pt-8"></div>
 
-    <div class="flex border-b border-t border-gray-100 bg-white max-w-4xl mx-auto sticky top-0 z-40 shadow-sm">
+    <div class="flex border-b border-t border-gray-100 bg-white max-w-4xl mx-auto sticky top-0 z-50 shadow-sm">
         <div id="stepHeader1" class="flex-1 py-3 text-center border-b-2 border-[#ff7283] text-[#ff7283] font-black text-[10px]">STEP1 メニュー</div>
         <div id="stepHeader2" class="flex-1 py-3 text-center text-gray-300 font-bold text-[10px]">STEP2 日時</div>
         <div id="stepHeader3" class="flex-1 py-3 text-center text-gray-300 font-bold text-[10px]">STEP3 入力</div>
@@ -221,8 +221,7 @@
         let reservationData = {}, bookingsList = [], isAdmin = false, isEmergencyStop = false, selectedMenus = [];
 
         const menuData = [{ name: "スタイリストカット", time: 60, price: 3850, desc: "似合わせカット。" },{ name: "艶髪フルカラー", time: 90, price: 6600, desc: "全体染め。", isStartingPrice: true },{ name: "艶髪縮毛矯正", time: 180, price: 16500, desc: "看板メニュー。", isStartingPrice: true }];
-        const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"];
-
+const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00"];
         window.onload = async () => { initMenu(); signInAnonymously(auth); onAuthStateChanged(auth, u => { if(u) startSync(); }); };
 
         const startSync = () => {
