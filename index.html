@@ -177,6 +177,7 @@
                 </div>
             </div>
 
+            <h3 class="font-bold text-gray-700 mb-4 mt-8 ml-2 border-l-4 border-blue-500 pl-2">📝 顧客カルテ（予約一覧）</h3>
             <div id="adminBookingList" class="space-y-4"></div>
         </div>
 
@@ -229,7 +230,6 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        // ★ updateDocを追加
         import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
@@ -435,7 +435,6 @@
         window.submitBooking = async () => {
             const name = document.getElementById('custName').value;
             const tel = document.getElementById('custTel').value;
-            // ★メールアドレスを取得
             const email = document.getElementById('custEmail').value;
             const btn = document.getElementById('finalSubmitBtn');
 
@@ -457,13 +456,13 @@
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), {
                     name: name,
                     tel: tel,
-                    email: email, // ★DBにメールを保存
+                    email: email, 
                     date: selectedDate,
                     time: selectedTime,
                     menu: combinedMenuNames, 
                     price: combinedPrice, 
-                    status: '未承認', // ★初期ステータス
-                    memo: '',       // ★カルテ用メモ枠
+                    status: '未承認', 
+                    memo: '',       
                     createdAt: serverTimestamp()
                 });
 
@@ -557,25 +556,32 @@
         window.changeStep = (s) => { document.querySelectorAll('.step-content').forEach(c=>c.classList.remove('active')); document.getElementById(`step${s}`).classList.add('active'); };
         window.toggleSubmitBtn = () => { document.getElementById('finalSubmitBtn').disabled = !document.getElementById('agreeCheck').checked; document.getElementById('finalSubmitBtn').className = document.getElementById('agreeCheck').checked ? "w-full py-5 bg-[#1a252f] text-white font-bold rounded-xl" : "w-full py-5 bg-gray-400 text-white font-bold rounded-xl"; };
 
-        // ★大幅アップデート：カード型の顧客カルテ一覧
+        // ★エラー防止＆空っぽ時の表示を追加しました
         const renderAdminBookings = () => { 
             const listContainer = document.getElementById('adminBookingList');
             if(!listContainer) return;
             listContainer.innerHTML = '';
             
+            // データが0件の時の案内表示
+            if (bookingsList.length === 0) {
+                listContainer.innerHTML = '<div class="text-center text-gray-400 py-10 bg-white rounded-2xl border border-gray-100 shadow-sm">現在、予約データはありません<br><span class="text-[10px]">※テスト予約を入れるとここにカルテが表示されます</span></div>';
+            }
+            
             const menuCounts = {};
             
-            bookingsList.sort((a, b) => {
+            // 安全装置：もし過去のテスト等で日付が入っていない不正なデータがあってもエラーで止まらないようにする
+            const safeBookings = bookingsList.filter(b => b && b.date && b.time);
+            
+            safeBookings.sort((a, b) => {
                 const dateA = new Date(a.date + ' ' + a.time);
                 const dateB = new Date(b.date + ' ' + b.time);
                 return dateB - dateA;
             }).forEach(b => {
                 const statusStr = b.status || '未承認';
-                let statusColor = 'bg-yellow-100 text-yellow-700'; // 未承認
+                let statusColor = 'bg-yellow-100 text-yellow-700'; 
                 if (statusStr === '承認済') statusColor = 'bg-green-100 text-green-700';
                 if (statusStr === '否認') statusColor = 'bg-red-100 text-red-700';
                 
-                // メールアドレスがあれば表示
                 const emailHtml = b.email ? `<p class="text-xs text-gray-500 mt-1"><i class="fas fa-envelope mr-1"></i><a href="mailto:${b.email}" class="text-blue-500 underline">${b.email}</a></p>` : '';
 
                 listContainer.innerHTML += `
@@ -647,7 +653,6 @@
             }
         };
 
-        // ★ボタン操作用の関数群
         window.updateMemo = async (id, text) => {
             try {
                 await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { memo: text });
