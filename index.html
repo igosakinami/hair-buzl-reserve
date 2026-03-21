@@ -257,8 +257,9 @@
     </footer>
 
     <script type="module">
+        // ★ deleteDocをインポートに追加しました
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         const NOTIFICATION_CONFIG = {
@@ -483,7 +484,8 @@
             });
 
             try {
-                // 1. 予約データをFirestoreに保存 (totalTime も記録する)
+                const slotId = `${selectedDate}_${selectedTime}`;
+
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), {
                     name: name,
                     tel: tel,
@@ -494,18 +496,16 @@
                     price: combinedPrice, 
                     totalTime: totalTime, 
                     status: '未承認', 
+                    thankYouSent: false, // ★サンキューメール送信フラグの初期値
                     memo: '',       
                     createdAt: serverTimestamp()
                 });
 
-                // 2. 所要時間分のカレンダー枠をすべて「×」で塞ぐ処理
-                const slotsNeeded = Math.ceil(totalTime / 30); // 例: 90分なら 90/30 = 3枠
+                const slotsNeeded = Math.ceil(totalTime / 30); 
                 const startIndex = timeSlots.indexOf(selectedTime);
                 
                 if (startIndex !== -1) {
-                    // 選んだ時間から順番に必要な枠数分ループしてブロック
                     for (let i = 0; i < slotsNeeded; i++) {
-                        // 配列の最後までいったら止める（18:30以降にはみ出さないための安全装置）
                         if (startIndex + i < timeSlots.length) {
                             const sId = `${selectedDate}_${timeSlots[startIndex + i]}`;
                             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'slots', sId), { status: 'ng' });
@@ -513,7 +513,6 @@
                     }
                 }
 
-                // 3. GAS（LINEやメール通知用）へデータを送信
                 await fetch(NOTIFICATION_CONFIG.gas_webapp_url, {
                     method: 'POST',
                     body: JSON.stringify({
@@ -618,7 +617,6 @@
             }
             
             const menuCounts = {};
-            
             const safeBookings = bookingsList.filter(b => b && b.date && b.time);
             
             safeBookings.sort((a, b) => {
@@ -632,8 +630,37 @@
                 if (statusStr === '否認') statusColor = 'bg-red-100 text-red-700';
                 
                 const emailHtml = b.email ? `<p class="text-xs text-gray-500 mt-1"><i class="fas fa-envelope mr-1"></i><a href="mailto:${b.email}" class="text-blue-500 underline">${b.email}</a></p>` : '';
-                
                 const tTime = b.totalTime || 30;
+
+                // ★ サンキューメール送信済みかどうかの判定
+                const isThankYouSent = b.thankYouSent || false;
+                const thankYouBtnClass = isThankYouSent 
+                    ? "w-full py-3 mt-1 bg-gray-300 text-gray-500 font-bold rounded-xl text-xs shadow-inner cursor-not-allowed" 
+                    : "w-full py-3 mt-1 bg-gradient-to-r from-[#ff7283] to-[#ff8c99] text-white font-bold rounded-xl text-xs shadow-md hover:opacity-90 active:scale-95 transition-transform";
+                const thankYouBtnText = isThankYouSent 
+                    ? '<i class="fas fa-check-circle mr-1"></i>サンキューメール送信済み' 
+                    : '<i class="fas fa-envelope-open-text mr-1"></i>サンキューメール＆口コミ獲得';
+                const thankYouBtnAction = isThankYouSent 
+                    ? "" 
+                    : `onclick="window.sendThankYou('${b.id}', '${b.name}')"`;
+
+                // ★ 否認状態なら「削除ボタン」だけを表示し、それ以外なら操作ボタンを表示
+                let actionButtonsHtml = '';
+                if (statusStr === '否認') {
+                    actionButtonsHtml = `
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="window.deleteBooking('${b.id}')" class="w-full py-3 bg-red-500 text-white font-bold rounded-xl text-xs shadow-md hover:bg-red-600 active:scale-95 transition-transform"><i class="fas fa-trash-alt mr-1"></i>このカルテを完全に削除する</button>
+                        </div>
+                    `;
+                } else {
+                    actionButtonsHtml = `
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="window.approveBooking('${b.id}')" class="flex-1 py-3 bg-green-500 text-white font-bold rounded-xl text-xs shadow-md hover:bg-green-600 active:scale-95 transition-transform"><i class="fas fa-check mr-1"></i>承認する</button>
+                            <button onclick="window.rejectBooking('${b.id}', '${b.date}', '${b.time}', '${tTime}')" class="flex-1 py-3 bg-gray-400 text-white font-bold rounded-xl text-xs shadow-md hover:bg-gray-500 active:scale-95 transition-transform"><i class="fas fa-times mr-1"></i>否認(枠開放)</button>
+                            <button ${thankYouBtnAction} class="${thankYouBtnClass}">${thankYouBtnText}</button>
+                        </div>
+                    `;
+                }
 
                 listContainer.innerHTML += `
                     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 relative">
@@ -657,15 +684,11 @@
                             <textarea onchange="window.updateMemo('${b.id}', this.value)" class="w-full h-20 p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#ff7283] transition-all resize-none" placeholder="前回のメニュー、フルボ酸の反応、会話の内容などを自由にメモできます...">${b.memo || ''}</textarea>
                         </div>
 
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="window.approveBooking('${b.id}')" class="flex-1 py-3 bg-green-500 text-white font-bold rounded-xl text-xs shadow-md hover:bg-green-600 active:scale-95 transition-transform"><i class="fas fa-check mr-1"></i>承認する</button>
-                            <button onclick="window.rejectBooking('${b.id}', '${b.date}', '${b.time}', '${tTime}')" class="flex-1 py-3 bg-gray-400 text-white font-bold rounded-xl text-xs shadow-md hover:bg-gray-500 active:scale-95 transition-transform"><i class="fas fa-times mr-1"></i>否認(枠開放)</button>
-                            <button onclick="window.sendThankYou('${b.name}')" class="w-full py-3 mt-1 bg-gradient-to-r from-[#ff7283] to-[#ff8c99] text-white font-bold rounded-xl text-xs shadow-md hover:opacity-90 active:scale-95 transition-transform"><i class="fas fa-envelope-open-text mr-1"></i>サンキューメール＆口コミ獲得</button>
-                        </div>
+                        ${actionButtonsHtml}
                     </div>
                 `;
                 
-                if(b.menu) {
+                if(b.menu && statusStr !== '否認') { // 否認されたメニューはグラフの割合から除外
                     const menus = b.menu.split(' ＋ ');
                     menus.forEach(m => {
                         menuCounts[m] = (menuCounts[m] || 0) + 1;
@@ -734,16 +757,32 @@
                         }
                     }
                 }
-                alert("否認処理が完了し、予約枠を開放しました。");
+                alert("否認処理が完了し、予約枠を開放しました。\n（このカルテは「削除」ボタンから消去可能です）");
             } catch(e) { alert("通信エラーが発生しました"); }
         };
 
-        // ★サンキューメールの文章をバージョンアップしました
-        window.sendThankYou = async (name) => {
+        // ★ 新機能：否認されたカルテの完全削除機能
+        window.deleteBooking = async (id) => {
+            if(confirm("このカルテ（予約データ）を完全に削除しますか？\n※この操作は取り消せません。")) {
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id));
+                    alert("カルテを削除しました。");
+                } catch(e) { alert("削除中にエラーが発生しました。"); }
+            }
+        };
+
+        // ★ サンキューメール送信後に「送信済みフラグ」を立てる機能
+        window.sendThankYou = async (id, name) => {
             const msg = `${name}様、先日はhair Buzlにご来店いただき誠にありがとうございました！\n\nヘアスタイルはいかがでしょうか？気になるところがあればお気軽にご連絡くださいね。\n\nもしよろしければ、今後の励みになりますので、以下のリンクからGoogleの口コミ（ご感想）をいただけると大変嬉しいです！\nhttps://g.page/r/CRSIVTj6bfhuEAE/review\n\nまたのご来店を心よりお待ちしております！`;
 
             if(confirm(`${name}様へ以下の「サンキューメール＆口コミ獲得メッセージ」を送信しますか？\n\n${msg}`)) {
-                alert(`✨ 送信完了しました！\n\n※実際にお客様のLINEやメールアドレスに送信する場合は、GAS等のバックエンド連携が必要です。（現在は表示テストのみです）`);
+                try {
+                    // データベースの「送信済み」フラグをオンにする
+                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { thankYouSent: true });
+                    alert(`✨ 送信完了しました！\n\n※実際にお客様のLINEやメールアドレスに送信する場合は、GAS等のバックエンド連携が必要です。（現在は表示テストとステータス更新のみです）`);
+                } catch(e) {
+                    alert("通信エラーが発生しました。");
+                }
             }
         };
 
