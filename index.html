@@ -407,7 +407,6 @@
             }
         };
 
-        // ★ ここでカレンダー表示直前に再計算をかけます
         window.goToStep2 = () => { 
             renderCalendar(); 
             window.changeStep(2); 
@@ -546,7 +545,6 @@
             }
         };
 
-        // ★ ここにダブルブッキング防止ロジックが追加されています
         const renderCalendar = () => {
             const body = document.getElementById('calendarBody'), head = document.getElementById('dateHeader');
             if(!body || !head) return;
@@ -554,7 +552,9 @@
             
             const dates = [];
             const today = new Date();
-            const endDate = new Date(2026, 5, 12); 
+            
+            // ★ 修正箇所：固定の日付ではなく、HPBに合わせて常に「今日から90日先」まで表示するように変更
+            const endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 90); 
 
             let currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
             while (currentDate <= endDate) {
@@ -578,7 +578,6 @@
                 head.innerHTML += `<th class="py-3 min-w-[80px] ${colorClass}"><div class="text-sm font-bold">${label}</div><div class="text-[10px]">(${dayStr})</div></th>`;
             });
 
-            // 必要な枠数を計算
             let requiredTime = 0;
             selectedMenus.forEach(m => { requiredTime += m.time; });
             const requiredSlots = requiredTime > 0 ? Math.ceil(requiredTime / 30) : 1; 
