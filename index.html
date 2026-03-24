@@ -24,11 +24,16 @@
         .fade-in-up { animation: fadeInUp 1s ease-out forwards; opacity: 0; transform: translateY(20px); }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
-        .calendar-outer-wrapper { overflow-x: auto; background: white; border: 1px solid #ddd; border-radius: 12px; position: relative; -webkit-overflow-scrolling: touch; }
+        /* ★ここを修正：overflow: autoとmax-height: 65vhを追加し、縦横両方のスクロールに対応させました */
+        .calendar-outer-wrapper { overflow: auto; max-height: 65vh; background: white; border: 1px solid #ddd; border-radius: 12px; position: relative; -webkit-overflow-scrolling: touch; }
         .hpb-table { width: max-content; min-width: 100%; border-collapse: separate; border-spacing: 0; }
         .hpb-table th, .hpb-table td { border: 0.5px solid #f0f0f0; text-align: center; height: 60px; padding: 0; position: relative; min-width: 80px; }
         .time-col { background-color: #f9f9f9 !important; width: 60px !important; min-width: 60px !important; font-weight: bold; font-size: 11px; color: #666;}
+        
+        /* ★ここを修正：左側（時間）と上側（日付）を固定するためのクラスを整備しました */
         .sticky-left { position: sticky; left: 0; z-index: 40; border-right: 2px solid #eee !important; }
+        .sticky-top { position: sticky; top: 0; z-index: 45; }
+        .sticky-corner { position: sticky; top: 0; left: 0; z-index: 50; }
         
         .status-mark { font-size: 24px; font-weight: bold; display: flex; align-items: center; justify-content: center; height: 100%; width: 100%; }
         .status-ok { color: var(--hpb-pink); cursor: pointer; background: #fff; }
@@ -548,12 +553,13 @@
         const renderCalendar = () => {
             const body = document.getElementById('calendarBody'), head = document.getElementById('dateHeader');
             if(!body || !head) return;
-            body.innerHTML = ''; head.innerHTML = '<th class="time-col sticky-left">TIME</th>';
+            
+            // ★ここを修正：一番左上の「TIME」のマスが上下左右にスクロールしても固定されるようにしました
+            body.innerHTML = ''; head.innerHTML = '<th class="time-col sticky-corner bg-gray-50 shadow-sm border-b border-gray-200">TIME</th>';
             
             const dates = [];
             const today = new Date();
             
-            // ★ 修正箇所：固定の日付ではなく、HPBに合わせて常に「今日から90日先」まで表示するように変更
             const endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 90); 
 
             let currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -564,7 +570,8 @@
 
             dates.forEach(d => {
                 if (d.getDay() === 5) {
-                    head.innerHTML += `<th class="time-col border-l-2 border-r-2 border-gray-200">TIME</th>`;
+                    // ★ここを修正：区切り線の「TIME」マスも上部に固定
+                    head.innerHTML += `<th class="time-col border-l-2 border-r-2 border-gray-200 sticky-top bg-gray-50 shadow-sm">TIME</th>`;
                 }
 
                 const label = `${d.getMonth()+1}/${d.getDate()}`;
@@ -575,7 +582,8 @@
                 if(d.getDay() === 6) colorClass = 'text-blue-500'; 
                 if(d.getDay() === 1) colorClass = 'text-red-400'; 
 
-                head.innerHTML += `<th class="py-3 min-w-[80px] ${colorClass}"><div class="text-sm font-bold">${label}</div><div class="text-[10px]">(${dayStr})</div></th>`;
+                // ★ここを修正：日付のマス自体にsticky-topと背景色をつけて上に張り付くようにしました
+                head.innerHTML += `<th class="py-3 min-w-[80px] ${colorClass} sticky-top bg-gray-50 shadow-sm border-b border-gray-200"><div class="text-sm font-bold">${label}</div><div class="text-[10px]">(${dayStr})</div></th>`;
             });
 
             let requiredTime = 0;
