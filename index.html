@@ -24,17 +24,26 @@
         .fade-in-up { animation: fadeInUp 1s ease-out forwards; opacity: 0; transform: translateY(20px); }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
-        /* ★ここを修正：overflow: autoとmax-height: 65vhを追加し、縦横両方のスクロールに対応させました */
-        .calendar-outer-wrapper { overflow: auto; max-height: 65vh; background: white; border: 1px solid #ddd; border-radius: 12px; position: relative; -webkit-overflow-scrolling: touch; }
+        /* ★ここを大幅に強化：高さを「60vh(画面の60%)」に固定し、確実に枠内でスクロールさせる */
+        .calendar-outer-wrapper { 
+            overflow: auto; 
+            height: 60vh; 
+            max-height: 600px;
+            background: white; 
+            border: 1px solid #ddd; 
+            border-radius: 12px; 
+            position: relative; 
+            -webkit-overflow-scrolling: touch; 
+        }
         .hpb-table { width: max-content; min-width: 100%; border-collapse: separate; border-spacing: 0; }
-        .hpb-table th, .hpb-table td { border: 0.5px solid #f0f0f0; text-align: center; height: 60px; padding: 0; position: relative; min-width: 80px; }
+        .hpb-table th, .hpb-table td { border: 0.5px solid #f0f0f0; text-align: center; height: 60px; padding: 0; position: relative; min-width: 80px; background-clip: padding-box; }
         .time-col { background-color: #f9f9f9 !important; width: 60px !important; min-width: 60px !important; font-weight: bold; font-size: 11px; color: #666;}
         
-        /* ★ここを修正：左側（時間）と上側（日付）を固定するためのクラスを整備しました */
-        .sticky-left { position: sticky; left: 0; z-index: 40; border-right: 2px solid #eee !important; }
-        .sticky-top { position: sticky; top: 0; z-index: 45; }
-        .sticky-corner { position: sticky; top: 0; left: 0; z-index: 50; }
-        
+        /* ★絶対に消えないようにするための強力な固定(Sticky)と影(Shadow)の設定 */
+        .sticky-top { position: sticky !important; top: 0 !important; z-index: 45 !important; background-color: #f9f9f9 !important; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .sticky-left { position: sticky !important; left: 0 !important; z-index: 40 !important; background-color: #f9f9f9 !important; box-shadow: 2px 0 4px rgba(0,0,0,0.05); }
+        .sticky-corner { position: sticky !important; top: 0 !important; left: 0 !important; z-index: 50 !important; background-color: #f9f9f9 !important; box-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+
         .status-mark { font-size: 24px; font-weight: bold; display: flex; align-items: center; justify-content: center; height: 100%; width: 100%; }
         .status-ok { color: var(--hpb-pink); cursor: pointer; background: #fff; }
         .status-ng { color: #ddd; background-color: #fafafa; cursor: not-allowed; font-size: 20px; }
@@ -412,9 +421,11 @@
             }
         };
 
+        // ★ステップ2（カレンダー）に切り替わった時、自動で画面をカレンダーにスクロールさせる
         window.goToStep2 = () => { 
             renderCalendar(); 
             window.changeStep(2); 
+            document.getElementById('step2').scrollIntoView({behavior: 'smooth'});
         };
 
         window.toggleAdminMode = (chk) => { if(chk) { document.getElementById('adminAuthModal').style.display = 'flex'; } else { isAdmin = false; document.getElementById('modeLabel').innerText='OFF'; document.getElementById('adminBookingSection').classList.add('hidden'); document.getElementById('emergencyBtn').classList.add('hidden'); document.getElementById('emergencyOverlay').style.display = isEmergencyStop ? 'flex' : 'none'; } };
@@ -467,6 +478,7 @@
                 selectedTime = timeStr;
                 document.getElementById('selectedDateTimeDisplay').innerText = `${selectedDate} ${selectedTime}〜`;
                 window.changeStep(3);
+                document.getElementById('step3').scrollIntoView({behavior: 'smooth'});
             }
         };
 
@@ -541,6 +553,7 @@
                     })
                 });
                 window.changeStep(4);
+                document.getElementById('step4').scrollIntoView({behavior: 'smooth'});
 
             } catch (error) {
                 console.error(error);
@@ -554,8 +567,8 @@
             const body = document.getElementById('calendarBody'), head = document.getElementById('dateHeader');
             if(!body || !head) return;
             
-            // ★ここを修正：一番左上の「TIME」のマスが上下左右にスクロールしても固定されるようにしました
-            body.innerHTML = ''; head.innerHTML = '<th class="time-col sticky-corner bg-gray-50 shadow-sm border-b border-gray-200">TIME</th>';
+            // ★ 一番左上（TIME）のマスも絶対に消えないようにクラスを付与
+            body.innerHTML = ''; head.innerHTML = '<th class="time-col sticky-corner">TIME</th>';
             
             const dates = [];
             const today = new Date();
@@ -570,8 +583,7 @@
 
             dates.forEach(d => {
                 if (d.getDay() === 5) {
-                    // ★ここを修正：区切り線の「TIME」マスも上部に固定
-                    head.innerHTML += `<th class="time-col border-l-2 border-r-2 border-gray-200 sticky-top bg-gray-50 shadow-sm">TIME</th>`;
+                    head.innerHTML += `<th class="time-col sticky-top">TIME</th>`;
                 }
 
                 const label = `${d.getMonth()+1}/${d.getDate()}`;
@@ -582,8 +594,8 @@
                 if(d.getDay() === 6) colorClass = 'text-blue-500'; 
                 if(d.getDay() === 1) colorClass = 'text-red-400'; 
 
-                // ★ここを修正：日付のマス自体にsticky-topと背景色をつけて上に張り付くようにしました
-                head.innerHTML += `<th class="py-3 min-w-[80px] ${colorClass} sticky-top bg-gray-50 shadow-sm border-b border-gray-200"><div class="text-sm font-bold">${label}</div><div class="text-[10px]">(${dayStr})</div></th>`;
+                // ★ 日付のマスにも上に固定されるクラス（sticky-top）を付与
+                head.innerHTML += `<th class="py-3 min-w-[80px] ${colorClass} sticky-top"><div class="text-sm font-bold">${label}</div><div class="text-[10px]">(${dayStr})</div></th>`;
             });
 
             let requiredTime = 0;
@@ -592,11 +604,13 @@
 
             timeSlots.forEach((t, tIndex) => {
                 const tr = document.createElement('tr');
+                
+                // ★ 時間の列（左端）が左に固定されるクラス（sticky-left）を付与
                 let rowHtml = `<td class="time-col sticky-left">${t}</td>`;
                 
                 dates.forEach(d => {
                     if (d.getDay() === 5) {
-                        rowHtml += `<td class="time-col border-l-2 border-r-2 border-gray-200">${t}</td>`;
+                        rowHtml += `<td class="time-col">${t}</td>`; // 途中のTIME列はスクロールで流す
                     }
 
                     const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
