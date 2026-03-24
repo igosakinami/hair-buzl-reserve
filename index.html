@@ -624,7 +624,7 @@
                     let canBook = true;
                     if (status !== 'ok') {
                         canBook = false; 
-                    } else {
+                    } else if (!isAdmin) { // ★ 【修正箇所】お客様モードの時だけ複数枠チェック（ダブルブッキング防止ガード）を有効にする
                         for (let i = 0; i < requiredSlots; i++) {
                             const checkIndex = tIndex + i;
                             
