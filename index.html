@@ -924,41 +924,39 @@ const thankYouBtnAction = isThankYouSent
             }
         };
 
-        window.sendThankYou = async (id, name, email) => {
-            // ① メールアドレスがないお客様の場合はエラーを出して止める
-            if (!email) {
-                alert(`⚠️ ${name}様はメールアドレスを登録していません。\n（LINEや電話など別の方法でご連絡ください）`);
-                return;
-            }
+        // ★ サンキューメール＆口コミ獲得の送信処理
+        window.sendThankYou = async (id, name) => {
+            // 1. カルテからお客様のメールアドレスを探し出す
+            const booking = bookingsList.find(b => b.id === id);
+            const email = booking ? booking.email : null;
 
+            // 2. 先ほど作成した最高のお礼メッセージ
             const msg = `${name}様、先日はhair Buzlにご来店いただき、本当にありがとうございました！\n\nその後、ご自宅でのスタイリングはいかがでしょうか？\n当店のこだわりである「乾かすだけで決まる髪」で、${name}様の朝の時間が少しでも楽に、そして笑顔になっていれば、美容師としてこれ以上嬉しいことはありません😊\n\nもしセットで分からないことなどがあれば、いつでも公式LINEからご相談くださいね。\n\n【大切なお願いです🙇‍♂️】\n私一人で営む小さなプライベートサロンにとって、${name}様からいただく「生の声」が何よりのモチベーションであり、宝物です。\n\nもし先日の仕上がりにご満足いただけておりましたら、お手数ですが下記のリンクからご感想（Google口コミ）をいただけないでしょうか？\n\n星のタップや、たった一言「よかった！」だけでも、飛び上がるほど嬉しいです！✨\n\n👇こちらから1分で投稿できます\nhttps://g.page/r/CRSIVTj6bfhuEAE/review\n\nこれからも${name}様の髪を一番に理解するパートナーでいられるよう技術を磨いてまいります。\nまたお会いできる日を、心よりお待ちしております！`;
 
-            if(confirm(`${name}様（${email}）へ以下のサンキューメールを送信しますか？\n\n${msg}`)) {
+            if(confirm(`${name}様へサンキューメール＆口コミ獲得メッセージを送信しますか？`)) {
                 try {
-                    // ② EmailJSの初期化（鍵は上の NOTIFICATION_CONFIG から取得）
-                    emailjs.init(NOTIFICATION_CONFIG.emailjs_public_key);
+                    // 3. メールアドレスがある場合のみ、EmailJSで発射！
+                    if (email) {
+                        await emailjs.send(
+                            NOTIFICATION_CONFIG.emailjs_service_id,
+                            "template_znaqqfl", // ★ ここで新しいサンキュー用のIDを指定！
+                            {
+                                email: email,      // 宛先（お客様のアドレス）
+                                message: msg       // あの長文メッセージを「{{message}}」に流し込む！
+                            },
+                            NOTIFICATION_CONFIG.emailjs_public_key
+                        );
+                    } else {
+                        alert("⚠️ このお客様はメールアドレスの登録がないため、システム上のステータス更新のみ行います。（公式LINE等で直接メッセージをお願いいたします！）");
+                    }
 
-                    // ③ EmailJSのテンプレートに渡すデータ（※変数名に注意！）
-                    const templateParams = {
-                        to_name: name,      // 送信先のお名前
-                        to_email: email,    // 送信先のメールアドレス
-                        message: msg        // メッセージ本文
-                    };
-
-                    // ④ メールの送信処理を実行！
-                    await emailjs.send(
-                        NOTIFICATION_CONFIG.emailjs_service_id,
-                        NOTIFICATION_CONFIG.emailjs_template_id,
-                        templateParams
-                    );
-
-                    // ⑤ 送信に成功したら、Firestoreのカルテを「送信済」に更新する
-                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { thankYouSent: true });
-                    alert(`✨ ${name}様へメールの送信が完了しました！`);
-
+                    // 4. データベースのボタンを「送信済み」に切り替える
+                    await updateDoc(doc(db, 'artifacts', 'hair-buzl-reserve', 'public', 'data', 'bookings', id), { thankYouSent: true });
+                    alert(`✨ サンキューメールの処理が完了しました！`);
+                    
                 } catch(e) {
-                    console.error("EmailJS送信エラー:", e);
-                    alert("🚨 メールの送信に失敗しました。\nEmailJSの管理画面で「テンプレートの変数名」が合っているか確認してください。");
+                    console.error("メール送信エラー", e);
+                    alert("通信エラーが発生しました。");
                 }
             }
         };
