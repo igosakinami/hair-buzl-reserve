@@ -765,9 +765,10 @@
                 const thankYouBtnText = isThankYouSent 
                     ? '<i class="fas fa-check-circle mr-1"></i>サンキューメール送信済み' 
                     : '<i class="fas fa-envelope-open-text mr-1"></i>サンキューメール＆口コミ獲得';
-                const thankYouBtnAction = isThankYouSent 
-                    ? "" 
-                    : `onclick="window.sendThankYou('${b.id}', '${b.name}')"`;
+                // ★ここを書き換えてください（メールアドレスも関数に渡すように追加）
+const thankYouBtnAction = isThankYouSent 
+    ? "" 
+    : `onclick="window.sendThankYou('${b.id}', '${b.name}', '${b.email || ''}')"`;
 
                 let actionButtonsHtml = '';
                 if (statusStr === '否認') {
@@ -899,15 +900,41 @@
             }
         };
 
-        window.sendThankYou = async (id, name) => {
+        window.sendThankYou = async (id, name, email) => {
+            // ① メールアドレスがないお客様の場合はエラーを出して止める
+            if (!email) {
+                alert(`⚠️ ${name}様はメールアドレスを登録していません。\n（LINEや電話など別の方法でご連絡ください）`);
+                return;
+            }
+
             const msg = `${name}様、先日はhair Buzlにご来店いただき誠にありがとうございました！\n\nヘアスタイルはいかがでしょうか？気になるところがあればお気軽にご連絡くださいね。\n\nもしよろしければ、今後の励みになりますので、以下のリンクからGoogleの口コミ（ご感想）をいただけると大変嬉しいです！\nhttps://g.page/r/CRSIVTj6bfhuEAE/review\n\nまたのご来店を心よりお待ちしております！`;
 
-            if(confirm(`${name}様へ以下の「サンキューメール＆口コミ獲得メッセージ」を送信しますか？\n\n${msg}`)) {
+            if(confirm(`${name}様（${email}）へ以下のサンキューメールを送信しますか？\n\n${msg}`)) {
                 try {
+                    // ② EmailJSの初期化（鍵は上の NOTIFICATION_CONFIG から取得）
+                    emailjs.init(NOTIFICATION_CONFIG.emailjs_public_key);
+
+                    // ③ EmailJSのテンプレートに渡すデータ（※変数名に注意！）
+                    const templateParams = {
+                        to_name: name,      // 送信先のお名前
+                        to_email: email,    // 送信先のメールアドレス
+                        message: msg        // メッセージ本文
+                    };
+
+                    // ④ メールの送信処理を実行！
+                    await emailjs.send(
+                        NOTIFICATION_CONFIG.emailjs_service_id,
+                        NOTIFICATION_CONFIG.emailjs_template_id,
+                        templateParams
+                    );
+
+                    // ⑤ 送信に成功したら、Firestoreのカルテを「送信済」に更新する
                     await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { thankYouSent: true });
-                    alert(`✨ 送信完了しました！\n\n※実際にお客様のLINEやメールアドレスに送信する場合は、GAS等のバックエンド連携が必要です。（現在は表示テストとステータス更新のみです）`);
+                    alert(`✨ ${name}様へメールの送信が完了しました！`);
+
                 } catch(e) {
-                    alert("通信エラーが発生しました。");
+                    console.error("EmailJS送信エラー:", e);
+                    alert("🚨 メールの送信に失敗しました。\nEmailJSの管理画面で「テンプレートの変数名」が合っているか確認してください。");
                 }
             }
         };
