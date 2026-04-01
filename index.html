@@ -619,6 +619,25 @@
                         menu: combinedMenuNames 
                     })
                 });
+                // ★ メールアドレスが入力されている場合のみ、EmailJSで自動返信メールを発射！
+                if (email) {
+                    try {
+                        await emailjs.send(
+                            NOTIFICATION_CONFIG.emailjs_service_id,
+                            NOTIFICATION_CONFIG.emailjs_template_id,
+                            {
+                                name: name,
+                                date: selectedDate,
+                                time: selectedTime,
+                                menu: combinedMenuNames,
+                                email: email
+                            },
+                            NOTIFICATION_CONFIG.emailjs_public_key
+                        );
+                    } catch (emailError) {
+                        console.error("メール送信エラー:", emailError);
+                    }
+                }
                 window.changeStep(4);
                 document.getElementById('step4').scrollIntoView({behavior: 'smooth'});
 
