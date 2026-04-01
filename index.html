@@ -330,8 +330,13 @@
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         const NOTIFICATION_CONFIG = {
-            emailjs_public_key: "zUdr_cmgl8wIxtNLw", emailjs_service_id: "service_tl9llam", emailjs_template_id: "template_ih81vlp",
-            gas_webapp_url: "https://script.google.com/macros/s/AKfycbwrCKkpF2lrRByHQ6vbVmXZxdw_U-ZbuS79-j83DtvEu9FMbFSXpY-P2nlz25xPx2JVnA/exec"
+            // ★ここを今回新しく取得した3つのIDに書き換えます
+            emailjs_public_key: "lc5Jwq9AAUj2Z175h", 
+            emailjs_service_id: "service_lbq9cl8", 
+            emailjs_template_id: "template_top1q8z",
+            
+            // ★GASのURLは現在設定されているものをそのまま使います
+            gas_webapp_url: "https://script.google.com/macros/s/AKfycbxl1N6BFwsI0x5chQglkAUrz_2oHarMDhsA8oD_jTpYPkcdGvg_1dWfdB8uxxT5XlDW/exec"
         };
         const firebaseConfig = { apiKey: "AIzaSyAZPUpUdLpbKbOJGJ6NhOiCqkqRS-tKwCQ", authDomain: "hair-buzl-reserve.firebaseapp.com", projectId: "hair-buzl-reserve", appId: "1:757183537058:web:7aeee2f1fbb4268af29cfb" };
 
